@@ -1,5 +1,5 @@
 // @ts-ignore
-import Router = require("oily-ux/Router");
+import Router = require("history-manager/Router");
 
 Router.setContext({
     name: "home",
@@ -16,12 +16,22 @@ Router.setContext({
     ],
     default: "me"
 });
+Router.setContext({
+    name: "search",
+    paths: [
+        { path: "search" }
+    ],
+    default: "search?recent"
+});
 
 document.querySelector("#restoreHome")!.addEventListener("click", () => {
     Router.restoreContext("home");
 });
 document.querySelector("#restoreProfile")!.addEventListener("click", () => {
     Router.restoreContext("profile");
+});
+document.querySelector("#restoreSearch")!.addEventListener("click", () => {
+    Router.restoreContext("search");
 });
 
 Router.route("user/:id", (location, keymap) => {
@@ -35,7 +45,7 @@ Router.create().route("/:route*", (_, keymap) => {
 });
 
 // @ts-ignore
-import NavigationLock = require("oily-ux/NavigationLock");
+import NavigationLock = require("history-manager/NavigationLock");
 
 document.querySelector("#lock")!.addEventListener("click", () => {
     NavigationLock.lock();

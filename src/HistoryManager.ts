@@ -172,6 +172,10 @@ export function addBack(backHref: string = ""): Promise<undefined> {
 let hasBack: boolean = false;
 
 let contextManager: ContextManager = new ContextManager();
+export function index(): number {
+    return contextManager.index();
+}
+
 export function setContext(context: {
     name: string,
     paths: { path: string, fallback?: boolean }[],
@@ -212,9 +216,10 @@ export function restore(context: string): void {
         if (contextManager.restore(context)) {
             let replace: boolean = previousIndex >= contextManager.index();
             workToRelease = createWork();
+            let href: string = contextManager.get()!;
             (new Promise<undefined>(resolve => {
                 onCatchPopState(resolve, true);
-                goTo(contextManager.get()!, replace);
+                goTo(href, replace);
             }))
             .then(() => new Promise<undefined>(resolve => {
                 if (hasBack && !replace) {
@@ -235,6 +240,10 @@ export function restore(context: string): void {
                 } else {
                     resolve();
                 }
+            }))
+            .then(() => new Promise(resolve => {
+                onCatchPopState(resolve, true);
+                goTo(href, true);
             }))
             .then(onlanded);
         }

@@ -6,26 +6,28 @@
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
         <meta charset="utf-8">
         
-        <title>Riot template</title>
+        <title>history-manager - test page</title>
     </head>
     <body>
         <script type="text/javascript">
             var require = {
                 paths: {
-                    "oily-ux": "../../"
+                    "history-manager": "../../"
                 },
                 baseUrl: "./scripts"
             };
         </script>
 
-        <a href="#me">me</a>
-        <a href="#user/12">user/12</a>
-        <a href="#home">home</a>
+        <a href="#me">me [PROFILE]</a><br>
+        <a href="#user/12">user/12 [PROFILE as fallback]</a><br>
+        <a href="#home">home [HOME]</a><br>
+        <a href="#search?query=test">search?query=test [SEARCH]</a><br>
 
         <div />
 
         <button id="restoreHome">Restore home</button>
         <button id="restoreProfile">Restore profile</button>
+        <button id="restoreSearch">Restore search</button>
 
         <div />
         
