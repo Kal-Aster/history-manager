@@ -1,0 +1,19 @@
+{
+  "name": "history-manager",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "requirejs": "^2.3.6",
+    "rimraf": "^3.0.2",
+    "riot": "^4.11.1",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "compile": "node ./compile.js"
+  },
+  "author": "Giuliano Collacchioni",
+  "license": "MIT"
+}
