@@ -301,11 +301,15 @@ export function start(fallbackContext: string | null = contextManager.getContext
         }
         started = true;
         href = defaultHREF;
-        onCatchPopState(() => { return; }, true);
+        workToRelease = createWork();
+        onCatchPopState(onlanded, true);
         goTo(defaultHREF, true);
     }
-    started = true;
     contextManager.insert(href);
+    if (context != null) {
+        started = true;
+        onlanded();
+    }
 }
 
 function onlanded(): void {

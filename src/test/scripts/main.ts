@@ -17,8 +17,6 @@ Router.setContext({
     default: "me"
 });
 
-Router.start("home");
-
 document.querySelector("#restoreHome")!.addEventListener("click", () => {
     Router.restoreContext("home");
 });
@@ -63,3 +61,5 @@ document.querySelector("#gotest")!.addEventListener("click", () => {
     Router.go(-3);
     Router.go(2);
 });
+
+Router.start("home");
