@@ -217,33 +217,34 @@ export function restore(context: string): void {
             let replace: boolean = previousIndex >= contextManager.index();
             workToRelease = createWork();
             let href: string = contextManager.get()!;
+            let hadBack: boolean = hasBack;
             (new Promise<undefined>(resolve => {
-                onCatchPopState(resolve, true);
-                goTo(href, replace);
-            }))
-            .then(() => new Promise<undefined>(resolve => {
-                if (hasBack && !replace) {
+                if (!replace && !hasBack) {
                     onCatchPopState(resolve, true);
-                    window.history.go(-1);
+                    goTo(href);
                 } else {
                     resolve();
                 }
             }))
             .then(() => new Promise<undefined>(resolve => {
                 let index: number = contextManager.index() - 1;
-                if (index >= 0) {
+                if (replace && !hasBack) {
+                    resolve();
+                } else {
                     addBack(contextManager.get(index)!)
                     .then(() => {
                         hasBack = true;
                         resolve();
                     });
-                } else {
-                    resolve();
                 }
             }))
             .then(() => new Promise(resolve => {
-                onCatchPopState(resolve, true);
-                goTo(href, true);
+                if (hadBack || replace) {
+                    onCatchPopState(resolve, true);
+                    goTo(href, true);
+                } else {
+                    resolve();
+                }
             }))
             .then(onlanded);
         }

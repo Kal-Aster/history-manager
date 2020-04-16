@@ -127,7 +127,6 @@ export class ContextManager {
         if (isNaN(value)) {
             throw new Error("value must be a number");
         }
-        console.log("set index to", value);
         this._index = value;
     }
     length(): number {

@@ -29,6 +29,8 @@ let dist = path.join("dist");
 if (fs.existsSync(dist)) {
     rimraf.sync(dist);
 }
+var stop = new Date().getTime();
+while (new Date().getTime() < stop + 50);
 let libPath = path.join(dist, "test", "scripts", "lib");
 {
     let current = null;
