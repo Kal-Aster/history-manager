@@ -71,5 +71,8 @@ document.querySelector("#gotest")!.addEventListener("click", () => {
     Router.go(-3);
     Router.go(2);
 });
+document.querySelector("#goreplace")!.addEventListener("click", () => {
+    Router.go("search?recent=test", { replace: true });
+});
 
 Router.start("home");

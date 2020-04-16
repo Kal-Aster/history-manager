@@ -485,7 +485,11 @@ main.go = function routerGo(path_index: string | number, options: {
             return;
         }
         if (path_index_type === "string") {
-            go(path_index as string, options.replace || false, options.emit == null ? true : options.emit);
+            go(
+                path_index as string,
+                (options && options.replace) || false,
+                (options == null || options.emit == null) ? true : options.emit
+            );
         } else {
             HistoryManager.go(path_index as number);
         }

@@ -261,13 +261,14 @@ export function assign(href: string): void {
     });
 }
 
+let replacing: boolean = false;
 export function replace(href: string): void {
     if (errorIfLocked()) {
         return;
     }
     onWorkFinished(() => {
         workToRelease = createWork();
-        goTo(href, true);
+        goTo(href, replacing = true);
     });
 }
 
@@ -412,9 +413,11 @@ function handlePopState(): void {
         if (href === backHref) {
             return onlanded();
         }
-        contextManager.insert(href);
+        let replaced: boolean = replacing;
+        replacing = false;
+        contextManager.insert(href, replaced);
         (new Promise<undefined>(resolve => {
-            if (hasBack) {
+            if (hasBack && !replaced) {
                 onCatchPopState(resolve, true);
                 window.history.go(-1);
             } else {
