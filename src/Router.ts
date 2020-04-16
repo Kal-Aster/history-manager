@@ -37,7 +37,7 @@ interface ILocation {
     parsedQuery: any;
     hasQueryParam(param: string): boolean;
     getQueryParam(param: string): string | null | undefined;
-    addQueryParam(param: string, value?: string): void;
+    addQueryParam(param: string, value: string | null): void;
     removeQueryParam(param: string): void;
     hrefIf(go: string): string;
 }
@@ -379,8 +379,9 @@ interface IMainRouter extends GenericRouter {
      * Crea un router separato dal principale
      */
     create(): GenericRouter;
-    go(path: string, replace?: boolean, emit?: boolean): void;
-    go(index: number, emit?: boolean): void;
+    setQueryParam(param: string, value: string | null | undefined, options?: { replace?: boolean, emit?: boolean }): void;
+    go(path: string, options?: { replace?: boolean, emit?: boolean }): void;
+    go(index: number, options?: { emit: boolean }): void;
     base: string;
     location: ILocation;
     /**
@@ -457,7 +458,10 @@ main.emit = function (this: IMainRouter, single: boolean = false): void {
 main.create = function (): GenericRouter {
     return new GenericRouter();
 };
-main.go = function routerGo(path_index: string | number, replace?: boolean, emit: boolean = true): void {
+main.go = function routerGo(path_index: string | number, options: {
+    emit: boolean
+    replace?: boolean,
+}): void {
     // tslint:disable-next-line: typedef
     let path_index_type = typeof path_index;
     if (path_index_type !== "string" && path_index_type !== "number") {
@@ -471,7 +475,7 @@ main.go = function routerGo(path_index: string | number, replace?: boolean, emit
             {
                 detail: {
                     direction: path_index,
-                    ...(typeof path_index === "string" ? { replace, emit } : { emit: replace != null })
+                    ...options
                 },
                 cancelable: true
             }
@@ -481,10 +485,24 @@ main.go = function routerGo(path_index: string | number, replace?: boolean, emit
             return;
         }
         if (path_index_type === "string") {
-            go(path_index as string, replace, emit);
+            go(path_index as string, options.replace || false, options.emit == null ? true : options.emit);
         } else {
             HistoryManager.go(path_index as number);
         }
+    });
+};
+main.setQueryParam = function(param: string, value: string | null | undefined, options: {
+    emit: boolean,
+    replace?: boolean
+}): void {
+    HistoryManager.onWorkFinished(() => {
+        let location: ILocation = this.location;
+        if (value === undefined) {
+            location.removeQueryParam(param);
+        } else {
+            location.addQueryParam(param, value);
+        }
+        this.go(location.href, options);
     });
 };
 main.lock = function (): Promise<NavigationLock.Lock> {
