@@ -458,34 +458,34 @@ main.create = function (): GenericRouter {
     return new GenericRouter();
 };
 main.go = function routerGo(path_index: string | number, replace?: boolean, emit: boolean = true): void {
-    // emettere l'evento "router:going" per dare la possibilità di interrompere la navigazione programmatica
-    let goingEvent: CustomEvent<{
-        direction: string | number, replace?: boolean, emit: boolean
-    }> = new CustomEvent<{ direction: string | number, replace?: boolean, emit: boolean }>(
-        "router:going",
-        {
-            detail: {
-                direction: path_index,
-                ...(typeof path_index === "string" ? { replace, emit } : { emit: replace != null })
-            },
-            cancelable: true
-        }
-    );
-    window.dispatchEvent(goingEvent);
-    if (goingEvent.defaultPrevented) {
-        return;
-    }
-    if (NavigationLock.locked()) {
-        console.warn("navigation locked");
-        return;
-    }
-    if (typeof path_index === "string") {
-        go(path_index, replace, emit);
-    } else if (typeof path_index === "number") {
-        HistoryManager.go(path_index);
-    } else {
+    // tslint:disable-next-line: typedef
+    let path_index_type = typeof path_index;
+    if (path_index_type !== "string" && path_index_type !== "number") {
         throw new Error("router.go should receive an url string or a number");
     }
+    HistoryManager.onWorkFinished(() => {
+        let goingEvent: CustomEvent<{
+            direction: string | number, replace?: boolean, emit: boolean
+        }> = new CustomEvent<{ direction: string | number, replace?: boolean, emit: boolean }>(
+            "router:going",
+            {
+                detail: {
+                    direction: path_index,
+                    ...(typeof path_index === "string" ? { replace, emit } : { emit: replace != null })
+                },
+                cancelable: true
+            }
+        );
+        window.dispatchEvent(goingEvent);
+        if (goingEvent.defaultPrevented) {
+            return;
+        }
+        if (path_index_type === "string") {
+            go(path_index as string, replace, emit);
+        } else {
+            HistoryManager.go(path_index as number);
+        }
+    });
 };
 main.lock = function (): Promise<NavigationLock.Lock> {
     return NavigationLock.lock();
