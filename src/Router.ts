@@ -195,8 +195,12 @@ function getLocation(href: string = UrlManager.get()): ILocation {
             return this.parsedQuery[param];
         },
         addQueryParam(param: string, value: string | null = null): void {
-            let query: { [key: string]: any } = { ...this.parsedQuery, [param]: value };
-            this.query = querystring.encode(query);
+            let newQuery: { [key: string]: any } = { ...this.parsedQuery, [param]: value };
+            cachedQuery = null;
+            query = querystring.encode(newQuery);
+            if (query) {
+                query = "?" + query;
+            }
         },
         removeQueryParam(param: string): void {
             if (!query) {
@@ -257,22 +261,16 @@ function onland(): void {
 }
 window.addEventListener("historylanded", onland);
 
-function go(path: string, replace: boolean = false, emit: boolean = true): void {
+function go(path: string, replace: boolean = false, emit: boolean = true): Promise<undefined> {
     if (NavigationLock.locked()) {
         console.warn("navigation locked");
-        return;
+        return new Promise((_, reject) => { reject(); });
     }
     emitRoute = emit;
-    let newLocation: string = UrlManager.construct(path);
-    if (newLocation === window.location.href) {
-        setTimeout(onland, 0);
-    } else {
-        if (replace) {
-            HistoryManager.replace(path);
-        } else {
-            HistoryManager.assign(path);
-        }
+    if (replace) {
+        return HistoryManager.replace(path);
     }
+    return HistoryManager.assign(path);
 }
 
 function _throwIfDestroyed(router: GenericRouter): void {
@@ -379,9 +377,9 @@ interface IMainRouter extends GenericRouter {
      * Crea un router separato dal principale
      */
     create(): GenericRouter;
-    setQueryParam(param: string, value: string | null | undefined, options?: { replace?: boolean, emit?: boolean }): void;
-    go(path: string, options?: { replace?: boolean, emit?: boolean }): void;
-    go(index: number, options?: { emit: boolean }): void;
+    setQueryParam(param: string, value: string | null | undefined, options?: { replace?: boolean, emit?: boolean }): Promise<undefined>;
+    go(path: string, options?: { replace?: boolean, emit?: boolean }): Promise<undefined>;
+    go(index: number, options?: { emit: boolean }): Promise<undefined>;
     base: string;
     location: ILocation;
     /**
@@ -418,7 +416,7 @@ interface IMainRouter extends GenericRouter {
         paths: { path: string, fallback?: boolean }[],
         default?: string
     }): void;
-    restoreContext(context: string, defaultHref?: string): void;
+    restoreContext(context: string, defaultHref?: string): Promise<undefined>;
     emit(single?: boolean): void;
     // start(startingContext: string, organizeHistory?: boolean): boolean;
     start(startingContext: string): void;
@@ -446,7 +444,7 @@ main.setContext = function (context: {
 main.getContext = function (href?: string): string | null {
     return HistoryManager.getContext(href);
 };
-main.restoreContext = function (context: string, defaultHref?: string): void {
+main.restoreContext = function (context: string, defaultHref?: string): Promise<undefined> {
     return HistoryManager.restore(context);
 };
 main.emit = function (this: IMainRouter, single: boolean = false): void {
@@ -461,12 +459,16 @@ main.create = function (): GenericRouter {
 main.go = function routerGo(path_index: string | number, options: {
     emit: boolean
     replace?: boolean,
-}): void {
+}): Promise<undefined> {
     // tslint:disable-next-line: typedef
     let path_index_type = typeof path_index;
     if (path_index_type !== "string" && path_index_type !== "number") {
         throw new Error("router.go should receive an url string or a number");
     }
+    let promiseResolve: () => void;
+    let promise: Promise<undefined> = new Promise(resolve => {
+        promiseResolve = resolve;
+    });
     HistoryManager.onWorkFinished(() => {
         let goingEvent: CustomEvent<{
             direction: string | number, replace?: boolean, emit: boolean
@@ -482,6 +484,7 @@ main.go = function routerGo(path_index: string | number, options: {
         );
         window.dispatchEvent(goingEvent);
         if (goingEvent.defaultPrevented) {
+            promiseResolve();
             return;
         }
         if (path_index_type === "string") {
@@ -489,16 +492,19 @@ main.go = function routerGo(path_index: string | number, options: {
                 path_index as string,
                 (options && options.replace) || false,
                 (options == null || options.emit == null) ? true : options.emit
-            );
+            ).then(promiseResolve);
         } else {
-            HistoryManager.go(path_index as number);
+            HistoryManager.go(path_index as number).then(promiseResolve);
         }
     });
+    return promise;
 };
 main.setQueryParam = function(param: string, value: string | null | undefined, options: {
     emit: boolean,
     replace?: boolean
-}): void {
+}): Promise<undefined> {
+    let promiseResolve: () => void;
+    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve;});
     HistoryManager.onWorkFinished(() => {
         let location: ILocation = this.location;
         if (value === undefined) {
@@ -506,8 +512,9 @@ main.setQueryParam = function(param: string, value: string | null | undefined, o
         } else {
             location.addQueryParam(param, value);
         }
-        this.go(location.href, options);
+        this.go(location.href, options).then(promiseResolve);
     });
+    return promise;
 };
 main.lock = function (): Promise<NavigationLock.Lock> {
     return NavigationLock.lock();

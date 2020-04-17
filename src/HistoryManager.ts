@@ -207,15 +207,18 @@ function errorIfLocked(): boolean {
 
 let workToRelease: IWork | null = null;
 
-export function restore(context: string): void {
+export function restore(context: string): Promise<undefined> {
     if (errorIfLocked()) {
-        return;
+        return new Promise((_, reject) => { reject(); });
     }
+    let promiseResolve: () => void;
+    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve;});
     onWorkFinished(() => {
         let previousIndex: number = contextManager.index();
         if (contextManager.restore(context)) {
             let replace: boolean = previousIndex >= contextManager.index();
             workToRelease = createWork();
+            onWorkFinished(promiseResolve);
             let href: string = contextManager.get()!;
             let hadBack: boolean = hasBack;
             (new Promise<undefined>(resolve => {
@@ -247,34 +250,47 @@ export function restore(context: string): void {
                 }
             }))
             .then(onlanded);
+        } else {
+            promiseResolve();
         }
     });
+    return promise;
 }
 
-export function assign(href: string): void {
+export function assign(href: string): Promise<undefined> {
     if (errorIfLocked()) {
-        return;
+        return new Promise((_, reject) => { reject(); });
     }
+    let promiseResolve: () => void;
+    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve;});
     onWorkFinished(() => {
         workToRelease = createWork();
+        onWorkFinished(promiseResolve);
         goTo(href);
     });
+    return promise;
 }
 
 let replacing: boolean = false;
-export function replace(href: string): void {
+export function replace(href: string): Promise<undefined> {
     if (errorIfLocked()) {
-        return;
+        return new Promise((_, reject) => { reject(); });
     }
+    let promiseResolve: () => void;
+    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve; })
     onWorkFinished(() => {
         workToRelease = createWork();
+        onWorkFinished(promiseResolve);
         goTo(href, replacing = true);
     });
+    return promise;
 }
 
-export function go(direction: number): void {
+export function go(direction: number): Promise<undefined> {
     if (errorIfLocked()) {
-        return;
+        return new Promise((resolve, reject) => {
+            reject();
+        });
     }
     if (direction === 0) {
         throw new Error("direction must be different than 0");
@@ -283,12 +299,15 @@ export function go(direction: number): void {
     if (isNaN(direction)) {
         throw new Error("direction must be a number");
     }
+    let promiseResolve: () => void;
+    let promise: Promise<undefined> = new Promise((resolve, reject) => { promiseResolve = resolve; });
     onWorkFinished(() => {
         let index: number = contextManager.index() + direction;
         if (index < 0 || index >= contextManager.length()) {
             return onlanded();
         }
         workToRelease = createWork();
+        onWorkFinished(promiseResolve);
         if (direction > 0) {
             contextManager.index(index - 1);
             window.history.go(1);
@@ -297,6 +316,7 @@ export function go(direction: number): void {
             window.history.go(-1);
         }
     });
+    return promise;
 }
 
 export function start(fallbackContext: string | null = contextManager.getContextNames()[0]): void {

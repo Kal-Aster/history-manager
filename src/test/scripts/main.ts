@@ -71,8 +71,19 @@ document.querySelector("#gotest")!.addEventListener("click", () => {
     Router.go(-3);
     Router.go(2);
 });
+
 document.querySelector("#goreplace")!.addEventListener("click", () => {
     Router.go("search?recent=test", { replace: true });
+});
+
+let page: number = 1;
+document.querySelector("#queryparam")!.addEventListener("click", () => {
+    if (Router.location.pathname !== "queryparam") {
+        Router.go("queryparam?filters[color]=blue,red");
+    }
+    Router.setQueryParam("page", ++page).then(() => {
+        console.log(Router.location);
+    });
 });
 
 Router.start("home");
