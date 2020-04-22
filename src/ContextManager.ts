@@ -32,6 +32,21 @@ export class ContextManager {
             this._length = this._index + 1;
         }
     }
+    currentContext(): string | null {
+        if (this._hrefs.length === 0) {
+            return null;
+        }
+        let index: number = this._index;
+        let context: string;
+        if (this._hrefs.some(([c, hrefs]) => {
+            context = c;
+            index -= hrefs.length;
+            return index < 0;
+        })) {
+            return context!;
+        }
+        return null;
+    }
     contextOf(href: string, skipFallback: boolean = true): string | null {
         let foundContext: string | null = null;
         href = href.split("#")[0].split("?")[0];

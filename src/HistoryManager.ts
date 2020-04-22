@@ -176,6 +176,10 @@ export function index(): number {
     return contextManager.index();
 }
 
+export function getHREFAt(index: number): string | null {
+    return contextManager.get(index);
+}
+
 export function setContext(context: {
     name: string,
     paths: { path: string, fallback?: boolean }[],
@@ -191,8 +195,15 @@ export function setContextDefaultHref(context: string, href: string): void {
     return contextManager.setContextDefaultHref(context, href);
 }
 
-export function getContext(href: string = URLManager.get()): string | null {
+export function getContext(href: string | null = null): string | null {
+    if (href == null) {
+        return contextManager.currentContext();
+    }
     return contextManager.contextOf(href);
+}
+
+export function getHREFs(): string[] {
+    return contextManager.hrefs();
 }
 
 function errorIfLocked(): boolean {

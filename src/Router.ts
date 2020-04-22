@@ -420,6 +420,8 @@ interface IMainRouter extends GenericRouter {
     emit(single?: boolean): void;
     // start(startingContext: string, organizeHistory?: boolean): boolean;
     start(startingContext: string): void;
+    getLocationAt(index: number): ILocation | null;
+    index(): number;
 }
 
 let main: IMainRouter = new GenericRouter() as IMainRouter;
@@ -427,6 +429,16 @@ let main: IMainRouter = new GenericRouter() as IMainRouter;
 // main.start = function (startingContext: string, organizeHistory: boolean = true): boolean {
 main.start = function (startingContext: string): void {
     return HistoryManager.start(startingContext);
+};
+main.index = function (): number {
+    return HistoryManager.index();
+};
+main.getLocationAt = function (index: number): ILocation | null {
+    let href: string | null = HistoryManager.getHREFAt(index);
+    if (href == null) {
+        return null;
+    }
+    return getLocation(href);
 };
 main.addContextPath = function (context: string, href: string, isFallback: boolean = false): RegExp {
     return HistoryManager.addContextPath(context, href, isFallback);
@@ -469,6 +481,7 @@ main.go = function routerGo(path_index: string | number, options: {
     let promise: Promise<undefined> = new Promise(resolve => {
         promiseResolve = resolve;
     });
+    options = { ...options };
     HistoryManager.onWorkFinished(() => {
         let goingEvent: CustomEvent<{
             direction: string | number, replace?: boolean, emit: boolean
@@ -494,6 +507,7 @@ main.go = function routerGo(path_index: string | number, options: {
                 (options == null || options.emit == null) ? true : options.emit
             ).then(promiseResolve);
         } else {
+            emitRoute = options.emit == null ? true : options.emit;
             HistoryManager.go(path_index as number).then(promiseResolve);
         }
     });

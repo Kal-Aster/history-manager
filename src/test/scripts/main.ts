@@ -86,4 +86,11 @@ document.querySelector("#queryparam")!.addEventListener("click", () => {
     });
 });
 
+document.querySelector("#replaceissamecontext")!.addEventListener("click", () => {
+    Router.restoreContext("profile");
+    Router.go("accedi", { replace: true }).then(() => {
+        console.log(Router.getContext());
+    });
+});
+
 Router.start("home");
