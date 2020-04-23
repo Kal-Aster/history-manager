@@ -65,8 +65,12 @@ export class ContextManager {
     }
     insert(href: string, replace: boolean = false): void {
         this.clean();
+        // console.group(`ContextManager.insert("${href}", ${replace})`);
+        // console.log(`current href: ${this.hrefs()}`);
         // get context of href
         let foundContext: string | null = this.contextOf(href, this._length > 0);
+        // console.log(`found context: ${foundContext}`);
+        let previousContext: HREFsArray[0] | null = this._hrefs.length > 0 ? this._hrefs[this._hrefs.length - 1] : null;
         if (foundContext == null) {
             if (this._hrefs.length > 0) {
                 this._hrefs[this._hrefs.length - 1][1].push(href);
@@ -97,24 +101,47 @@ export class ContextManager {
         }
         if (replace && this._hrefs.length > 0) {
             let lastContext: HREFsArray[0] = this._hrefs[this._hrefs.length - 1];
-            if (lastContext[1].length > 1) {
-                do {
-                    lastContext[1].splice(lastContext[1].length - 2, 1);
-                    this._length--;
-                    this._index--;
-                } while (
-                    lastContext[1].length > 1 &&
-                    lastContext[1][lastContext[1].length - 2] === href
-                );
+            // console.log("replacing");
+            if (previousContext != null) {
+                // console.log(`last context: ["${ previousContext[0] }", [${ previousContext[1] }] ]`);
+            } else {
+                // console.log("last context: null");
+            }
+            // console.log(`current context: ["${ lastContext[0] }", [${ lastContext[1] }]]`);
+            if (lastContext === previousContext) {
+                if (lastContext[1].length > 1) {
+                    do {
+                        lastContext[1].splice(-2, 1);
+                        this._length--;
+                        this._index--;
+                    } while (
+                        lastContext[1].length > 1 &&
+                        lastContext[1][lastContext[1].length - 2] === href
+                    );
+                    // console.log(`final hrefs: ${ lastContext[1] }`);
+                }
+            } else if (previousContext != null) {
+                previousContext[1].splice(-1, 1);
+                this._length--;
+                this._index--;
             }
         }
+        // console.groupEnd();
     }
     goBackward(): string {
+        // console.group("ContextManager.goBackward()");
+        // console.log(`current index: ${this._index}`);
         this._index = Math.max(--this._index, 0);
+        // console.log(`new index: ${this._index}`);
+        // console.groupEnd();
         return this.get()!;
     }
     goForward(): string {
+        // console.group("ContextManager.goForward()");
+        // console.log(`current index: ${this._index}`);
         this._index = Math.min(++this._index, this._length - 1);
+        // console.log(`new index: ${this._index}`);
+        // console.groupEnd();
         return this.get()!;
     }
     get(index: number = this._index): string | null {
@@ -142,7 +169,10 @@ export class ContextManager {
         if (isNaN(value)) {
             throw new Error("value must be a number");
         }
+        // console.group(`ContextManager.index(${value})`);
+        // console.log(`current hrefs: ${this.hrefs()}`);
         this._index = value;
+        // console.groupEnd();
     }
     length(): number {
         return this._length;

@@ -288,7 +288,7 @@ export function replace(href: string): Promise<undefined> {
         return new Promise((_, reject) => { reject(); });
     }
     let promiseResolve: () => void;
-    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve; })
+    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve; });
     onWorkFinished(() => {
         workToRelease = createWork();
         onWorkFinished(promiseResolve);
