@@ -12,6 +12,7 @@ let started: boolean = false;
 export interface IWork {
     finish(): void;
     beginFinish(): void;
+    askFinish(): boolean;
     readonly finishing: boolean;
     readonly finished: boolean;
     readonly locking: boolean;
@@ -71,6 +72,9 @@ function createWork(locking: boolean = false): IWork | ILock {
         },
         beginFinish(): void {
             finishing = true;
+        },
+        askFinish(): boolean {
+            return false;
         }
     };
     works.push(work);
@@ -121,12 +125,12 @@ function goTo(href: string, replace: boolean = false): void {
     }
 }
 
-export function addFront(frontHref: string = "next"): Promise<undefined> {
+export function addFront(frontHref: string = "next"): Promise<void> {
     let href: string = URLManager.get();
     let work: IWork = createWork();
     return new Promise(resolve => {
         OptionsManager.goWith(URLManager.construct(frontHref), { back: undefined, front: null })
-        .then(() => new Promise<undefined>(resolve => {
+        .then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             window.history.go(-1);
         }))
@@ -141,7 +145,7 @@ export function addFront(frontHref: string = "next"): Promise<undefined> {
     });
 }
 
-export function addBack(backHref: string = ""): Promise<undefined> {
+export function addBack(backHref: string = ""): Promise<void> {
     let href: string = URLManager.get();
     let work: IWork = createWork();
     return new Promise(resolve => {
@@ -206,24 +210,29 @@ export function getHREFs(): string[] {
     return contextManager.hrefs();
 }
 
-function errorIfLocked(): boolean {
+function tryUnlock(): number {
+    let locksAsked: number = 0;
     for (let i: number = works.length - 1; i >= 0; i--) {
         let work: IWork = works[i];
         if (work.locking && !work.finishing) {
-            return true;
+            if (!work.askFinish()) {
+                return -1;
+            }
+            locksAsked++;
         }
     }
-    return false;
+    return locksAsked;
 }
 
 let workToRelease: IWork | null = null;
 
-export function restore(context: string): Promise<undefined> {
-    if (errorIfLocked()) {
+export function restore(context: string): Promise<void> {
+    let locksFinished: number = tryUnlock();
+    if (locksFinished === -1) {
         return new Promise((_, reject) => { reject(); });
     }
     let promiseResolve: () => void;
-    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve;});
+    let promise: Promise<void> = new Promise(resolve => { promiseResolve = resolve;});
     onWorkFinished(() => {
         let previousIndex: number = contextManager.index();
         if (contextManager.restore(context)) {
@@ -232,7 +241,7 @@ export function restore(context: string): Promise<undefined> {
             onWorkFinished(promiseResolve);
             let href: string = contextManager.get()!;
             let hadBack: boolean = hasBack;
-            (new Promise<undefined>(resolve => {
+            (new Promise<void>(resolve => {
                 if (!replace && !hasBack) {
                     onCatchPopState(resolve, true);
                     goTo(href);
@@ -240,7 +249,7 @@ export function restore(context: string): Promise<undefined> {
                     resolve();
                 }
             }))
-            .then(() => new Promise<undefined>(resolve => {
+            .then(() => new Promise<void>(resolve => {
                 let index: number = contextManager.index() - 1;
                 if (replace && !hasBack) {
                     resolve();
@@ -268,12 +277,13 @@ export function restore(context: string): Promise<undefined> {
     return promise;
 }
 
-export function assign(href: string): Promise<undefined> {
-    if (errorIfLocked()) {
+export function assign(href: string): Promise<void> {
+    let locksFinished: number = tryUnlock();
+    if (locksFinished === -1) {
         return new Promise((_, reject) => { reject(); });
     }
     let promiseResolve: () => void;
-    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve;});
+    let promise: Promise<void> = new Promise(resolve => { promiseResolve = resolve;});
     onWorkFinished(() => {
         workToRelease = createWork();
         onWorkFinished(promiseResolve);
@@ -283,12 +293,13 @@ export function assign(href: string): Promise<undefined> {
 }
 
 let replacing: boolean = false;
-export function replace(href: string): Promise<undefined> {
-    if (errorIfLocked()) {
+export function replace(href: string): Promise<void> {
+    let locksFinished: number = tryUnlock();
+    if (locksFinished === -1) {
         return new Promise((_, reject) => { reject(); });
     }
     let promiseResolve: () => void;
-    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve; });
+    let promise: Promise<void> = new Promise(resolve => { promiseResolve = resolve; });
     onWorkFinished(() => {
         workToRelease = createWork();
         onWorkFinished(promiseResolve);
@@ -297,8 +308,9 @@ export function replace(href: string): Promise<undefined> {
     return promise;
 }
 
-export function go(direction: number): Promise<undefined> {
-    if (errorIfLocked()) {
+export function go(direction: number): Promise<void> {
+    let locksFinished: number = tryUnlock();
+    if (locksFinished === -1) {
         return new Promise((resolve, reject) => {
             reject();
         });
@@ -306,12 +318,15 @@ export function go(direction: number): Promise<undefined> {
     if (direction === 0) {
         throw new Error("direction must be different than 0");
     }
-    direction = parseInt(direction as any, 10);
+    direction = parseInt(direction as any, 10) + locksFinished;
     if (isNaN(direction)) {
         throw new Error("direction must be a number");
     }
+    if (direction === 0) {
+        return Promise.resolve();
+    }
     let promiseResolve: () => void;
-    let promise: Promise<undefined> = new Promise((resolve, reject) => { promiseResolve = resolve; });
+    let promise: Promise<void> = new Promise((resolve, reject) => { promiseResolve = resolve; });
     onWorkFinished(() => {
         let index: number = contextManager.index() + direction;
         if (index < 0 || index >= contextManager.length()) {
@@ -385,7 +400,7 @@ function handlePopState(): void {
         // should go forward in history
         let backHref: string = contextManager.get()!;
         let href: string = contextManager.goForward();
-        (new Promise<undefined>(resolve => {
+        (new Promise<void>(resolve => {
             if (hasBack) {
                 onCatchPopState(resolve, true);
                 window.history.go(-1);
@@ -393,12 +408,12 @@ function handlePopState(): void {
                 resolve();
             }
         }))
-        .then(() => new Promise<undefined>(resolve => {
+        .then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             goTo(href, true);
         }))
         .then(addBack.bind(null, backHref))
-        .then(() => new Promise<undefined>(resolve => {
+        .then(() => new Promise<void>(resolve => {
             if (contextManager.index() < contextManager.length() - 1) {
                 onCatchPopState(resolve, true);
                 addFront(contextManager.get(contextManager.index() + 1)!).then(resolve);
@@ -421,14 +436,14 @@ function handlePopState(): void {
         // should go backward in history
         let frontHref: string = contextManager.get()!;
         let href: string = contextManager.goBackward();
-        (new Promise<undefined>(resolve => {
+        (new Promise<void>(resolve => {
             if (contextManager.index() > 0) {
                 onCatchPopState(resolve, true);
                 window.history.go(1);
             } else {
                 resolve();
             }
-        })).then(() => new Promise<undefined>(resolve => {
+        })).then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             goTo(href, true);
         }))
@@ -447,7 +462,7 @@ function handlePopState(): void {
         let replaced: boolean = replacing;
         replacing = false;
         contextManager.insert(href, replaced);
-        (new Promise<undefined>(resolve => {
+        (new Promise<void>(resolve => {
             if (hasBack && !replaced) {
                 onCatchPopState(resolve, true);
                 window.history.go(-1);

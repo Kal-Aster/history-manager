@@ -44,71 +44,91 @@ function onCatchPopState(onCatchPopState: () => void, once: boolean = false): vo
 export function lock(): Promise<Lock> {
     let delegate: EventTarget = new EventTarget();
     let id: number = Date.now();
-    let historyLock: HistoryManager.ILock = HistoryManager.acquire();
-    let promise: Promise<Lock>;
-    let lock: Wrapper = {
-        lock: {
-            get id(): number {
-                return id;
-            },
-            listen(listener: (event: Event) => void): void {
-                delegate.addEventListener("navigation", listener);
-            },
-            unlisten(listener: (event: Event) => void): void {
-                delegate.removeEventListener("navigation", listener);
-            },
-            unlock(): void {
-                if (!locks.length || historyLock.finishing) {
-                    return;
-                }
-                promise.then(() => {
-                    if (locks[locks.length - 1].lock.id === id) {
-                        unlock();
-                    } else {
-                        locks.some((lock, index) => {
-                            if (lock.lock.id === id) {
-                                locks.splice(index, 1)[0].release();
-                            }
-                            return false;
-                        });
+    let historyLock: HistoryManager.ILock;
+    let promiseResolve: (lock: Lock) => void;
+    let promise: Promise<Lock> = new Promise<Lock>(resolve => {
+        promiseResolve = resolve;
+    });
+    HistoryManager.onWorkFinished(() => {
+        historyLock = HistoryManager.acquire();
+        let lock: Wrapper = {
+            lock: {
+                get id(): number {
+                    return id;
+                },
+                listen(listener: (event: Event) => void): void {
+                    delegate.addEventListener("navigation", listener);
+                },
+                unlisten(listener: (event: Event) => void): void {
+                    delegate.removeEventListener("navigation", listener);
+                },
+                unlock(): void {
+                    if (!locks.length || historyLock.finishing) {
+                        return;
                     }
+                    promise.then(() => {
+                        if (locks[locks.length - 1].lock.id === id) {
+                            unlock();
+                        } else {
+                            locks.some((lock, index) => {
+                                if (lock.lock.id === id) {
+                                    locks.splice(index, 1)[0].release();
+                                }
+                                return false;
+                            });
+                        }
+                    });
+                }
+            },
+            fire(): boolean {
+                let e: Event = new Event("navigation", { cancelable: true });
+                delegate.dispatchEvent(e);
+                return e.defaultPrevented;
+            },
+            release(): void {
+                historyLock.finish();
+            },
+            beginRelease(start_fn: () => void): void {
+                historyLock.beginFinish();
+                promise.then(() => {
+                    start_fn();
                 });
             }
-        },
-        fire(): boolean {
-            let e: Event = new Event("navigation", { cancelable: true });
-            delegate.dispatchEvent(e);
-            return e.defaultPrevented;
-        },
-        release(): void {
-            historyLock.finish();
-        },
-        beginRelease(start_fn: () => void): void {
-            historyLock.beginFinish();
-            promise.then(() => {
-                start_fn();
-            });
-        }
-    };
-    locks.push(lock);
-    return promise = new Promise<Lock>(resolve => {
+        };
+        historyLock.askFinish = () => {
+            if (!lock.fire()) {
+                return false;
+            }
+            lock.lock.unlock();
+            return true;
+        };
+        locks.push(lock);
+
         OptionsManager.goWith(
             OptionsManager.clearHref(),
             { ...OptionsManager.get(), locked: lock.lock.id }
         ).then(() => {
-            resolve(lock.lock);
+            promiseResolve(lock.lock);
         });
     });
+    return promise;
 }
 
-export function unlock(): void {
+export function unlock(force: boolean = true): boolean {
     let wrapper: Wrapper = locks.splice(locks.length - 1, 1)[0];
+    if (wrapper == null) {
+        return true;
+    }
+    if (!force && !wrapper.fire()) {
+        return false;
+    }
     wrapper.beginRelease(() => {
         onCatchPopState(() => {
             wrapper.release();
         }, true);
         window.history.go(-1);
     });
+    return true;
 }
 
 export function locked(): boolean {

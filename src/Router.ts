@@ -261,16 +261,12 @@ function onland(): void {
 }
 window.addEventListener("historylanded", onland);
 
-function go(path: string, replace: boolean = false, emit: boolean = true): Promise<undefined> {
-    if (NavigationLock.locked()) {
-        console.warn("navigation locked");
-        return new Promise((_, reject) => { reject(); });
-    }
+function go(path: string, replace: boolean = false, emit: boolean = true): Promise<void | undefined> {
+    let lastEmitRoute: boolean = emitRoute;
     emitRoute = emit;
-    if (replace) {
-        return HistoryManager.replace(path);
-    }
-    return HistoryManager.assign(path);
+    return (replace ? HistoryManager.replace(path) : HistoryManager.assign(path)).catch(() => {
+        emitRoute = lastEmitRoute;
+    });
 }
 
 function _throwIfDestroyed(router: GenericRouter): void {
@@ -389,7 +385,7 @@ interface IMainRouter extends GenericRouter {
     /**
      * Sblocca la navigazione
      */
-    unlock(): void;
+    unlock(force?: boolean): boolean;
     locked: boolean;
     getContext(href?: string): string | null;
     /**
@@ -477,12 +473,9 @@ main.go = function routerGo(path_index: string | number, options: {
     if (path_index_type !== "string" && path_index_type !== "number") {
         throw new Error("router.go should receive an url string or a number");
     }
-    let promiseResolve: () => void;
-    let promise: Promise<undefined> = new Promise(resolve => {
-        promiseResolve = resolve;
-    });
+    // let promiseResolve: () => void;
     options = { ...options };
-    HistoryManager.onWorkFinished(() => {
+    return new Promise((promiseResolve: () => void, promiseReject: () => void) => {
         let goingEvent: CustomEvent<{
             direction: string | number, replace?: boolean, emit: boolean
         }> = new CustomEvent<{ direction: string | number, replace?: boolean, emit: boolean }>(
@@ -497,7 +490,7 @@ main.go = function routerGo(path_index: string | number, options: {
         );
         window.dispatchEvent(goingEvent);
         if (goingEvent.defaultPrevented) {
-            promiseResolve();
+            promiseReject();
             return;
         }
         if (path_index_type === "string") {
@@ -507,11 +500,13 @@ main.go = function routerGo(path_index: string | number, options: {
                 (options == null || options.emit == null) ? true : options.emit
             ).then(promiseResolve);
         } else {
+            let lastEmitRoute: boolean = emitRoute;
             emitRoute = options.emit == null ? true : options.emit;
-            HistoryManager.go(path_index as number).then(promiseResolve);
+            HistoryManager.go(path_index as number).then(promiseResolve, () => {
+                emitRoute = lastEmitRoute;
+            });
         }
     });
-    return promise;
 };
 main.setQueryParam = function(param: string, value: string | null | undefined, options: {
     emit: boolean,
@@ -533,8 +528,8 @@ main.setQueryParam = function(param: string, value: string | null | undefined, o
 main.lock = function (): Promise<NavigationLock.Lock> {
     return NavigationLock.lock();
 };
-main.unlock = function (): void {
-    return NavigationLock.unlock();
+main.unlock = function (force: boolean = true): boolean {
+    return NavigationLock.unlock(force);
 };
 main.destroy = function (): void {
     throw new Error("cannot destroy main Router");
