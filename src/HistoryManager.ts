@@ -461,6 +461,7 @@ function handlePopState(): void {
         }
         let replaced: boolean = replacing;
         replacing = false;
+        let willHaveBack: boolean = hasBack || !replaced;
         contextManager.insert(href, replaced);
         (new Promise<void>(resolve => {
             if (hasBack && !replaced) {
@@ -470,13 +471,18 @@ function handlePopState(): void {
                 resolve();
             }
         }))
-        .then(addBack.bind(null, backHref))
+        .then(() => {
+            if (replaced) {
+                return Promise.resolve();
+            }
+            return addBack(backHref);
+        })
         .then(() => new Promise(resolve => {
             onCatchPopState(resolve, true);
             goTo(href, true);
         }))
         .then(() => {
-            hasBack = true;
+            hasBack = willHaveBack;
             onlanded();
         });
     }
