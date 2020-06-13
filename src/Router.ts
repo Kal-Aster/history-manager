@@ -8,7 +8,7 @@ import querystring = require("./lib/querystring");
 import HistoryManager = require("./HistoryManager");
 import NavigationLock = require("./NavigationLock");
 import PathGenerator = require("./PathGenerator");
-import UrlManager = require("./UrlManager");
+import URLManager = require("./URLManager");
 
 const ROUTES: unique symbol = Symbol("routes");
 const REDIRECTIONS: unique symbol = Symbol("redirections");
@@ -56,7 +56,7 @@ interface IRedirectionRoute {
 }
 let routers: Array<GenericRouter> = [];
 
-function getLocation(href: string = UrlManager.get()): ILocation {
+function getLocation(href: string = URLManager.get()): ILocation {
     let pathname: string = "";
     let hash: string = "";
     let query: string = "";
@@ -412,7 +412,7 @@ interface IMainRouter extends GenericRouter {
         paths: { path: string, fallback?: boolean }[],
         default?: string
     }): void;
-    restoreContext(context: string, defaultHref?: string): Promise<undefined>;
+    restoreContext(context: string, defaultHref?: string): Promise<void>;
     emit(single?: boolean): void;
     // start(startingContext: string, organizeHistory?: boolean): boolean;
     start(startingContext: string): void;
@@ -452,7 +452,7 @@ main.setContext = function (context: {
 main.getContext = function (href?: string): string | null {
     return HistoryManager.getContext(href);
 };
-main.restoreContext = function (context: string, defaultHref?: string): Promise<undefined> {
+main.restoreContext = function (context: string, defaultHref?: string): Promise<void> {
     return HistoryManager.restore(context);
 };
 main.emit = function (this: IMainRouter, single: boolean = false): void {
@@ -536,10 +536,10 @@ main.destroy = function (): void {
 };
 Object.defineProperty(main, "base", {
     get: () => {
-        return UrlManager.base();
+        return URLManager.base();
     },
     set: newBase => {
-        UrlManager.base(newBase.replace(/[\/]+$/, ""));
+        URLManager.base(newBase.replace(/[\/]+$/, ""));
         emit();
     },
     configurable: false
