@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <meta charset="utf-8">
+        
+        <title>history-manager - test page</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var require = {
+                paths: {
+                    "history-manager": "../../"
+                },
+                baseUrl: "./scripts"
+            };
+        </script>
+
+        <a href="#me">me [PROFILE]</a><br>
+        <a href="#user/12">user/12 [PROFILE as fallback]</a><br>
+        <a href="#home">home [HOME]</a><br>
+        <a href="#search?query=test">search?query=test [SEARCH]</a><br>
+
+        <div />
+
+        <button id="restoreHome">Restore home</button>
+        <button id="restoreProfile">Restore profile</button>
+        <button id="restoreSearch">Restore search</button>
+
+        <div />
+        
+        <button id="lock">Lock</button>
+        <button id="weakLock">Lock weakly</button>
+        <button id="unlock">Unlock</button>
+
+        <div />
+        
+        <button id="locktest">Lock test</button>
+        <button id="gotest">Go test</button>
+
+        <div />
+
+        <button id="goreplace">Replace with search?recent=test</button>
+
+        <div />
+        
+        <button id="queryparam">Set query param test</button>
+
+        <div />
+
+        <button id="replaceissamecontext">Replace is same context?</button>
+        
+        <script data-main="main.js" src="scripts/lib/require.js"></script>
+    </body>
+</html>

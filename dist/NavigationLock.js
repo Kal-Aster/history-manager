@@ -1,0 +1,165 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "./OptionsManager", "./HistoryManager"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var OptionsManager = require("./OptionsManager");
+    var HistoryManager = require("./HistoryManager");
+    var locks = [];
+    var catchPopState = null;
+    window.addEventListener("popstate", function (event) {
+        if (catchPopState == null) {
+            return handlePopState();
+        }
+        event.stopImmediatePropagation();
+        catchPopState();
+    }, true);
+    function onCatchPopState(onCatchPopState, once) {
+        if (once === void 0) { once = false; }
+        if (once) {
+            var tmpOnCatchPopState_1 = onCatchPopState;
+            onCatchPopState = function () {
+                catchPopState = null;
+                tmpOnCatchPopState_1();
+            };
+        }
+        catchPopState = onCatchPopState;
+    }
+    function lock() {
+        var delegate = new EventTarget();
+        var id = Date.now();
+        var historyLock;
+        var promiseResolve;
+        var promise = new Promise(function (resolve) {
+            promiseResolve = resolve;
+        });
+        HistoryManager.onWorkFinished(function () {
+            historyLock = HistoryManager.acquire();
+            var lock = {
+                lock: {
+                    get id() {
+                        return id;
+                    },
+                    listen: function (listener) {
+                        delegate.addEventListener("navigation", listener);
+                    },
+                    unlisten: function (listener) {
+                        delegate.removeEventListener("navigation", listener);
+                    },
+                    unlock: function () {
+                        if (!locks.length || historyLock.finishing) {
+                            return;
+                        }
+                        promise.then(function () {
+                            if (locks[locks.length - 1].lock.id === id) {
+                                unlock();
+                            }
+                            else {
+                                locks.some(function (lock, index) {
+                                    if (lock.lock.id === id) {
+                                        locks.splice(index, 1)[0].release();
+                                    }
+                                    return false;
+                                });
+                            }
+                        });
+                    }
+                },
+                fire: function () {
+                    var e = new Event("navigation", { cancelable: true });
+                    delegate.dispatchEvent(e);
+                    return e.defaultPrevented;
+                },
+                release: function () {
+                    historyLock.finish();
+                },
+                beginRelease: function (start_fn) {
+                    historyLock.beginFinish();
+                    promise.then(function () {
+                        start_fn();
+                    });
+                }
+            };
+            historyLock.askFinish = function () {
+                if (!lock.fire()) {
+                    return false;
+                }
+                lock.lock.unlock();
+                return true;
+            };
+            locks.push(lock);
+            OptionsManager.goWith(OptionsManager.clearHref(), __assign(__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
+                promiseResolve(lock.lock);
+            });
+        });
+        return promise;
+    }
+    exports.lock = lock;
+    function unlock(force) {
+        if (force === void 0) { force = true; }
+        var wrapper = locks.splice(locks.length - 1, 1)[0];
+        if (wrapper == null) {
+            return true;
+        }
+        if (!force && !wrapper.fire()) {
+            return false;
+        }
+        wrapper.beginRelease(function () {
+            onCatchPopState(function () {
+                wrapper.release();
+            }, true);
+            window.history.go(-1);
+        });
+        return true;
+    }
+    exports.unlock = unlock;
+    function locked() {
+        return locks.length > 0;
+    }
+    exports.locked = locked;
+    var shouldUnlock = false;
+    function handlePopState() {
+        if (locks.length === 0) {
+            return;
+        }
+        var lockId = parseInt(OptionsManager.get().locked, 10);
+        if (isNaN(lockId)) {
+            shouldUnlock = true;
+            window.history.go(1);
+        }
+        else {
+            var lock_1 = locks[locks.length - 1];
+            if (lockId === lock_1.lock.id) {
+                if (shouldUnlock && lock_1.fire()) {
+                    unlock();
+                }
+                shouldUnlock = false;
+                return;
+            }
+            else if (lockId > lock_1.lock.id) {
+                window.history.go(-1);
+            }
+            else {
+                shouldUnlock = true;
+                window.history.go(1);
+            }
+        }
+    }
+});
