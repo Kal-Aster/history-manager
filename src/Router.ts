@@ -2,8 +2,8 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import pathToRegexp = require("./lib/path-to-regexp");
-import querystring = require("./lib/querystring");
+import pathToRegexp = require("path-to-regexp");
+import querystring = require("querystring");
 
 import HistoryManager = require("./HistoryManager");
 import NavigationLock = require("./NavigationLock");

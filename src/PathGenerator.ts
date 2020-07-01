@@ -2,7 +2,7 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import pathToRegexp = require("./lib/path-to-regexp");
+import pathToRegexp = require("path-to-regexp");
 
 const LEADING_DELIMITER: RegExp = /^[\\\/]+/;
 const TRAILING_DELIMITER: RegExp = /[\\\/]+$/;

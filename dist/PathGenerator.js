@@ -4,12 +4,12 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./lib/path-to-regexp"], factory);
+        define(["require", "exports", "path-to-regexp"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var pathToRegexp = require("./lib/path-to-regexp");
+    var pathToRegexp = require("path-to-regexp");
     var LEADING_DELIMITER = /^[\\\/]+/;
     var TRAILING_DELIMITER = /[\\\/]+$/;
     var DELIMITER_NOT_IN_PARENTHESES = /[\\\/]+(?![^(]*[)])/g;

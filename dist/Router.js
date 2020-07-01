@@ -15,12 +15,12 @@ var __assign = (this && this.__assign) || function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./lib/querystring", "./HistoryManager", "./NavigationLock", "./PathGenerator", "./URLManager"], factory);
+        define(["require", "exports", "querystring", "./HistoryManager", "./NavigationLock", "./PathGenerator", "./URLManager"], factory);
     }
 })(function (require, exports) {
     "use strict";
     var _a, _b, _c;
-    var querystring = require("./lib/querystring");
+    var querystring = require("querystring");
     var HistoryManager = require("./HistoryManager");
     var NavigationLock = require("./NavigationLock");
     var PathGenerator = require("./PathGenerator");

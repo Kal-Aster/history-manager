@@ -20,12 +20,12 @@ var __read = (this && this.__read) || function (o, n) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./lib/querystring"], factory);
+        define(["require", "exports", "querystring"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var querystring = require("./lib/querystring");
+    var querystring = require("querystring");
     var DIVIDER = "#R!:";
     var catchPopState = null;
     window.addEventListener("popstate", function (event) {

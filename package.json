@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "path-to-regexp": "^6.1.0",
+    "querystring": "^0.2.0",
+    "requirejs": "^2.3.6"
+  },
+  "devDependencies": {
+    "@riotjs/compiler": "^4.9.2",
     "fs": "^0.0.1-security",
+    "ncp": "^2.0.0",
     "path": "^0.12.7",
-    "requirejs": "^2.3.6",
     "rimraf": "^3.0.2",
-    "riot": "^4.11.1",
     "typescript": "^3.8.3"
   },
-  "devDependencies": {},
   "scripts": {
     "compile": "node ./compile.js"
   },

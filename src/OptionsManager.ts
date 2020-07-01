@@ -2,7 +2,7 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import querystring = require("./lib/querystring");
+import querystring = require("querystring");
 
 const DIVIDER: string = "#R!:";
 
