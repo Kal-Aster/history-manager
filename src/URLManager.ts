@@ -2,8 +2,8 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import OptionsManager = require("./OptionsManager");
-import PathGenerator = require("./PathGenerator");
+import * as OptionsManager from "./OptionsManager";
+import * as PathGenerator from "./PathGenerator";
 
 let BASE: string = window.location.href.split("#")[0] + "#";
 

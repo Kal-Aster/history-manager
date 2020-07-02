@@ -1,42 +1,5 @@
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./PathGenerator"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var PathGenerator = require("./PathGenerator");
+define(['exports', './tslib.es6-ee56af75', './PathGenerator-2df3f407', './OptionsManager-0057cf14'], function (exports, tslib_es6, PathGenerator, OptionsManager) { 'use strict';
+
     var ContextManager = (function () {
         function ContextManager() {
             this._contexts = new Map();
@@ -73,7 +36,7 @@ var __values = (this && this.__values) || function(o) {
             var index = this._index;
             var context;
             if (this._hrefs.some(function (_a) {
-                var _b = __read(_a, 2), c = _b[0], hrefs = _b[1];
+                var _b = tslib_es6.__read(_a, 2), c = _b[0], hrefs = _b[1];
                 context = c;
                 index -= hrefs.length;
                 return index < 0;
@@ -88,8 +51,8 @@ var __values = (this && this.__values) || function(o) {
             var foundContext = null;
             href = href.split("#")[0].split("?")[0];
             try {
-                for (var _b = __values(this._contexts.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var _d = __read(_c.value, 2), context = _d[0], _e = __read(_d[1], 1), hrefs = _e[0];
+                for (var _b = tslib_es6.__values(this._contexts.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var _d = tslib_es6.__read(_c.value, 2), context = _d[0], _e = tslib_es6.__read(_d[1], 1), hrefs = _e[0];
                     if (hrefs.some(function (c_href) {
                         if (c_href.fallback && skipFallback) {
                             return false;
@@ -147,10 +110,6 @@ var __values = (this && this.__values) || function(o) {
             }
             if (replace && this._hrefs.length > 0) {
                 var lastContext = this._hrefs[this._hrefs.length - 1];
-                if (previousContext != null) {
-                }
-                else {
-                }
                 if (lastContext === previousContext) {
                     if (lastContext[1].length > 1) {
                         do {
@@ -180,7 +139,7 @@ var __values = (this && this.__values) || function(o) {
             if (index === void 0) { index = this._index; }
             var href;
             if (this._hrefs.some(function (_a) {
-                var _b = __read(_a, 2), c = _b[0], hrefs = _b[1];
+                var _b = tslib_es6.__read(_a, 2), c = _b[0], hrefs = _b[1];
                 var length = hrefs.length;
                 if (index >= length) {
                     index -= length;
@@ -290,12 +249,56 @@ var __values = (this && this.__values) || function(o) {
         ContextManager.prototype.hrefs = function () {
             var hrefs = [];
             this._hrefs.forEach(function (_a) {
-                var _b = __read(_a, 2), c = _b[0], c_hrefs = _b[1];
+                var _b = tslib_es6.__read(_a, 2), c = _b[0], c_hrefs = _b[1];
                 hrefs.push.apply(hrefs, c_hrefs);
             });
             return hrefs;
         };
         return ContextManager;
     }());
+
+    var ContextManager$1 = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        ContextManager: ContextManager
+    });
+
+    var BASE = window.location.href.split("#")[0] + "#";
+    function base(value) {
+        if (value != null) {
+            BASE = value;
+        }
+        return BASE;
+    }
+    function get() {
+        return PathGenerator.prepare(OptionsManager.clearHref().split(BASE).slice(1).join(BASE));
+    }
+    function construct(href) {
+        switch (href[0]) {
+            case "?": {
+                href = get().split("?")[0] + href;
+                break;
+            }
+            case "#": {
+                href = get().split("#")[0] + href;
+                break;
+            }
+        }
+        return BASE + href;
+    }
+
+    var URLManager = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        base: base,
+        get: get,
+        construct: construct
+    });
+
     exports.ContextManager = ContextManager;
+    exports.ContextManager$1 = ContextManager$1;
+    exports.URLManager = URLManager;
+    exports.base = base;
+    exports.construct = construct;
+    exports.get = get;
+
 });
+//# sourceMappingURL=URLManager-69096fec.js.map

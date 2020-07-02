@@ -1,33 +1,5 @@
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./OptionsManager", "./URLManager", "./ContextManager"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var OptionsManager = require("./OptionsManager");
-    var URLManager = require("./URLManager");
-    var ContextManager_1 = require("./ContextManager");
+define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407', './URLManager-69096fec', './index-271cf777', './OptionsManager-0057cf14'], function (exports, tslib_es6, index$1, PathGenerator, URLManager, index$2, OptionsManager) { 'use strict';
+
     var started = false;
     var works = [];
     var onworkfinished = [];
@@ -38,7 +10,6 @@ var __read = (this && this.__read) || function (o, n) {
         }
         onworkfinished.push([callback, context || null]);
     }
-    exports.onWorkFinished = onWorkFinished;
     function createWork(locking) {
         if (locking === void 0) { locking = false; }
         var finished = false;
@@ -68,7 +39,7 @@ var __read = (this && this.__read) || function (o, n) {
                 }
                 if (i >= 0 && works.length === 0) {
                     while (onworkfinished.length > 0 && works.length === 0) {
-                        var _a = __read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
+                        var _a = tslib_es6.__read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
                         callback.call(context || window);
                     }
                 }
@@ -87,7 +58,6 @@ var __read = (this && this.__read) || function (o, n) {
         var lock = createWork(true);
         return lock;
     }
-    exports.acquire = acquire;
     function isLocked() {
         return works.some(function (w) { return w.locking; });
     }
@@ -148,7 +118,6 @@ var __read = (this && this.__read) || function (o, n) {
             });
         });
     }
-    exports.addFront = addFront;
     function addBack(backHref) {
         if (backHref === void 0) { backHref = ""; }
         var href = URLManager.get();
@@ -178,30 +147,24 @@ var __read = (this && this.__read) || function (o, n) {
             });
         });
     }
-    exports.addBack = addBack;
     var hasBack = false;
-    var contextManager = new ContextManager_1.ContextManager();
+    var contextManager = new URLManager.ContextManager();
     function index() {
         return contextManager.index();
     }
-    exports.index = index;
     function getHREFAt(index) {
         return contextManager.get(index);
     }
-    exports.getHREFAt = getHREFAt;
     function setContext(context) {
         return contextManager.setContext(context);
     }
-    exports.setContext = setContext;
     function addContextPath(context, href, isFallback) {
         if (isFallback === void 0) { isFallback = false; }
         return contextManager.addContextPath(context, href, isFallback);
     }
-    exports.addContextPath = addContextPath;
     function setContextDefaultHref(context, href) {
         return contextManager.setContextDefaultHref(context, href);
     }
-    exports.setContextDefaultHref = setContextDefaultHref;
     function getContext(href) {
         if (href === void 0) { href = null; }
         if (href == null) {
@@ -209,11 +172,9 @@ var __read = (this && this.__read) || function (o, n) {
         }
         return contextManager.contextOf(href);
     }
-    exports.getContext = getContext;
     function getHREFs() {
         return contextManager.hrefs();
     }
-    exports.getHREFs = getHREFs;
     function tryUnlock() {
         var locksAsked = 0;
         for (var i = works.length - 1; i >= 0; i--) {
@@ -282,7 +243,6 @@ var __read = (this && this.__read) || function (o, n) {
         });
         return promise;
     }
-    exports.restore = restore;
     function assign(href) {
         var locksFinished = tryUnlock();
         if (locksFinished === -1) {
@@ -297,7 +257,6 @@ var __read = (this && this.__read) || function (o, n) {
         });
         return promise;
     }
-    exports.assign = assign;
     var replacing = false;
     function replace(href) {
         var locksFinished = tryUnlock();
@@ -313,7 +272,6 @@ var __read = (this && this.__read) || function (o, n) {
         });
         return promise;
     }
-    exports.replace = replace;
     function go(direction) {
         var locksFinished = tryUnlock();
         if (locksFinished === -1) {
@@ -351,7 +309,6 @@ var __read = (this && this.__read) || function (o, n) {
         });
         return promise;
     }
-    exports.go = go;
     function start(fallbackContext) {
         if (fallbackContext === void 0) { fallbackContext = contextManager.getContextNames()[0]; }
         var href = URLManager.get();
@@ -376,7 +333,6 @@ var __read = (this && this.__read) || function (o, n) {
             onlanded();
         }
     }
-    exports.start = start;
     function onlanded() {
         window.dispatchEvent(new Event("historylanded"));
         if (workToRelease != null) {
@@ -497,4 +453,25 @@ var __read = (this && this.__read) || function (o, n) {
             });
         }
     }
+
+    exports.acquire = acquire;
+    exports.addBack = addBack;
+    exports.addContextPath = addContextPath;
+    exports.addFront = addFront;
+    exports.assign = assign;
+    exports.getContext = getContext;
+    exports.getHREFAt = getHREFAt;
+    exports.getHREFs = getHREFs;
+    exports.go = go;
+    exports.index = index;
+    exports.onWorkFinished = onWorkFinished;
+    exports.replace = replace;
+    exports.restore = restore;
+    exports.setContext = setContext;
+    exports.setContextDefaultHref = setContextDefaultHref;
+    exports.start = start;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
 });
+//# sourceMappingURL=HistoryManager.js.map

@@ -2,7 +2,7 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import querystring = require("querystring");
+import * as qs from "query-string";
 
 const DIVIDER: string = "#R!:";
 
@@ -66,14 +66,14 @@ function optsToStr(opts: Options): string {
             filteredOpts[key] = value;
         }
     });
-    return querystring.encode(filteredOpts);
+    return qs.stringify(filteredOpts);
 }
 
 /**
  * Gets the options stored in the url
  */
 export function get(): Options {
-    return querystring.decode(splitHref()[1]);
+    return qs.parse(splitHref()[1]);
 }
 /**
  * Sets the options

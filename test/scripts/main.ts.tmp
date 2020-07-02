@@ -1,5 +1,7 @@
-// @ts-ignore
-import Router = require("history-manager/Router");
+import * as Router from "../../dist/module.amd/Router";
+import * as NavigationLock from "../../dist/module.amd/NavigationLock";
+
+console.log(Router);
 
 Router.setContext({
     name: "home",
@@ -43,9 +45,6 @@ Router.route("/(.*)*", (location) => {
 Router.create().route("/:route*", (_, keymap) => {
     console.log("landed with", keymap);
 });
-
-// @ts-ignore
-import NavigationLock = require("history-manager/NavigationLock");
 
 document.querySelector("#lock")!.addEventListener("click", () => {
     NavigationLock.lock();

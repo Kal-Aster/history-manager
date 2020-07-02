@@ -1,27 +1,5 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./OptionsManager", "./HistoryManager"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var OptionsManager = require("./OptionsManager");
-    var HistoryManager = require("./HistoryManager");
+define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407', './URLManager-69096fec', './index-271cf777', './OptionsManager-0057cf14', './HistoryManager-3e85125d'], function (exports, tslib_es6, index$1, PathGenerator, URLManager, index$2, OptionsManager, HistoryManager) { 'use strict';
+
     var locks = [];
     var catchPopState = null;
     window.addEventListener("popstate", function (event) {
@@ -105,13 +83,12 @@ var __assign = (this && this.__assign) || function () {
                 return true;
             };
             locks.push(lock);
-            OptionsManager.goWith(OptionsManager.clearHref(), __assign(__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
+            OptionsManager.goWith(OptionsManager.clearHref(), tslib_es6.__assign(tslib_es6.__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
                 promiseResolve(lock.lock);
             });
         });
         return promise;
     }
-    exports.lock = lock;
     function unlock(force) {
         if (force === void 0) { force = true; }
         var wrapper = locks.splice(locks.length - 1, 1)[0];
@@ -129,11 +106,9 @@ var __assign = (this && this.__assign) || function () {
         });
         return true;
     }
-    exports.unlock = unlock;
     function locked() {
         return locks.length > 0;
     }
-    exports.locked = locked;
     var shouldUnlock = false;
     function handlePopState() {
         if (locks.length === 0) {
@@ -162,4 +137,12 @@ var __assign = (this && this.__assign) || function () {
             }
         }
     }
+
+    exports.lock = lock;
+    exports.locked = locked;
+    exports.unlock = unlock;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
 });
+//# sourceMappingURL=NavigationLock.js.map

@@ -2,8 +2,8 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import OptionsManager = require("./OptionsManager");
-import HistoryManager = require("./HistoryManager");
+import * as OptionsManager from "./OptionsManager";
+import * as HistoryManager from "./HistoryManager";
 
 export type Lock = {
     readonly id: number,

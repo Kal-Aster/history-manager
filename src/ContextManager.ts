@@ -1,4 +1,4 @@
-import PathGenerator = require("./PathGenerator");
+import * as PathGenerator from "./PathGenerator";
 
 export class ContextManager {
     private _contexts: ContextsMap = new Map();

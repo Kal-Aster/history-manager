@@ -2,26 +2,26 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import pathToRegexp = require("path-to-regexp");
-import querystring = require("querystring");
+import { Key} from "path-to-regexp";
+import * as qs from "query-string";
 
-import HistoryManager = require("./HistoryManager");
-import NavigationLock = require("./NavigationLock");
-import PathGenerator = require("./PathGenerator");
-import URLManager = require("./URLManager");
+import * as HistoryManager from "./HistoryManager";
+import * as NavigationLock from "./NavigationLock";
+import * as PathGenerator from "./PathGenerator";
+import * as URLManager from "./URLManager";
 
 const ROUTES: unique symbol = Symbol("routes");
 const REDIRECTIONS: unique symbol = Symbol("redirections");
 const DESTROYED: unique symbol = Symbol("destroyed");
 
-type KeyMap = Map<string, any>;
+export type KeyMap = Map<string, any>;
 
 /**
  * Genera una Map avendo le chiavi e i valori associati in due liste separate
  * @param keys
  * @param values
  */
-function KeyMapFrom(keys: Array<pathToRegexp.Key>, values: any[]): Map<string, any> {
+function KeyMapFrom(keys: Array<Key>, values: any[]): Map<string, any> {
     let map: Map<string, any> = new Map();
     keys.forEach((key, index) => {
         map.set(key.name.toString(), values[index]);
@@ -29,7 +29,7 @@ function KeyMapFrom(keys: Array<pathToRegexp.Key>, values: any[]): Map<string, a
     return map;
 }
 
-interface ILocation {
+export interface ILocation {
     href: string;
     pathname: string;
     hash: string;
@@ -41,22 +41,22 @@ interface ILocation {
     removeQueryParam(param: string): void;
     hrefIf(go: string): string;
 }
-interface IRouteCallback {
+export interface IRouteCallback {
     (location: ILocation, keymap: KeyMap, redirection: { location: ILocation, keymap: KeyMap } | null): void;
 }
 interface IRoute {
     regex: RegExp;
-    keys: Array<pathToRegexp.Key>;
+    keys: Array<Key>;
     callback: IRouteCallback;
 }
 interface IRedirectionRoute {
     regex: RegExp;
-    keys: Array<pathToRegexp.Key>;
+    keys: Array<Key>;
     redirection: string;
 }
 let routers: Array<GenericRouter> = [];
 
-function getLocation(href: string = URLManager.get()): ILocation {
+export function getLocation(href: string = URLManager.get()): ILocation {
     let pathname: string = "";
     let hash: string = "";
     let query: string = "";
@@ -178,7 +178,7 @@ function getLocation(href: string = URLManager.get()): ILocation {
                 return {};
             }
             if (!cachedQuery) {
-                cachedQuery = querystring.decode(query.replace(/^\?/, ""));
+                cachedQuery = qs.parse(query.replace(/^\?/, ""));
             }
             return cachedQuery;
         },
@@ -197,7 +197,7 @@ function getLocation(href: string = URLManager.get()): ILocation {
         addQueryParam(param: string, value: string | null = null): void {
             let newQuery: { [key: string]: any } = { ...this.parsedQuery, [param]: value };
             cachedQuery = null;
-            query = querystring.encode(newQuery);
+            query = qs.stringify(newQuery);
             if (query) {
                 query = "?" + query;
             }
@@ -208,7 +208,7 @@ function getLocation(href: string = URLManager.get()): ILocation {
             }
             let parsedQuery: { [key: string]: any } = this.parsedQuery;
             delete parsedQuery[param];
-            this.query = querystring.encode(parsedQuery);
+            this.query = qs.stringify(parsedQuery);
         }
     };
 }
@@ -244,7 +244,7 @@ function emitSingle(router: GenericRouter, location?: ILocation): void {
         return false;
     });
 }
-function emit(): void {
+function _emit(): void {
     let location: ILocation = getLocation();
     routers.forEach(router => {
         emitSingle(router, location);
@@ -254,14 +254,14 @@ function emit(): void {
 let emitRoute: boolean = true;
 function onland(): void {
     if (emitRoute) {
-        emit();
+        _emit();
     } else {
         emitRoute = true;
     }
 }
 window.addEventListener("historylanded", onland);
 
-function go(path: string, replace: boolean = false, emit: boolean = true): Promise<void | undefined> {
+function _go(path: string, replace: boolean = false, emit: boolean = true): Promise<void | undefined> {
     let lastEmitRoute: boolean = emitRoute;
     emitRoute = emit;
     return (replace ? HistoryManager.replace(path) : HistoryManager.assign(path)).catch(() => {
@@ -298,7 +298,7 @@ class GenericRouter {
      */
     redirect(path: string, redirection: string): RegExp {
         _throwIfDestroyed(this);
-        let keys: Array<pathToRegexp.Key> = [];
+        let keys: Array<Key> = [];
         let regex: RegExp = PathGenerator.generate(path, keys);
         this[REDIRECTIONS].push({ regex, keys, redirection: PathGenerator.prepare(redirection) });
         return regex;
@@ -309,7 +309,7 @@ class GenericRouter {
      */
     unredirect(path: string): void {
         _throwIfDestroyed(this);
-        let keys: Array<pathToRegexp.Key> = [];
+        let keys: Array<Key> = [];
         let regex: RegExp = PathGenerator.generate(path, keys);
         let rIndex: number = -1;
         this[ROUTES].some((route, index) => {
@@ -334,7 +334,7 @@ class GenericRouter {
      */
     route(path: string, callback: IRouteCallback): RegExp {
         _throwIfDestroyed(this);
-        let keys: Array<pathToRegexp.Key> = [];
+        let keys: Array<Key> = [];
         let regex: RegExp = PathGenerator.generate(path, keys);
         this[ROUTES].push({ regex, keys, callback });
         return regex;
@@ -345,7 +345,7 @@ class GenericRouter {
      */
     unroute(path: string): void {
         _throwIfDestroyed(this);
-        let keys: Array<pathToRegexp.Key> = [];
+        let keys: Array<Key> = [];
         let regex: RegExp = PathGenerator.generate(path, keys);
         let rIndex: number = -1;
         this[ROUTES].some((route, index) => {
@@ -368,103 +368,116 @@ class GenericRouter {
     }
 }
 
-interface IMainRouter extends GenericRouter {
-    /**
-     * Crea un router separato dal principale
-     */
-    create(): GenericRouter;
-    setQueryParam(param: string, value: string | null | undefined, options?: { replace?: boolean, emit?: boolean }): Promise<undefined>;
-    go(path: string, options?: { replace?: boolean, emit?: boolean }): Promise<undefined>;
-    go(index: number, options?: { emit: boolean }): Promise<undefined>;
-    base: string;
-    location: ILocation;
-    /**
-     * Blocca la navigazione
-     */
-    lock(/* ghost?: boolean */): Promise<NavigationLock.Lock>;
-    /**
-     * Sblocca la navigazione
-     */
-    unlock(force?: boolean): boolean;
-    locked: boolean;
-    getContext(href?: string): string | null;
-    /**
-     * Associa un percorso ad un contesto
-     * @param context
-     * @param href
-     * @param isFallbackContext
-     * @param canChain
-     */
-    addContextPath(context: string, href: string, isFallbackContext?: boolean, canChain?: boolean): RegExp;
-    /**
-     * Imposta il percorso predefinito di un contesto
-     * @param context
-     * @param href
-     */
-    setContextDefaultHref(context: string, href: string): void;
-    /**
-     * Imposta un contesto
-     * @param this
-     * @param context
-     */
-    setContext(context: {
-        name: string,
-        paths: { path: string, fallback?: boolean }[],
-        default?: string
-    }): void;
-    restoreContext(context: string, defaultHref?: string): Promise<void>;
-    emit(single?: boolean): void;
-    // start(startingContext: string, organizeHistory?: boolean): boolean;
-    start(startingContext: string): void;
-    getLocationAt(index: number): ILocation | null;
-    index(): number;
-}
+// interface IMainRouter extends GenericRouter {
+//     /**
+//      * Crea un router separato dal principale
+//      */
+//     create(): GenericRouter;
+//     setQueryParam(param: string, value: string | null | undefined, options?: { replace?: boolean, emit?: boolean }): Promise<undefined>;
+//     go(path: string, options?: { replace?: boolean, emit?: boolean }): Promise<undefined>;
+//     go(index: number, options?: { emit: boolean }): Promise<undefined>;
+//     base: string;
+//     location: ILocation;
+//     /**
+//      * Blocca la navigazione
+//      */
+//     lock(/* ghost?: boolean */): Promise<NavigationLock.Lock>;
+//     /**
+//      * Sblocca la navigazione
+//      */
+//     unlock(force?: boolean): boolean;
+//     locked: boolean;
+//     getContext(href?: string): string | null;
+//     /**
+//      * Associa un percorso ad un contesto
+//      * @param context
+//      * @param href
+//      * @param isFallbackContext
+//      * @param canChain
+//      */
+//     addContextPath(context: string, href: string, isFallbackContext?: boolean, canChain?: boolean): RegExp;
+//     /**
+//      * Imposta il percorso predefinito di un contesto
+//      * @param context
+//      * @param href
+//      */
+//     setContextDefaultHref(context: string, href: string): void;
+//     /**
+//      * Imposta un contesto
+//      * @param this
+//      * @param context
+//      */
+//     setContext(context: {
+//         name: string,
+//         paths: { path: string, fallback?: boolean }[],
+//         default?: string
+//     }): void;
+//     restoreContext(context: string, defaultHref?: string): Promise<void>;
+//     emit(single?: boolean): void;
+//     // start(startingContext: string, organizeHistory?: boolean): boolean;
+//     start(startingContext: string): void;
+//     getLocationAt(index: number): ILocation | null;
+//     index(): number;
+// }
 
-let main: IMainRouter = new GenericRouter() as IMainRouter;
+let main: GenericRouter = new GenericRouter();
+
+export function redirect(path: string, redirection: string): RegExp {
+    return main.redirect(path, redirection);
+}
+export function unredirect(path: string): void {
+    return main.unredirect(path);
+}
+export function route(path: string, callback: IRouteCallback): RegExp {
+    return main.route(path, callback);
+}
+export function unroute(path: string): void {
+    return main.unroute(path);
+}
 // :TODO:
 // main.start = function (startingContext: string, organizeHistory: boolean = true): boolean {
-main.start = function (startingContext: string): void {
+export function start (startingContext: string): void {
     return HistoryManager.start(startingContext);
-};
-main.index = function (): number {
+}
+export function index(): number {
     return HistoryManager.index();
-};
-main.getLocationAt = function (index: number): ILocation | null {
+}
+export function getLocationAt(index: number): ILocation | null {
     let href: string | null = HistoryManager.getHREFAt(index);
     if (href == null) {
         return null;
     }
     return getLocation(href);
-};
-main.addContextPath = function (context: string, href: string, isFallback: boolean = false): RegExp {
+}
+export function addContextPath(context: string, href: string, isFallback: boolean = false): RegExp {
     return HistoryManager.addContextPath(context, href, isFallback);
-};
-main.setContextDefaultHref = function (context: string, href: string): void {
+}
+export function setContextDefaultHref(context: string, href: string): void {
     return HistoryManager.setContextDefaultHref(context, href);
-};
-main.setContext = function (context: {
+}
+export function setContext(context: {
     name: string,
     paths: { path: string, fallback?: boolean }[],
     default?: string
 }): void {
     return HistoryManager.setContext(context);
-};
-main.getContext = function (href?: string): string | null {
+}
+export function getContext(href?: string): string | null {
     return HistoryManager.getContext(href);
-};
-main.restoreContext = function (context: string, defaultHref?: string): Promise<void> {
+}
+export function restoreContext(context: string, defaultHref?: string): Promise<void> {
     return HistoryManager.restore(context);
-};
-main.emit = function (this: IMainRouter, single: boolean = false): void {
+}
+export function emit(single: boolean = false): void {
     if (single) {
-        return emitSingle((this as any)._router);
+        return emitSingle(main);
     }
-    return emit();
-};
-main.create = function (): GenericRouter {
+    return _emit();
+}
+export function create(): GenericRouter {
     return new GenericRouter();
-};
-main.go = function routerGo(path_index: string | number, options: {
+}
+export function go(path_index: string | number, options: {
     emit: boolean
     replace?: boolean,
 }): Promise<undefined> {
@@ -494,7 +507,7 @@ main.go = function routerGo(path_index: string | number, options: {
             return;
         }
         if (path_index_type === "string") {
-            go(
+            _go(
                 path_index as string,
                 (options && options.replace) || false,
                 (options == null || options.emit == null) ? true : options.emit
@@ -507,69 +520,43 @@ main.go = function routerGo(path_index: string | number, options: {
             });
         }
     });
-};
-main.setQueryParam = function(param: string, value: string | null | undefined, options: {
+}
+export function setQueryParam(param: string, value: string | null | undefined, options: {
     emit: boolean,
     replace?: boolean
 }): Promise<undefined> {
     let promiseResolve: () => void;
     let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve;});
     HistoryManager.onWorkFinished(() => {
-        let location: ILocation = this.location;
+        let location: ILocation = getLocation();
         if (value === undefined) {
             location.removeQueryParam(param);
         } else {
             location.addQueryParam(param, value);
         }
-        this.go(location.href, options).then(promiseResolve);
+        go(location.href, options).then(promiseResolve);
     });
     return promise;
-};
-main.lock = function (): Promise<NavigationLock.Lock> {
+}
+export function lock(): Promise<NavigationLock.Lock> {
     return NavigationLock.lock();
-};
-main.unlock = function (force: boolean = true): boolean {
+}
+export function unlock(force: boolean = true): boolean {
     return NavigationLock.unlock(force);
-};
-main.destroy = function (): void {
+}
+export function destroy(): void {
     throw new Error("cannot destroy main Router");
-};
-Object.defineProperty(main, "base", {
-    get: () => {
-        return URLManager.base();
-    },
-    set: newBase => {
-        URLManager.base(newBase.replace(/[\/]+$/, ""));
-        emit();
-    },
-    configurable: false
-});
-Object.defineProperty(main, "locked", {
-    get: () => {
-        return NavigationLock.locked();
-    },
-    configurable: false
-});
-Object.defineProperty(main, "location", {
-    get: () => {
-        return getLocation();
-    },
-    configurable: false
-});
-
-type ILocation_ = ILocation;
-type IRouteCallback_ = IRouteCallback;
-type GenericRouter_ = GenericRouter;
-type KeyMap_ = KeyMap;
-type NavigationLock_ = typeof NavigationLock;
-namespace main {
-    export type ILocation = ILocation_;
-    export type IRouteCallback = IRouteCallback_;
-    export type GenericRouter = GenericRouter_;
-    export type KeyMap = KeyMap_;
-    export type NavigationLock = NavigationLock_;
-    export type Redirection = { location: ILocation, keymap: KeyMap };
+}
+export function getBase(): string {
+    return URLManager.base();
+}
+export function setBase(newBase: string): void {
+    URLManager.base(newBase.replace(/[\/]+$/, ""));
+    _emit();
+}
+export function isLocked(): boolean {
+    return NavigationLock.locked();
 }
 
-import Main = main;
-export = Main;
+export type Redirection = { location: ILocation, keymap: KeyMap };
+export * as NavigationLock from "./NavigationLock";

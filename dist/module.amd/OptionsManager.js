@@ -1,31 +1,5 @@
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "querystring"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var querystring = require("querystring");
+define(['exports', './tslib.es6-ee56af75', './index-271cf777'], function (exports, tslib_es6, index$2) { 'use strict';
+
     var DIVIDER = "#R!:";
     var catchPopState = null;
     window.addEventListener("popstate", function (event) {
@@ -76,22 +50,20 @@ var __read = (this && this.__read) || function (o, n) {
     function optsToStr(opts) {
         var filteredOpts = {};
         Object.entries(opts).forEach(function (_a) {
-            var _b = __read(_a, 2), key = _b[0], value = _b[1];
+            var _b = tslib_es6.__read(_a, 2), key = _b[0], value = _b[1];
             if (value !== undefined) {
                 filteredOpts[key] = value;
             }
         });
-        return querystring.encode(filteredOpts);
+        return index$2.stringify(filteredOpts);
     }
     function get() {
-        return querystring.decode(splitHref()[1]);
+        return index$2.parse(splitHref()[1]);
     }
-    exports.get = get;
     function set(opts) {
         var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);
         return goTo(newHref, true);
     }
-    exports.set = set;
     function add(opt, value) {
         var opts = get();
         if (opts[opt] === undefined || opts[opt] !== value) {
@@ -100,7 +72,6 @@ var __read = (this && this.__read) || function (o, n) {
         }
         return new Promise(function (resolve) { resolve(); });
     }
-    exports.add = add;
     function remove(opt) {
         var opts = get();
         if (opts[opt] !== undefined) {
@@ -109,18 +80,26 @@ var __read = (this && this.__read) || function (o, n) {
         }
         return new Promise(function (resolve) { resolve(); });
     }
-    exports.remove = remove;
     function goWith(href, opts, replace) {
         if (replace === void 0) { replace = false; }
         var newHref = splitHref(href)[0] + DIVIDER + optsToStr(opts);
         return goTo(newHref, replace);
     }
-    exports.goWith = goWith;
     function clearHref() {
         return splitHref()[0];
     }
-    exports.clearHref = clearHref;
     if (Object.keys(get()).length > 0) {
         set({});
     }
+
+    exports.add = add;
+    exports.clearHref = clearHref;
+    exports.get = get;
+    exports.goWith = goWith;
+    exports.remove = remove;
+    exports.set = set;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
 });
+//# sourceMappingURL=OptionsManager.js.map

@@ -4,20 +4,23 @@
   "description": "",
   "dependencies": {
     "path-to-regexp": "^6.1.0",
-    "querystring": "^0.2.0",
-    "requirejs": "^2.3.6"
+    "query-string": "^6.13.1"
   },
   "devDependencies": {
     "@riotjs/compiler": "^4.9.2",
-    "fs": "^0.0.1-security",
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.1.0",
+    "@rollup/plugin-typescript": "^5.0.1",
     "ncp": "^2.0.0",
-    "path": "^0.12.7",
     "rimraf": "^3.0.2",
-    "typescript": "^3.8.3"
+    "rollup": "^1.0.0",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.6"
   },
   "scripts": {
     "compile": "node ./compile.js"
   },
   "author": "Giuliano Collacchioni",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "dist/module.amd/index.js"
 }

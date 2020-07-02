@@ -2,9 +2,9 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import OptionsManager = require("./OptionsManager");
+import * as OptionsManager from "./OptionsManager";
 
-import URLManager = require("./URLManager");
+import * as URLManager from "./URLManager";
 import { ContextManager } from "./ContextManager";
 
 let started: boolean = false;

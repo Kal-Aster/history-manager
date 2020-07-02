@@ -1,30 +1,6 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "querystring", "./HistoryManager", "./NavigationLock", "./PathGenerator", "./URLManager"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
+define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407', './URLManager-69096fec', './index-271cf777', './OptionsManager-0057cf14', './HistoryManager-3e85125d', './NavigationLock-428a22e9'], function (exports, tslib_es6, index$1, PathGenerator, URLManager, index$2, OptionsManager, HistoryManager, NavigationLock) { 'use strict';
+
     var _a, _b, _c;
-    var querystring = require("querystring");
-    var HistoryManager = require("./HistoryManager");
-    var NavigationLock = require("./NavigationLock");
-    var PathGenerator = require("./PathGenerator");
-    var URLManager = require("./URLManager");
     var ROUTES = Symbol("routes");
     var REDIRECTIONS = Symbol("redirections");
     var DESTROYED = Symbol("destroyed");
@@ -155,7 +131,7 @@ var __assign = (this && this.__assign) || function () {
                     return {};
                 }
                 if (!cachedQuery) {
-                    cachedQuery = querystring.decode(query.replace(/^\?/, ""));
+                    cachedQuery = index$2.parse(query.replace(/^\?/, ""));
                 }
                 return cachedQuery;
             },
@@ -174,9 +150,9 @@ var __assign = (this && this.__assign) || function () {
             addQueryParam: function (param, value) {
                 var _d;
                 if (value === void 0) { value = null; }
-                var newQuery = __assign(__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
+                var newQuery = tslib_es6.__assign(tslib_es6.__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
                 cachedQuery = null;
-                query = querystring.encode(newQuery);
+                query = index$2.stringify(newQuery);
                 if (query) {
                     query = "?" + query;
                 }
@@ -187,7 +163,7 @@ var __assign = (this && this.__assign) || function () {
                 }
                 var parsedQuery = this.parsedQuery;
                 delete parsedQuery[param];
-                this.query = querystring.encode(parsedQuery);
+                this.query = index$2.stringify(parsedQuery);
             }
         };
     }
@@ -220,7 +196,7 @@ var __assign = (this && this.__assign) || function () {
             return false;
         });
     }
-    function emit() {
+    function _emit() {
         var location = getLocation();
         routers.forEach(function (router) {
             emitSingle(router, location);
@@ -229,14 +205,14 @@ var __assign = (this && this.__assign) || function () {
     var emitRoute = true;
     function onland() {
         if (emitRoute) {
-            emit();
+            _emit();
         }
         else {
             emitRoute = true;
         }
     }
     window.addEventListener("historylanded", onland);
-    function go(path, replace, emit) {
+    function _go(path, replace, emit) {
         if (replace === void 0) { replace = false; }
         if (emit === void 0) { emit = true; }
         var lastEmitRoute = emitRoute;
@@ -326,54 +302,66 @@ var __assign = (this && this.__assign) || function () {
     }());
     _a = ROUTES, _b = REDIRECTIONS, _c = DESTROYED;
     var main = new GenericRouter();
-    main.start = function (startingContext) {
+    function redirect(path, redirection) {
+        return main.redirect(path, redirection);
+    }
+    function unredirect(path) {
+        return main.unredirect(path);
+    }
+    function route(path, callback) {
+        return main.route(path, callback);
+    }
+    function unroute(path) {
+        return main.unroute(path);
+    }
+    function start(startingContext) {
         return HistoryManager.start(startingContext);
-    };
-    main.index = function () {
+    }
+    function index() {
         return HistoryManager.index();
-    };
-    main.getLocationAt = function (index) {
+    }
+    function getLocationAt(index) {
         var href = HistoryManager.getHREFAt(index);
         if (href == null) {
             return null;
         }
         return getLocation(href);
-    };
-    main.addContextPath = function (context, href, isFallback) {
+    }
+    function addContextPath(context, href, isFallback) {
         if (isFallback === void 0) { isFallback = false; }
         return HistoryManager.addContextPath(context, href, isFallback);
-    };
-    main.setContextDefaultHref = function (context, href) {
+    }
+    function setContextDefaultHref(context, href) {
         return HistoryManager.setContextDefaultHref(context, href);
-    };
-    main.setContext = function (context) {
+    }
+    function setContext(context) {
         return HistoryManager.setContext(context);
-    };
-    main.getContext = function (href) {
+    }
+    function getContext(href) {
         return HistoryManager.getContext(href);
-    };
-    main.restoreContext = function (context, defaultHref) {
+    }
+    function restoreContext(context, defaultHref) {
         return HistoryManager.restore(context);
-    };
-    main.emit = function (single) {
+    }
+    function emit(single) {
         if (single === void 0) { single = false; }
         if (single) {
-            return emitSingle(this._router);
+            return emitSingle(main);
         }
-        return emit();
-    };
-    main.create = function () {
+        return _emit();
+    }
+    function create() {
         return new GenericRouter();
-    };
-    main.go = function routerGo(path_index, options) {
+    }
+    function go(path_index, options) {
         var path_index_type = typeof path_index;
         if (path_index_type !== "string" && path_index_type !== "number") {
             throw new Error("router.go should receive an url string or a number");
         }
-        options = __assign({}, options);
+        options = tslib_es6.__assign({}, options);
         return new Promise(function (promiseResolve, promiseReject) {
             var goingEvent = new CustomEvent("router:going", {
-                detail: __assign({ direction: path_index }, options),
+                detail: tslib_es6.__assign({ direction: path_index }, options),
                 cancelable: true
             });
             window.dispatchEvent(goingEvent);
@@ -382,7 +370,7 @@ var __assign = (this && this.__assign) || function () {
                 return;
             }
             if (path_index_type === "string") {
-                go(path_index, (options && options.replace) || false, (options == null || options.emit == null) ? true : options.emit).then(promiseResolve);
+                _go(path_index, (options && options.replace) || false, (options == null || options.emit == null) ? true : options.emit).then(promiseResolve);
             }
             else {
                 var lastEmitRoute_1 = emitRoute;
@@ -392,55 +380,69 @@ var __assign = (this && this.__assign) || function () {
                 });
             }
         });
-    };
-    main.setQueryParam = function (param, value, options) {
-        var _this = this;
+    }
+    function setQueryParam(param, value, options) {
         var promiseResolve;
         var promise = new Promise(function (resolve) { promiseResolve = resolve; });
         HistoryManager.onWorkFinished(function () {
-            var location = _this.location;
+            var location = getLocation();
             if (value === undefined) {
                 location.removeQueryParam(param);
             }
             else {
                 location.addQueryParam(param, value);
             }
-            _this.go(location.href, options).then(promiseResolve);
+            go(location.href, options).then(promiseResolve);
         });
         return promise;
-    };
-    main.lock = function () {
+    }
+    function lock() {
         return NavigationLock.lock();
-    };
-    main.unlock = function (force) {
+    }
+    function unlock(force) {
         if (force === void 0) { force = true; }
         return NavigationLock.unlock(force);
-    };
-    main.destroy = function () {
+    }
+    function destroy() {
         throw new Error("cannot destroy main Router");
-    };
-    Object.defineProperty(main, "base", {
-        get: function () {
-            return URLManager.base();
-        },
-        set: function (newBase) {
-            URLManager.base(newBase.replace(/[\/]+$/, ""));
-            emit();
-        },
-        configurable: false
-    });
-    Object.defineProperty(main, "locked", {
-        get: function () {
-            return NavigationLock.locked();
-        },
-        configurable: false
-    });
-    Object.defineProperty(main, "location", {
-        get: function () {
-            return getLocation();
-        },
-        configurable: false
-    });
-    var Main = main;
-    return Main;
+    }
+    function getBase() {
+        return URLManager.base();
+    }
+    function setBase(newBase) {
+        URLManager.base(newBase.replace(/[\/]+$/, ""));
+        _emit();
+    }
+    function isLocked() {
+        return NavigationLock.locked();
+    }
+
+    exports.NavigationLock = NavigationLock.NavigationLock;
+    exports.addContextPath = addContextPath;
+    exports.create = create;
+    exports.destroy = destroy;
+    exports.emit = emit;
+    exports.getBase = getBase;
+    exports.getContext = getContext;
+    exports.getLocation = getLocation;
+    exports.getLocationAt = getLocationAt;
+    exports.go = go;
+    exports.index = index;
+    exports.isLocked = isLocked;
+    exports.lock = lock;
+    exports.redirect = redirect;
+    exports.restoreContext = restoreContext;
+    exports.route = route;
+    exports.setBase = setBase;
+    exports.setContext = setContext;
+    exports.setContextDefaultHref = setContextDefaultHref;
+    exports.setQueryParam = setQueryParam;
+    exports.start = start;
+    exports.unlock = unlock;
+    exports.unredirect = unredirect;
+    exports.unroute = unroute;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
 });
+//# sourceMappingURL=Router.js.map

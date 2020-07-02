@@ -1,30 +1,5 @@
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
+define(['exports', './tslib.es6-ee56af75'], function (exports, tslib_es6) { 'use strict';
+
     var locks = [];
     function lock(locking_fn) {
         var released = false;
@@ -53,7 +28,7 @@ var __read = (this && this.__read) || function (o, n) {
                 }
                 if (i >= 0) {
                     onrelease.forEach(function (_a) {
-                        var _b = __read(_a, 2), callback = _b[0], context = _b[1];
+                        var _b = tslib_es6.__read(_a, 2), callback = _b[0], context = _b[1];
                         callback.call(context || null);
                     });
                 }
@@ -78,11 +53,9 @@ var __read = (this && this.__read) || function (o, n) {
             });
         });
     }
-    exports.lock = lock;
     function locked() {
         return locks.length > 0 && locks.every(function (lock) { return !lock.releasing && !lock.released; });
     }
-    exports.locked = locked;
     var currentWork = -1;
     var working = 0;
     var ondoneCallbacks = [];
@@ -93,7 +66,7 @@ var __read = (this && this.__read) || function (o, n) {
         if (--working === 0) {
             currentWork = -1;
             while (ondoneCallbacks.length && currentWork === -1) {
-                var _a = __read(ondoneCallbacks.shift(), 2), callback = _a[0], context = _a[1];
+                var _a = tslib_es6.__read(ondoneCallbacks.shift(), 2), callback = _a[0], context = _a[1];
                 callback.call(context || null);
             }
         }
@@ -125,7 +98,6 @@ var __read = (this && this.__read) || function (o, n) {
         }, null, id);
         return id;
     }
-    exports.startWork = startWork;
     function ondone(fn, context) {
         if (working) {
             ondoneCallbacks.push([fn, context || null]);
@@ -133,5 +105,13 @@ var __read = (this && this.__read) || function (o, n) {
         }
         fn.call(context || null);
     }
+
+    exports.lock = lock;
+    exports.locked = locked;
     exports.ondone = ondone;
+    exports.startWork = startWork;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
 });
+//# sourceMappingURL=WorkManager.js.map
