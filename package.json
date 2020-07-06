@@ -1,6 +1,6 @@
 {
   "name": "history-manager",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "dependencies": {
     "path-to-regexp": "^6.1.0",
@@ -11,16 +11,13 @@
     "@rollup/plugin-commonjs": "^13.0.0",
     "@rollup/plugin-node-resolve": "^8.1.0",
     "@rollup/plugin-typescript": "^5.0.1",
-    "ncp": "^2.0.0",
-    "rimraf": "^3.0.2",
     "rollup": "^1.0.0",
+    "rollup-plugin-multi-input": "^1.1.1",
     "tslib": "^2.0.0",
     "typescript": "^3.9.6"
   },
-  "scripts": {
-    "compile": "node ./compile.js"
-  },
+  "scripts": {},
   "author": "Giuliano Collacchioni",
   "license": "MIT",
-  "main": "dist/module.amd/index.js"
+  "main": "dist/module.cjs/index.js"
 }

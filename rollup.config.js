@@ -1,46 +1,94 @@
-import resolveNode from "@rollup/plugin-node-resolve";
-import typescript from "@rollup/plugin-typescript";
-import commonjs from "@rollup/plugin-commonjs";
+const commonjs = require('@rollup/plugin-commonjs');
+const typescript = require('@rollup/plugin-typescript');
+const multiInput = require("rollup-plugin-multi-input").default;
+const externalizer = require("./externalizer").default;
+const nodeResolve = require("@rollup/plugin-node-resolve").default;
 
-const plugins = [
-    resolveNode(),
-    typescript(),
-    commonjs()
-];
+let externalizerFull = externalizer();
+let externalizerLib = externalizer({ full: false });
+let externalizerLibCJS = externalizer({ full: false });
+let externalizerLibES = externalizer({ full: false });
 
 export default [
     {
-        input: [
-            "src/index.ts",
-            "src/ContextManager.ts",
-            "src/HistoryManager.ts",
-            "src/NavigationLock.ts",
-            "src/OptionsManager.ts",
-            "src/PathGenerator.ts",
-            "src/Router.ts",
-            "src/URLManager.ts",
-            "src/WorkManager.ts",
+        input: ["src/**/!(*.d.ts)"],
+        plugins: [
+            multiInput(),
+            externalizerFull,
+            commonjs(),
+            typescript()
         ],
-        output: [
-            {
-                dir: "dist/module.amd",
-                format: "amd",
-                sourcemap: true
-            }
-        ],
-        plugins
+        output: {
+            dir: "dist/amd.full",
+            format: "amd",
+            plugins: [externalizerFull.outputPlugin]
+        }
     },
     {
-        input: [
-            "src/index.ts"
+        input: ["src/**/!(*.d.ts)"],
+        plugins: [
+            multiInput(),
+            externalizerLib,
+            commonjs(),
+            typescript()
         ],
-        output: [
-            {
-                file: "dist/bundle/history-manager.js",
-                format: "amd",
-                sourcemap: true
-            }
+        output: {
+            dir: "dist/amd",
+            format: "amd",
+            plugins: [externalizerLib.outputPlugin]
+        }
+    },
+    {
+        input: ["src/**/!(*.d.ts)"],
+        plugins: [
+            multiInput(),
+            externalizerLibCJS,
+            commonjs(),
+            typescript()
         ],
-        plugins
+        output: {
+            dir: "dist/cjs",
+            format: "cjs",
+            plugins: [externalizerLibCJS.outputPlugin]
+        }
+    },
+    {
+        input: ["src/**/!(*.d.ts)"],
+        plugins: [
+            multiInput(),
+            externalizerLibES,
+            commonjs(),
+            typescript()
+        ],
+        output: {
+            dir: "dist/es",
+            format: "es",
+            plugins: [externalizerLibES.outputPlugin]
+        }
+    },
+    {
+        input: "src/index.ts",
+        plugins: [
+            commonjs(),
+            typescript(),
+            nodeResolve()
+        ],
+        output: {
+            file: "dist/amd.bundled.js",
+            format: "amd"
+        }
+    },
+    {
+        input: "src/index.ts",
+        plugins: [
+            commonjs(),
+            typescript(),
+            nodeResolve()
+        ],
+        output: {
+            name: "historyManager",
+            file: "dist/umd.bundled.js",
+            format: "umd"
+        }
     }
 ];
