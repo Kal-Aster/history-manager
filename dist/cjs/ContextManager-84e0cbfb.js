@@ -1,10 +1,39 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var tslib_es6 = require('./tslib.es6-088f17e5.js');
-require('./index-6a014dd5.js');
 var PathGenerator = require('./PathGenerator-6eadb801.js');
+var OptionsManager = require('./OptionsManager-c87b8948.js');
+
+var BASE = window.location.href.split("#")[0] + "#";
+function base(value) {
+    if (value != null) {
+        BASE = value;
+    }
+    return BASE;
+}
+function get() {
+    return PathGenerator.prepare(OptionsManager.clearHref().split(BASE).slice(1).join(BASE));
+}
+function construct(href) {
+    switch (href[0]) {
+        case "?": {
+            href = get().split("?")[0] + href;
+            break;
+        }
+        case "#": {
+            href = get().split("#")[0] + href;
+            break;
+        }
+    }
+    return BASE + href;
+}
+
+var URLManager = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    base: base,
+    get: get,
+    construct: construct
+});
 
 var ContextManager = (function () {
     function ContextManager() {
@@ -263,4 +292,14 @@ var ContextManager = (function () {
     return ContextManager;
 }());
 
+var ContextManager$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    ContextManager: ContextManager
+});
+
 exports.ContextManager = ContextManager;
+exports.ContextManager$1 = ContextManager$1;
+exports.URLManager = URLManager;
+exports.base = base;
+exports.construct = construct;
+exports.get = get;

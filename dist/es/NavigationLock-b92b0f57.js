@@ -1,14 +1,6 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var tslib_es6 = require('./tslib.es6-088f17e5.js');
-require('./index-6a014dd5.js');
-require('./PathGenerator-6eadb801.js');
-require('./index-6a756adc.js');
-var OptionsManager = require('./OptionsManager-c87b8948.js');
-require('./ContextManager-84e0cbfb.js');
-var HistoryManager = require('./HistoryManager-35b063fe.js');
+import { b as __assign } from './tslib.es6-4eedd806.js';
+import { g as goWith, a as get, c as clearHref } from './OptionsManager-bbe4ea74.js';
+import { o as onWorkFinished, a as acquire } from './HistoryManager-bfd3b7f7.js';
 
 var locks = [];
 var catchPopState = null;
@@ -38,8 +30,8 @@ function lock() {
     var promise = new Promise(function (resolve) {
         promiseResolve = resolve;
     });
-    HistoryManager.onWorkFinished(function () {
-        historyLock = HistoryManager.acquire();
+    onWorkFinished(function () {
+        historyLock = acquire();
         var lock = {
             lock: {
                 get id() {
@@ -93,7 +85,7 @@ function lock() {
             return true;
         };
         locks.push(lock);
-        OptionsManager.goWith(OptionsManager.clearHref(), tslib_es6.__assign(tslib_es6.__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
+        goWith(clearHref(), __assign(__assign({}, get()), { locked: lock.lock.id })).then(function () {
             promiseResolve(lock.lock);
         });
     });
@@ -124,7 +116,7 @@ function handlePopState() {
     if (locks.length === 0) {
         return;
     }
-    var lockId = parseInt(OptionsManager.get().locked, 10);
+    var lockId = parseInt(get().locked, 10);
     if (isNaN(lockId)) {
         shouldUnlock = true;
         window.history.go(1);
@@ -148,6 +140,11 @@ function handlePopState() {
     }
 }
 
-exports.lock = lock;
-exports.locked = locked;
-exports.unlock = unlock;
+var NavigationLock = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    lock: lock,
+    unlock: unlock,
+    locked: locked
+});
+
+export { NavigationLock as N, locked as a, lock as l, unlock as u };

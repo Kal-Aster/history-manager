@@ -1,4 +1,4 @@
-define(['exports', 'tslib', './OptionsManager', './HistoryManager'], function (exports, tslib, OptionsManager, HistoryManager) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407', './index-271cf777', './OptionsManager-0057cf14', './ContextManager-8067c64b', './HistoryManager-bf546f14'], function (exports, tslib_es6, index$1, PathGenerator, index$2, OptionsManager, ContextManager, HistoryManager) { 'use strict';
 
     var locks = [];
     var catchPopState = null;
@@ -83,7 +83,7 @@ define(['exports', 'tslib', './OptionsManager', './HistoryManager'], function (e
                 return true;
             };
             locks.push(lock);
-            OptionsManager.goWith(OptionsManager.clearHref(), tslib.__assign(tslib.__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
+            OptionsManager.goWith(OptionsManager.clearHref(), tslib_es6.__assign(tslib_es6.__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
                 promiseResolve(lock.lock);
             });
         });

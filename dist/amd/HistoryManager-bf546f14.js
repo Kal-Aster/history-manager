@@ -1,4 +1,4 @@
-define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './ContextManager'], function (exports, index$1, OptionsManager, URLManager, ContextManager) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './OptionsManager-0057cf14', './ContextManager-8067c64b'], function (exports, tslib_es6, OptionsManager, ContextManager) { 'use strict';
 
     var started = false;
     var works = [];
@@ -39,7 +39,7 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
                 }
                 if (i >= 0 && works.length === 0) {
                     while (onworkfinished.length > 0 && works.length === 0) {
-                        var _a = index$1.__read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
+                        var _a = tslib_es6.__read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
                         callback.call(context || window);
                     }
                 }
@@ -86,7 +86,7 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
     }
     function goTo(href, replace) {
         if (replace === void 0) { replace = false; }
-        href = URLManager.construct(href);
+        href = ContextManager.construct(href);
         if (window.location.href === href) {
             window.dispatchEvent(new Event("popstate"));
             return;
@@ -100,10 +100,10 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
     }
     function addFront(frontHref) {
         if (frontHref === void 0) { frontHref = "next"; }
-        var href = URLManager.get();
+        var href = ContextManager.get();
         var work = createWork();
         return new Promise(function (resolve) {
-            OptionsManager.goWith(URLManager.construct(frontHref), { back: undefined, front: null })
+            OptionsManager.goWith(ContextManager.construct(frontHref), { back: undefined, front: null })
                 .then(function () { return new Promise(function (resolve) {
                 onCatchPopState(resolve, true);
                 window.history.go(-1);
@@ -120,7 +120,7 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
     }
     function addBack(backHref) {
         if (backHref === void 0) { backHref = ""; }
-        var href = URLManager.get();
+        var href = ContextManager.get();
         var work = createWork();
         return new Promise(function (resolve) {
             (new Promise(function (resolve) {
@@ -311,7 +311,7 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
     }
     function start(fallbackContext) {
         if (fallbackContext === void 0) { fallbackContext = contextManager.getContextNames()[0]; }
-        var href = URLManager.get();
+        var href = ContextManager.get();
         var context = contextManager.contextOf(href, false);
         if (context == null) {
             if (!fallbackContext) {
@@ -419,7 +419,7 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
             });
         }
         else {
-            var href_4 = URLManager.get();
+            var href_4 = ContextManager.get();
             var backHref_1 = contextManager.get();
             if (href_4 === backHref_1) {
                 return onlanded();
@@ -454,14 +454,32 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
         }
     }
 
+    var HistoryManager = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        onWorkFinished: onWorkFinished,
+        acquire: acquire,
+        addFront: addFront,
+        addBack: addBack,
+        index: index,
+        getHREFAt: getHREFAt,
+        setContext: setContext,
+        addContextPath: addContextPath,
+        setContextDefaultHref: setContextDefaultHref,
+        getContext: getContext,
+        getHREFs: getHREFs,
+        restore: restore,
+        assign: assign,
+        replace: replace,
+        go: go,
+        start: start
+    });
+
+    exports.HistoryManager = HistoryManager;
     exports.acquire = acquire;
-    exports.addBack = addBack;
     exports.addContextPath = addContextPath;
-    exports.addFront = addFront;
     exports.assign = assign;
     exports.getContext = getContext;
     exports.getHREFAt = getHREFAt;
-    exports.getHREFs = getHREFs;
     exports.go = go;
     exports.index = index;
     exports.onWorkFinished = onWorkFinished;
@@ -470,7 +488,5 @@ define(['exports', './lib/tslib/index', './OptionsManager', './URLManager', './C
     exports.setContext = setContext;
     exports.setContextDefaultHref = setContextDefaultHref;
     exports.start = start;
-
-    Object.defineProperty(exports, '__esModule', { value: true });
 
 });

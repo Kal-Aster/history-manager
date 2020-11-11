@@ -1,10 +1,137 @@
-define(['../_commonjsHelpers-011ed8dd', '../strict-uri-encode/index', '../decode-uri-component/index', '../split-on-first/index'], function (_commonjsHelpers, ___strictUriEncode, ___decodeUriComponent, ___splitOnFirst) { 'use strict';
+define(['exports'], function (exports) { 'use strict';
 
-	___strictUriEncode = ___strictUriEncode && Object.prototype.hasOwnProperty.call(___strictUriEncode, 'default') ? ___strictUriEncode['default'] : ___strictUriEncode;
-	___decodeUriComponent = ___decodeUriComponent && Object.prototype.hasOwnProperty.call(___decodeUriComponent, 'default') ? ___decodeUriComponent['default'] : ___decodeUriComponent;
-	___splitOnFirst = ___splitOnFirst && Object.prototype.hasOwnProperty.call(___splitOnFirst, 'default') ? ___splitOnFirst['default'] : ___splitOnFirst;
+	function createCommonjsModule(fn, basedir, module) {
+		return module = {
+		  path: basedir,
+		  exports: {},
+		  require: function (path, base) {
+	      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+	    }
+		}, fn(module, module.exports), module.exports;
+	}
 
-	var queryString = _commonjsHelpers.createCommonjsModule(function (module, exports) {
+	function commonjsRequire () {
+		throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+	}
+
+	var strictUriEncode = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
+
+	var token = '%[a-f0-9]{2}';
+	var singleMatcher = new RegExp(token, 'gi');
+	var multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+	function decodeComponents(components, split) {
+		try {
+			// Try to decode the entire string first
+			return decodeURIComponent(components.join(''));
+		} catch (err) {
+			// Do nothing
+		}
+
+		if (components.length === 1) {
+			return components;
+		}
+
+		split = split || 1;
+
+		// Split the array in 2 parts
+		var left = components.slice(0, split);
+		var right = components.slice(split);
+
+		return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
+	}
+
+	function decode(input) {
+		try {
+			return decodeURIComponent(input);
+		} catch (err) {
+			var tokens = input.match(singleMatcher);
+
+			for (var i = 1; i < tokens.length; i++) {
+				input = decodeComponents(tokens, i).join('');
+
+				tokens = input.match(singleMatcher);
+			}
+
+			return input;
+		}
+	}
+
+	function customDecodeURIComponent(input) {
+		// Keep track of all the replacements and prefill the map with the `BOM`
+		var replaceMap = {
+			'%FE%FF': '\uFFFD\uFFFD',
+			'%FF%FE': '\uFFFD\uFFFD'
+		};
+
+		var match = multiMatcher.exec(input);
+		while (match) {
+			try {
+				// Decode as big chunks as possible
+				replaceMap[match[0]] = decodeURIComponent(match[0]);
+			} catch (err) {
+				var result = decode(match[0]);
+
+				if (result !== match[0]) {
+					replaceMap[match[0]] = result;
+				}
+			}
+
+			match = multiMatcher.exec(input);
+		}
+
+		// Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+		replaceMap['%C2'] = '\uFFFD';
+
+		var entries = Object.keys(replaceMap);
+
+		for (var i = 0; i < entries.length; i++) {
+			// Replace all decoded components
+			var key = entries[i];
+			input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
+		}
+
+		return input;
+	}
+
+	var decodeUriComponent = function (encodedURI) {
+		if (typeof encodedURI !== 'string') {
+			throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
+		}
+
+		try {
+			encodedURI = encodedURI.replace(/\+/g, ' ');
+
+			// Try the built in decoder first
+			return decodeURIComponent(encodedURI);
+		} catch (err) {
+			// Fallback to a more advanced decoder
+			return customDecodeURIComponent(encodedURI);
+		}
+	};
+
+	var splitOnFirst = (string, separator) => {
+		if (!(typeof string === 'string' && typeof separator === 'string')) {
+			throw new TypeError('Expected the arguments to be of type `string`');
+		}
+
+		if (separator === '') {
+			return [string];
+		}
+
+		const separatorIndex = string.indexOf(separator);
+
+		if (separatorIndex === -1) {
+			return [string];
+		}
+
+		return [
+			string.slice(0, separatorIndex),
+			string.slice(separatorIndex + separator.length)
+		];
+	};
+
+	var queryString = createCommonjsModule(function (module, exports) {
 
 
 
@@ -153,7 +280,7 @@ define(['../_commonjsHelpers-011ed8dd', '../strict-uri-encode/index', '../decode
 
 	function encode(value, options) {
 		if (options.encode) {
-			return options.strict ? ___strictUriEncode(value) : encodeURIComponent(value);
+			return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
 		}
 
 		return value;
@@ -161,7 +288,7 @@ define(['../_commonjsHelpers-011ed8dd', '../strict-uri-encode/index', '../decode
 
 	function decode(value, options) {
 		if (options.decode) {
-			return ___decodeUriComponent(value);
+			return decodeUriComponent(value);
 		}
 
 		return value;
@@ -248,7 +375,7 @@ define(['../_commonjsHelpers-011ed8dd', '../strict-uri-encode/index', '../decode
 		}
 
 		for (const param of input.split('&')) {
-			let [key, value] = ___splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
+			let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
 
 			// Missing `=` should be `null`:
 			// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
@@ -348,7 +475,7 @@ define(['../_commonjsHelpers-011ed8dd', '../strict-uri-encode/index', '../decode
 			decode: true
 		}, options);
 
-		const [url, hash] = ___splitOnFirst(input, '#');
+		const [url, hash] = splitOnFirst(input, '#');
 
 		return Object.assign(
 			{
@@ -384,6 +511,7 @@ define(['../_commonjsHelpers-011ed8dd', '../strict-uri-encode/index', '../decode
 	};
 	});
 
-	return queryString;
+	exports.parse = parse;
+	exports.stringify = stringify;
 
 });

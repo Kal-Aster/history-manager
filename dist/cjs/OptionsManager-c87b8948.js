@@ -1,9 +1,7 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var tslib_es6 = require('./tslib.es6-088f17e5.js');
-var index$2 = require('./index-6a756adc.js');
+var index = require('./index-6a756adc.js');
 
 var DIVIDER = "#R!:";
 var catchPopState = null;
@@ -60,10 +58,10 @@ function optsToStr(opts) {
             filteredOpts[key] = value;
         }
     });
-    return index$2.stringify(filteredOpts);
+    return index.stringify(filteredOpts);
 }
 function get() {
-    return index$2.parse(splitHref()[1]);
+    return index.parse(splitHref()[1]);
 }
 function set(opts) {
     var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);
@@ -97,9 +95,18 @@ if (Object.keys(get()).length > 0) {
     set({});
 }
 
-exports.add = add;
+var OptionsManager = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    get: get,
+    set: set,
+    add: add,
+    remove: remove,
+    goWith: goWith,
+    clearHref: clearHref
+});
+
+exports.OptionsManager = OptionsManager;
 exports.clearHref = clearHref;
 exports.get = get;
 exports.goWith = goWith;
-exports.remove = remove;
 exports.set = set;

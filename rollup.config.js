@@ -14,56 +14,39 @@ export default [
         input: ["src/**/!(*.d.ts)"],
         plugins: [
             multiInput(),
-            externalizerFull,
-            commonjs(),
-            typescript()
-        ],
-        output: {
-            dir: "dist/amd.full",
-            format: "amd",
-            plugins: [externalizerFull.outputPlugin]
-        }
-    },
-    {
-        input: ["src/**/!(*.d.ts)"],
-        plugins: [
-            multiInput(),
-            externalizerLib,
+            nodeResolve(),
             commonjs(),
             typescript()
         ],
         output: {
             dir: "dist/amd",
-            format: "amd",
-            plugins: [externalizerLib.outputPlugin]
+            format: "amd"
         }
     },
     {
         input: ["src/**/!(*.d.ts)"],
         plugins: [
             multiInput(),
-            externalizerLibCJS,
+            nodeResolve(),
             commonjs(),
             typescript()
         ],
         output: {
             dir: "dist/cjs",
-            format: "cjs",
-            plugins: [externalizerLibCJS.outputPlugin]
+            format: "cjs"
         }
     },
     {
         input: ["src/**/!(*.d.ts)"],
         plugins: [
             multiInput(),
-            externalizerLibES,
+            nodeResolve(),
             commonjs(),
             typescript()
         ],
         output: {
             dir: "dist/es",
-            format: "es",
-            plugins: [externalizerLibES.outputPlugin]
+            format: "es"
         }
     },
     {

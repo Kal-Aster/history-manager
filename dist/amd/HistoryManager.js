@@ -1,4 +1,4 @@
-define(['exports', 'tslib', './OptionsManager', './URLManager', './ContextManager'], function (exports, tslib, OptionsManager, URLManager, ContextManager) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407', './index-271cf777', './OptionsManager-0057cf14', './ContextManager-8067c64b'], function (exports, tslib_es6, index$1, PathGenerator, index$2, OptionsManager, ContextManager) { 'use strict';
 
     var started = false;
     var works = [];
@@ -39,7 +39,7 @@ define(['exports', 'tslib', './OptionsManager', './URLManager', './ContextManage
                 }
                 if (i >= 0 && works.length === 0) {
                     while (onworkfinished.length > 0 && works.length === 0) {
-                        var _a = tslib.__read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
+                        var _a = tslib_es6.__read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
                         callback.call(context || window);
                     }
                 }
@@ -86,7 +86,7 @@ define(['exports', 'tslib', './OptionsManager', './URLManager', './ContextManage
     }
     function goTo(href, replace) {
         if (replace === void 0) { replace = false; }
-        href = URLManager.construct(href);
+        href = ContextManager.construct(href);
         if (window.location.href === href) {
             window.dispatchEvent(new Event("popstate"));
             return;
@@ -100,10 +100,10 @@ define(['exports', 'tslib', './OptionsManager', './URLManager', './ContextManage
     }
     function addFront(frontHref) {
         if (frontHref === void 0) { frontHref = "next"; }
-        var href = URLManager.get();
+        var href = ContextManager.get();
         var work = createWork();
         return new Promise(function (resolve) {
-            OptionsManager.goWith(URLManager.construct(frontHref), { back: undefined, front: null })
+            OptionsManager.goWith(ContextManager.construct(frontHref), { back: undefined, front: null })
                 .then(function () { return new Promise(function (resolve) {
                 onCatchPopState(resolve, true);
                 window.history.go(-1);
@@ -120,7 +120,7 @@ define(['exports', 'tslib', './OptionsManager', './URLManager', './ContextManage
     }
     function addBack(backHref) {
         if (backHref === void 0) { backHref = ""; }
-        var href = URLManager.get();
+        var href = ContextManager.get();
         var work = createWork();
         return new Promise(function (resolve) {
             (new Promise(function (resolve) {
@@ -311,7 +311,7 @@ define(['exports', 'tslib', './OptionsManager', './URLManager', './ContextManage
     }
     function start(fallbackContext) {
         if (fallbackContext === void 0) { fallbackContext = contextManager.getContextNames()[0]; }
-        var href = URLManager.get();
+        var href = ContextManager.get();
         var context = contextManager.contextOf(href, false);
         if (context == null) {
             if (!fallbackContext) {
@@ -419,7 +419,7 @@ define(['exports', 'tslib', './OptionsManager', './URLManager', './ContextManage
             });
         }
         else {
-            var href_4 = URLManager.get();
+            var href_4 = ContextManager.get();
             var backHref_1 = contextManager.get();
             if (href_4 === backHref_1) {
                 return onlanded();

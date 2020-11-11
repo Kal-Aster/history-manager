@@ -1,4 +1,4 @@
-define(['exports', 'tslib', './PathGenerator', './URLManager', './HistoryManager', './NavigationLock', 'query-string'], function (exports, tslib, PathGenerator, URLManager, HistoryManager, NavigationLock, qs) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407', './index-271cf777', './OptionsManager-0057cf14', './ContextManager-8067c64b', './HistoryManager-bf546f14', './NavigationLock-61821803'], function (exports, tslib_es6, index$1, PathGenerator, index$2, OptionsManager, ContextManager, HistoryManager, NavigationLock) { 'use strict';
 
     var _a, _b, _c;
     var ROUTES = Symbol("routes");
@@ -13,7 +13,7 @@ define(['exports', 'tslib', './PathGenerator', './URLManager', './HistoryManager
     }
     var routers = [];
     function getLocation(href) {
-        if (href === void 0) { href = URLManager.get(); }
+        if (href === void 0) { href = ContextManager.get(); }
         var pathname = "";
         var hash = "";
         var query = "";
@@ -131,7 +131,7 @@ define(['exports', 'tslib', './PathGenerator', './URLManager', './HistoryManager
                     return {};
                 }
                 if (!cachedQuery) {
-                    cachedQuery = qs.parse(query.replace(/^\?/, ""));
+                    cachedQuery = index$2.parse(query.replace(/^\?/, ""));
                 }
                 return cachedQuery;
             },
@@ -150,9 +150,9 @@ define(['exports', 'tslib', './PathGenerator', './URLManager', './HistoryManager
             addQueryParam: function (param, value) {
                 var _d;
                 if (value === void 0) { value = null; }
-                var newQuery = tslib.__assign(tslib.__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
+                var newQuery = tslib_es6.__assign(tslib_es6.__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
                 cachedQuery = null;
-                query = qs.stringify(newQuery);
+                query = index$2.stringify(newQuery);
                 if (query) {
                     query = "?" + query;
                 }
@@ -163,7 +163,7 @@ define(['exports', 'tslib', './PathGenerator', './URLManager', './HistoryManager
                 }
                 var parsedQuery = this.parsedQuery;
                 delete parsedQuery[param];
-                this.query = qs.stringify(parsedQuery);
+                this.query = index$2.stringify(parsedQuery);
             }
         };
     }
@@ -358,10 +358,10 @@ define(['exports', 'tslib', './PathGenerator', './URLManager', './HistoryManager
         if (path_index_type !== "string" && path_index_type !== "number") {
             throw new Error("router.go should receive an url string or a number");
         }
-        options = tslib.__assign({}, options);
+        options = tslib_es6.__assign({}, options);
         return new Promise(function (promiseResolve, promiseReject) {
             var goingEvent = new CustomEvent("router:going", {
-                detail: tslib.__assign({ direction: path_index }, options),
+                detail: tslib_es6.__assign({ direction: path_index }, options),
                 cancelable: true
             });
             window.dispatchEvent(goingEvent);
@@ -407,17 +407,17 @@ define(['exports', 'tslib', './PathGenerator', './URLManager', './HistoryManager
         throw new Error("cannot destroy main Router");
     }
     function getBase() {
-        return URLManager.base();
+        return ContextManager.base();
     }
     function setBase(newBase) {
-        URLManager.base(newBase.replace(/[\/]+$/, ""));
+        ContextManager.base(newBase.replace(/[\/]+$/, ""));
         _emit();
     }
     function isLocked() {
         return NavigationLock.locked();
     }
 
-    exports.NavigationLock = NavigationLock;
+    exports.NavigationLock = NavigationLock.NavigationLock;
     exports.addContextPath = addContextPath;
     exports.create = create;
     exports.destroy = destroy;

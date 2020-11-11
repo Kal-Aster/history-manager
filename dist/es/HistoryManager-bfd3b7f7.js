@@ -1,7 +1,4 @@
 import { _ as __read } from './tslib.es6-4eedd806.js';
-import './index-c2fda29c.js';
-import './PathGenerator-70ab30e9.js';
-import './index-d109065d.js';
 import { g as goWith, s as set, a as get$1 } from './OptionsManager-bbe4ea74.js';
 import { g as get, c as construct, C as ContextManager } from './ContextManager-cdca1809.js';
 
@@ -459,4 +456,24 @@ function handlePopState() {
     }
 }
 
-export { acquire, addBack, addContextPath, addFront, assign, getContext, getHREFAt, getHREFs, go, index, onWorkFinished, replace, restore, setContext, setContextDefaultHref, start };
+var HistoryManager = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    onWorkFinished: onWorkFinished,
+    acquire: acquire,
+    addFront: addFront,
+    addBack: addBack,
+    index: index,
+    getHREFAt: getHREFAt,
+    setContext: setContext,
+    addContextPath: addContextPath,
+    setContextDefaultHref: setContextDefaultHref,
+    getContext: getContext,
+    getHREFs: getHREFs,
+    restore: restore,
+    assign: assign,
+    replace: replace,
+    go: go,
+    start: start
+});
+
+export { HistoryManager as H, acquire as a, addContextPath as b, setContextDefaultHref as c, setContext as d, getContext as e, replace as f, getHREFAt as g, assign as h, index as i, go as j, onWorkFinished as o, restore as r, start as s };

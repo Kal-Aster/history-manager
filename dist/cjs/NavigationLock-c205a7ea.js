@@ -1,13 +1,7 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var tslib_es6 = require('./tslib.es6-088f17e5.js');
-require('./index-6a014dd5.js');
-require('./PathGenerator-6eadb801.js');
-require('./index-6a756adc.js');
 var OptionsManager = require('./OptionsManager-c87b8948.js');
-require('./ContextManager-84e0cbfb.js');
 var HistoryManager = require('./HistoryManager-35b063fe.js');
 
 var locks = [];
@@ -148,6 +142,14 @@ function handlePopState() {
     }
 }
 
+var NavigationLock = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    lock: lock,
+    unlock: unlock,
+    locked: locked
+});
+
+exports.NavigationLock = NavigationLock;
 exports.lock = lock;
 exports.locked = locked;
 exports.unlock = unlock;

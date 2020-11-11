@@ -1,4 +1,4 @@
-define(['exports', './lib/path-to-regexp/index'], function (exports, index) { 'use strict';
+define(['exports', './index-b965db6c'], function (exports, index) { 'use strict';
 
     var LEADING_DELIMITER = /^[\\\/]+/;
     var TRAILING_DELIMITER = /[\\\/]+$/;
@@ -21,9 +21,14 @@ define(['exports', './lib/path-to-regexp/index'], function (exports, index) { 'u
         return index.pathToRegexp(path, keys);
     }
 
+    var PathGenerator = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        prepare: prepare,
+        generate: generate
+    });
+
+    exports.PathGenerator = PathGenerator;
     exports.generate = generate;
     exports.prepare = prepare;
-
-    Object.defineProperty(exports, '__esModule', { value: true });
 
 });

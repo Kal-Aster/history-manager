@@ -1,4 +1,4 @@
-define(['exports', 'tslib', './PathGenerator'], function (exports, tslib, PathGenerator) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407'], function (exports, tslib_es6, index, PathGenerator) { 'use strict';
 
     var ContextManager = (function () {
         function ContextManager() {
@@ -36,7 +36,7 @@ define(['exports', 'tslib', './PathGenerator'], function (exports, tslib, PathGe
             var index = this._index;
             var context;
             if (this._hrefs.some(function (_a) {
-                var _b = tslib.__read(_a, 2), c = _b[0], hrefs = _b[1];
+                var _b = tslib_es6.__read(_a, 2), c = _b[0], hrefs = _b[1];
                 context = c;
                 index -= hrefs.length;
                 return index < 0;
@@ -51,8 +51,8 @@ define(['exports', 'tslib', './PathGenerator'], function (exports, tslib, PathGe
             var foundContext = null;
             href = href.split("#")[0].split("?")[0];
             try {
-                for (var _b = tslib.__values(this._contexts.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var _d = tslib.__read(_c.value, 2), context = _d[0], _e = tslib.__read(_d[1], 1), hrefs = _e[0];
+                for (var _b = tslib_es6.__values(this._contexts.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var _d = tslib_es6.__read(_c.value, 2), context = _d[0], _e = tslib_es6.__read(_d[1], 1), hrefs = _e[0];
                     if (hrefs.some(function (c_href) {
                         if (c_href.fallback && skipFallback) {
                             return false;
@@ -139,7 +139,7 @@ define(['exports', 'tslib', './PathGenerator'], function (exports, tslib, PathGe
             if (index === void 0) { index = this._index; }
             var href;
             if (this._hrefs.some(function (_a) {
-                var _b = tslib.__read(_a, 2), c = _b[0], hrefs = _b[1];
+                var _b = tslib_es6.__read(_a, 2), c = _b[0], hrefs = _b[1];
                 var length = hrefs.length;
                 if (index >= length) {
                     index -= length;
@@ -249,7 +249,7 @@ define(['exports', 'tslib', './PathGenerator'], function (exports, tslib, PathGe
         ContextManager.prototype.hrefs = function () {
             var hrefs = [];
             this._hrefs.forEach(function (_a) {
-                var _b = tslib.__read(_a, 2), c = _b[0], c_hrefs = _b[1];
+                var _b = tslib_es6.__read(_a, 2), c = _b[0], c_hrefs = _b[1];
                 hrefs.push.apply(hrefs, c_hrefs);
             });
             return hrefs;

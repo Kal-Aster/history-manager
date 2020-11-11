@@ -1,7 +1,5 @@
-define(['../_commonjsHelpers-011ed8dd'], function (_commonjsHelpers) { 'use strict';
+define(['exports'], function (exports) { 'use strict';
 
-    var dist = _commonjsHelpers.createCommonjsModule(function (module, exports) {
-    Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * Tokenize input string.
      */
@@ -175,115 +173,6 @@ define(['../_commonjsHelpers-011ed8dd'], function (_commonjsHelpers) { 'use stri
         }
         return result;
     }
-    exports.parse = parse;
-    /**
-     * Compile a string to a template function for the path.
-     */
-    function compile(str, options) {
-        return tokensToFunction(parse(str, options), options);
-    }
-    exports.compile = compile;
-    /**
-     * Expose a method for transforming tokens into the path function.
-     */
-    function tokensToFunction(tokens, options) {
-        if (options === void 0) { options = {}; }
-        var reFlags = flags(options);
-        var _a = options.encode, encode = _a === void 0 ? function (x) { return x; } : _a, _b = options.validate, validate = _b === void 0 ? true : _b;
-        // Compile all the tokens into regexps.
-        var matches = tokens.map(function (token) {
-            if (typeof token === "object") {
-                return new RegExp("^(?:" + token.pattern + ")$", reFlags);
-            }
-        });
-        return function (data) {
-            var path = "";
-            for (var i = 0; i < tokens.length; i++) {
-                var token = tokens[i];
-                if (typeof token === "string") {
-                    path += token;
-                    continue;
-                }
-                var value = data ? data[token.name] : undefined;
-                var optional = token.modifier === "?" || token.modifier === "*";
-                var repeat = token.modifier === "*" || token.modifier === "+";
-                if (Array.isArray(value)) {
-                    if (!repeat) {
-                        throw new TypeError("Expected \"" + token.name + "\" to not repeat, but got an array");
-                    }
-                    if (value.length === 0) {
-                        if (optional)
-                            continue;
-                        throw new TypeError("Expected \"" + token.name + "\" to not be empty");
-                    }
-                    for (var j = 0; j < value.length; j++) {
-                        var segment = encode(value[j], token);
-                        if (validate && !matches[i].test(segment)) {
-                            throw new TypeError("Expected all \"" + token.name + "\" to match \"" + token.pattern + "\", but got \"" + segment + "\"");
-                        }
-                        path += token.prefix + segment + token.suffix;
-                    }
-                    continue;
-                }
-                if (typeof value === "string" || typeof value === "number") {
-                    var segment = encode(String(value), token);
-                    if (validate && !matches[i].test(segment)) {
-                        throw new TypeError("Expected \"" + token.name + "\" to match \"" + token.pattern + "\", but got \"" + segment + "\"");
-                    }
-                    path += token.prefix + segment + token.suffix;
-                    continue;
-                }
-                if (optional)
-                    continue;
-                var typeOfMessage = repeat ? "an array" : "a string";
-                throw new TypeError("Expected \"" + token.name + "\" to be " + typeOfMessage);
-            }
-            return path;
-        };
-    }
-    exports.tokensToFunction = tokensToFunction;
-    /**
-     * Create path match function from `path-to-regexp` spec.
-     */
-    function match(str, options) {
-        var keys = [];
-        var re = pathToRegexp(str, keys, options);
-        return regexpToFunction(re, keys, options);
-    }
-    exports.match = match;
-    /**
-     * Create a path match function from `path-to-regexp` output.
-     */
-    function regexpToFunction(re, keys, options) {
-        if (options === void 0) { options = {}; }
-        var _a = options.decode, decode = _a === void 0 ? function (x) { return x; } : _a;
-        return function (pathname) {
-            var m = re.exec(pathname);
-            if (!m)
-                return false;
-            var path = m[0], index = m.index;
-            var params = Object.create(null);
-            var _loop_1 = function (i) {
-                // tslint:disable-next-line
-                if (m[i] === undefined)
-                    return "continue";
-                var key = keys[i - 1];
-                if (key.modifier === "*" || key.modifier === "+") {
-                    params[key.name] = m[i].split(key.prefix + key.suffix).map(function (value) {
-                        return decode(value, key);
-                    });
-                }
-                else {
-                    params[key.name] = decode(m[i], key);
-                }
-            };
-            for (var i = 1; i < m.length; i++) {
-                _loop_1(i);
-            }
-            return { path: path, index: index, params: params };
-        };
-    }
-    exports.regexpToFunction = regexpToFunction;
     /**
      * Escape a regular expression string.
      */
@@ -389,7 +278,6 @@ define(['../_commonjsHelpers-011ed8dd'], function (_commonjsHelpers) { 'use stri
         }
         return new RegExp(route, flags(options));
     }
-    exports.tokensToRegexp = tokensToRegexp;
     /**
      * Normalize the given path string, returning a regular expression.
      *
@@ -404,12 +292,7 @@ define(['../_commonjsHelpers-011ed8dd'], function (_commonjsHelpers) { 'use stri
             return arrayToRegexp(path, keys, options);
         return stringToRegexp(path, keys, options);
     }
+
     exports.pathToRegexp = pathToRegexp;
-
-    });
-
-    var index = /*@__PURE__*/_commonjsHelpers.unwrapExports(dist);
-
-    return index;
 
 });

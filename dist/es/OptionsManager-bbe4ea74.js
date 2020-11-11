@@ -1,9 +1,5 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var tslib_es6 = require('./tslib.es6-088f17e5.js');
-var index$2 = require('./index-6a756adc.js');
+import { _ as __read } from './tslib.es6-4eedd806.js';
+import { p as parse, s as stringify } from './index-d109065d.js';
 
 var DIVIDER = "#R!:";
 var catchPopState = null;
@@ -55,15 +51,15 @@ function splitHref(href) {
 function optsToStr(opts) {
     var filteredOpts = {};
     Object.entries(opts).forEach(function (_a) {
-        var _b = tslib_es6.__read(_a, 2), key = _b[0], value = _b[1];
+        var _b = __read(_a, 2), key = _b[0], value = _b[1];
         if (value !== undefined) {
             filteredOpts[key] = value;
         }
     });
-    return index$2.stringify(filteredOpts);
+    return stringify(filteredOpts);
 }
 function get() {
-    return index$2.parse(splitHref()[1]);
+    return parse(splitHref()[1]);
 }
 function set(opts) {
     var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);
@@ -97,9 +93,14 @@ if (Object.keys(get()).length > 0) {
     set({});
 }
 
-exports.add = add;
-exports.clearHref = clearHref;
-exports.get = get;
-exports.goWith = goWith;
-exports.remove = remove;
-exports.set = set;
+var OptionsManager = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    get: get,
+    set: set,
+    add: add,
+    remove: remove,
+    goWith: goWith,
+    clearHref: clearHref
+});
+
+export { OptionsManager as O, get as a, clearHref as c, goWith as g, set as s };

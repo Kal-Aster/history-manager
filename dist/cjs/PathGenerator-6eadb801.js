@@ -1,8 +1,6 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var index$1 = require('./index-6a014dd5.js');
+var index = require('./index-6a014dd5.js');
 
 var LEADING_DELIMITER = /^[\\\/]+/;
 var TRAILING_DELIMITER = /[\\\/]+$/;
@@ -22,8 +20,15 @@ function generate(path, keys) {
     if (typeof path === "string") {
         path = prepare(path);
     }
-    return index$1.pathToRegexp(path, keys);
+    return index.pathToRegexp(path, keys);
 }
 
+var PathGenerator = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    prepare: prepare,
+    generate: generate
+});
+
+exports.PathGenerator = PathGenerator;
 exports.generate = generate;
 exports.prepare = prepare;

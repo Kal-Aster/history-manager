@@ -2,10 +2,12 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var tslib = require('tslib');
-var OptionsManager = require('./OptionsManager');
-var URLManager = require('./URLManager');
-var ContextManager = require('./ContextManager');
+var tslib_es6 = require('./tslib.es6-088f17e5.js');
+require('./index-6a014dd5.js');
+require('./PathGenerator-6eadb801.js');
+require('./index-6a756adc.js');
+var OptionsManager = require('./OptionsManager-c87b8948.js');
+var ContextManager = require('./ContextManager-84e0cbfb.js');
 
 var started = false;
 var works = [];
@@ -46,7 +48,7 @@ function createWork(locking) {
             }
             if (i >= 0 && works.length === 0) {
                 while (onworkfinished.length > 0 && works.length === 0) {
-                    var _a = tslib.__read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
+                    var _a = tslib_es6.__read(onworkfinished.shift(), 2), callback = _a[0], context = _a[1];
                     callback.call(context || window);
                 }
             }
@@ -93,7 +95,7 @@ function onCatchPopState(onCatchPopState, once) {
 }
 function goTo(href, replace) {
     if (replace === void 0) { replace = false; }
-    href = URLManager.construct(href);
+    href = ContextManager.construct(href);
     if (window.location.href === href) {
         window.dispatchEvent(new Event("popstate"));
         return;
@@ -107,10 +109,10 @@ function goTo(href, replace) {
 }
 function addFront(frontHref) {
     if (frontHref === void 0) { frontHref = "next"; }
-    var href = URLManager.get();
+    var href = ContextManager.get();
     var work = createWork();
     return new Promise(function (resolve) {
-        OptionsManager.goWith(URLManager.construct(frontHref), { back: undefined, front: null })
+        OptionsManager.goWith(ContextManager.construct(frontHref), { back: undefined, front: null })
             .then(function () { return new Promise(function (resolve) {
             onCatchPopState(resolve, true);
             window.history.go(-1);
@@ -127,7 +129,7 @@ function addFront(frontHref) {
 }
 function addBack(backHref) {
     if (backHref === void 0) { backHref = ""; }
-    var href = URLManager.get();
+    var href = ContextManager.get();
     var work = createWork();
     return new Promise(function (resolve) {
         (new Promise(function (resolve) {
@@ -318,7 +320,7 @@ function go(direction) {
 }
 function start(fallbackContext) {
     if (fallbackContext === void 0) { fallbackContext = contextManager.getContextNames()[0]; }
-    var href = URLManager.get();
+    var href = ContextManager.get();
     var context = contextManager.contextOf(href, false);
     if (context == null) {
         if (!fallbackContext) {
@@ -426,7 +428,7 @@ function handlePopState() {
         });
     }
     else {
-        var href_4 = URLManager.get();
+        var href_4 = ContextManager.get();
         var backHref_1 = contextManager.get();
         if (href_4 === backHref_1) {
             return onlanded();

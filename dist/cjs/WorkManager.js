@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var tslib = require('tslib');
+var tslib_es6 = require('./tslib.es6-088f17e5.js');
 
 var locks = [];
 function lock(locking_fn) {
@@ -32,7 +32,7 @@ function lock(locking_fn) {
             }
             if (i >= 0) {
                 onrelease.forEach(function (_a) {
-                    var _b = tslib.__read(_a, 2), callback = _b[0], context = _b[1];
+                    var _b = tslib_es6.__read(_a, 2), callback = _b[0], context = _b[1];
                     callback.call(context || null);
                 });
             }
@@ -70,7 +70,7 @@ function completeWork() {
     if (--working === 0) {
         currentWork = -1;
         while (ondoneCallbacks.length && currentWork === -1) {
-            var _a = tslib.__read(ondoneCallbacks.shift(), 2), callback = _a[0], context = _a[1];
+            var _a = tslib_es6.__read(ondoneCallbacks.shift(), 2), callback = _a[0], context = _a[1];
             callback.call(context || null);
         }
     }

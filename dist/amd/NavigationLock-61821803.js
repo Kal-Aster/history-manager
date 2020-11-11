@@ -1,4 +1,4 @@
-define(['exports', './lib/tslib/index', './OptionsManager', './HistoryManager'], function (exports, index$1, OptionsManager, HistoryManager) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './OptionsManager-0057cf14', './HistoryManager-bf546f14'], function (exports, tslib_es6, OptionsManager, HistoryManager) { 'use strict';
 
     var locks = [];
     var catchPopState = null;
@@ -83,7 +83,7 @@ define(['exports', './lib/tslib/index', './OptionsManager', './HistoryManager'],
                 return true;
             };
             locks.push(lock);
-            OptionsManager.goWith(OptionsManager.clearHref(), index$1.__assign(index$1.__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
+            OptionsManager.goWith(OptionsManager.clearHref(), tslib_es6.__assign(tslib_es6.__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
                 promiseResolve(lock.lock);
             });
         });
@@ -138,10 +138,16 @@ define(['exports', './lib/tslib/index', './OptionsManager', './HistoryManager'],
         }
     }
 
+    var NavigationLock = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        lock: lock,
+        unlock: unlock,
+        locked: locked
+    });
+
+    exports.NavigationLock = NavigationLock;
     exports.lock = lock;
     exports.locked = locked;
     exports.unlock = unlock;
-
-    Object.defineProperty(exports, '__esModule', { value: true });
 
 });

@@ -2,12 +2,14 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var tslib = require('tslib');
-var PathGenerator = require('./PathGenerator');
-var URLManager = require('./URLManager');
-var HistoryManager = require('./HistoryManager');
-var NavigationLock = require('./NavigationLock');
-var qs = require('query-string');
+var tslib_es6 = require('./tslib.es6-088f17e5.js');
+require('./index-6a014dd5.js');
+var PathGenerator = require('./PathGenerator-6eadb801.js');
+var index$2 = require('./index-6a756adc.js');
+require('./OptionsManager-c87b8948.js');
+var ContextManager = require('./ContextManager-84e0cbfb.js');
+var HistoryManager = require('./HistoryManager-35b063fe.js');
+var NavigationLock = require('./NavigationLock-c205a7ea.js');
 
 var _a, _b, _c;
 var ROUTES = Symbol("routes");
@@ -22,7 +24,7 @@ function KeyMapFrom(keys, values) {
 }
 var routers = [];
 function getLocation(href) {
-    if (href === void 0) { href = URLManager.get(); }
+    if (href === void 0) { href = ContextManager.get(); }
     var pathname = "";
     var hash = "";
     var query = "";
@@ -140,7 +142,7 @@ function getLocation(href) {
                 return {};
             }
             if (!cachedQuery) {
-                cachedQuery = qs.parse(query.replace(/^\?/, ""));
+                cachedQuery = index$2.parse(query.replace(/^\?/, ""));
             }
             return cachedQuery;
         },
@@ -159,9 +161,9 @@ function getLocation(href) {
         addQueryParam: function (param, value) {
             var _d;
             if (value === void 0) { value = null; }
-            var newQuery = tslib.__assign(tslib.__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
+            var newQuery = tslib_es6.__assign(tslib_es6.__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
             cachedQuery = null;
-            query = qs.stringify(newQuery);
+            query = index$2.stringify(newQuery);
             if (query) {
                 query = "?" + query;
             }
@@ -172,7 +174,7 @@ function getLocation(href) {
             }
             var parsedQuery = this.parsedQuery;
             delete parsedQuery[param];
-            this.query = qs.stringify(parsedQuery);
+            this.query = index$2.stringify(parsedQuery);
         }
     };
 }
@@ -367,10 +369,10 @@ function go(path_index, options) {
     if (path_index_type !== "string" && path_index_type !== "number") {
         throw new Error("router.go should receive an url string or a number");
     }
-    options = tslib.__assign({}, options);
+    options = tslib_es6.__assign({}, options);
     return new Promise(function (promiseResolve, promiseReject) {
         var goingEvent = new CustomEvent("router:going", {
-            detail: tslib.__assign({ direction: path_index }, options),
+            detail: tslib_es6.__assign({ direction: path_index }, options),
             cancelable: true
         });
         window.dispatchEvent(goingEvent);
@@ -416,17 +418,17 @@ function destroy() {
     throw new Error("cannot destroy main Router");
 }
 function getBase() {
-    return URLManager.base();
+    return ContextManager.base();
 }
 function setBase(newBase) {
-    URLManager.base(newBase.replace(/[\/]+$/, ""));
+    ContextManager.base(newBase.replace(/[\/]+$/, ""));
     _emit();
 }
 function isLocked() {
     return NavigationLock.locked();
 }
 
-exports.NavigationLock = NavigationLock;
+exports.NavigationLock = NavigationLock.NavigationLock;
 exports.addContextPath = addContextPath;
 exports.create = create;
 exports.destroy = destroy;

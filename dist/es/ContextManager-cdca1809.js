@@ -1,10 +1,37 @@
-'use strict';
+import { _ as __read, a as __values } from './tslib.es6-4eedd806.js';
+import { p as prepare, g as generate } from './PathGenerator-70ab30e9.js';
+import { c as clearHref } from './OptionsManager-bbe4ea74.js';
 
-Object.defineProperty(exports, '__esModule', { value: true });
+var BASE = window.location.href.split("#")[0] + "#";
+function base(value) {
+    if (value != null) {
+        BASE = value;
+    }
+    return BASE;
+}
+function get() {
+    return prepare(clearHref().split(BASE).slice(1).join(BASE));
+}
+function construct(href) {
+    switch (href[0]) {
+        case "?": {
+            href = get().split("?")[0] + href;
+            break;
+        }
+        case "#": {
+            href = get().split("#")[0] + href;
+            break;
+        }
+    }
+    return BASE + href;
+}
 
-var tslib_es6 = require('./tslib.es6-088f17e5.js');
-require('./index-6a014dd5.js');
-var PathGenerator = require('./PathGenerator-6eadb801.js');
+var URLManager = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    base: base,
+    get: get,
+    construct: construct
+});
 
 var ContextManager = (function () {
     function ContextManager() {
@@ -42,7 +69,7 @@ var ContextManager = (function () {
         var index = this._index;
         var context;
         if (this._hrefs.some(function (_a) {
-            var _b = tslib_es6.__read(_a, 2), c = _b[0], hrefs = _b[1];
+            var _b = __read(_a, 2), c = _b[0], hrefs = _b[1];
             context = c;
             index -= hrefs.length;
             return index < 0;
@@ -57,8 +84,8 @@ var ContextManager = (function () {
         var foundContext = null;
         href = href.split("#")[0].split("?")[0];
         try {
-            for (var _b = tslib_es6.__values(this._contexts.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var _d = tslib_es6.__read(_c.value, 2), context = _d[0], _e = tslib_es6.__read(_d[1], 1), hrefs = _e[0];
+            for (var _b = __values(this._contexts.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var _d = __read(_c.value, 2), context = _d[0], _e = __read(_d[1], 1), hrefs = _e[0];
                 if (hrefs.some(function (c_href) {
                     if (c_href.fallback && skipFallback) {
                         return false;
@@ -145,7 +172,7 @@ var ContextManager = (function () {
         if (index === void 0) { index = this._index; }
         var href;
         if (this._hrefs.some(function (_a) {
-            var _b = tslib_es6.__read(_a, 2), c = _b[0], hrefs = _b[1];
+            var _b = __read(_a, 2), c = _b[0], hrefs = _b[1];
             var length = hrefs.length;
             if (index >= length) {
                 index -= length;
@@ -225,7 +252,7 @@ var ContextManager = (function () {
     };
     ContextManager.prototype.addContextPath = function (context_name, path, fallback) {
         if (fallback === void 0) { fallback = false; }
-        var pathRegexp = PathGenerator.generate(path);
+        var pathRegexp = generate(path);
         var context = this._contexts.get(context_name);
         if (context == null) {
             this._contexts.set(context_name, context = [[], null]);
@@ -255,7 +282,7 @@ var ContextManager = (function () {
     ContextManager.prototype.hrefs = function () {
         var hrefs = [];
         this._hrefs.forEach(function (_a) {
-            var _b = tslib_es6.__read(_a, 2), c = _b[0], c_hrefs = _b[1];
+            var _b = __read(_a, 2), c = _b[0], c_hrefs = _b[1];
             hrefs.push.apply(hrefs, c_hrefs);
         });
         return hrefs;
@@ -263,4 +290,9 @@ var ContextManager = (function () {
     return ContextManager;
 }());
 
-exports.ContextManager = ContextManager;
+var ContextManager$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    ContextManager: ContextManager
+});
+
+export { ContextManager as C, URLManager as U, ContextManager$1 as a, base as b, construct as c, get as g };
