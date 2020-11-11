@@ -51,7 +51,7 @@ export default [
             nodeResolve()
         ],
         output: {
-            file: "dist/amd.bundled.js",
+            file: "dist/amd.js",
             format: "amd"
         }
     },
@@ -64,7 +64,7 @@ export default [
         ],
         output: {
             name: "historyManager",
-            file: "dist/umd.bundled.js",
+            file: "dist/umd.js",
             format: "umd"
         }
     }
