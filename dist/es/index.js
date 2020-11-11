@@ -1,15 +1,15 @@
 import { b as __assign, _ as __read } from './tslib.es6-4eedd806.js';
-import './index-c2fda29c.js';
-import { p as prepare, g as generate } from './PathGenerator-70ab30e9.js';
-export { P as PathGenerator } from './PathGenerator-70ab30e9.js';
-import { p as parse, s as stringify } from './index-d109065d.js';
-export { O as OptionsManager } from './OptionsManager-bbe4ea74.js';
-import { g as get, b as base } from './ContextManager-cdca1809.js';
-export { a as ContextManager, U as URLManager } from './ContextManager-cdca1809.js';
-import { s as start$1, i as index$1, g as getHREFAt, b as addContextPath$1, c as setContextDefaultHref$1, d as setContext$1, e as getContext$1, r as restore, f as replace, h as assign, j as go$1, o as onWorkFinished } from './HistoryManager-bfd3b7f7.js';
-export { H as HistoryManager } from './HistoryManager-bfd3b7f7.js';
-import { N as NavigationLock, l as lock$2, u as unlock$1, a as locked$1 } from './NavigationLock-b92b0f57.js';
-export { N as NavigationLock } from './NavigationLock-b92b0f57.js';
+import './index-71b123e0.js';
+import { p as prepare, g as generate } from './PathGenerator-5ecdbddb.js';
+export { P as PathGenerator } from './PathGenerator-5ecdbddb.js';
+import { q as queryString } from './index-42276b71.js';
+export { O as OptionsManager } from './OptionsManager-fa51c5df.js';
+import { g as get, b as base } from './ContextManager-75e17814.js';
+export { a as ContextManager, U as URLManager } from './ContextManager-75e17814.js';
+import { s as start$1, i as index$1, g as getHREFAt, a as addContextPath$1, b as setContextDefaultHref$1, c as setContext$1, d as getContext$1, r as restore, e as replace, f as assign, h as go$1, o as onWorkFinished } from './HistoryManager-6939f6b4.js';
+export { H as HistoryManager } from './HistoryManager-6939f6b4.js';
+import { l as lock$2, u as unlock$1, a as locked$1, N as NavigationLock } from './NavigationLock-d4fb0e98.js';
+export { N as NavigationLock } from './NavigationLock-d4fb0e98.js';
 
 var _a, _b, _c;
 var ROUTES = Symbol("routes");
@@ -142,7 +142,7 @@ function getLocation(href) {
                 return {};
             }
             if (!cachedQuery) {
-                cachedQuery = parse(query.replace(/^\?/, ""));
+                cachedQuery = queryString.parse(query.replace(/^\?/, ""));
             }
             return cachedQuery;
         },
@@ -163,7 +163,7 @@ function getLocation(href) {
             if (value === void 0) { value = null; }
             var newQuery = __assign(__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
             cachedQuery = null;
-            query = stringify(newQuery);
+            query = queryString.stringify(newQuery);
             if (query) {
                 query = "?" + query;
             }
@@ -174,7 +174,7 @@ function getLocation(href) {
             }
             var parsedQuery = this.parsedQuery;
             delete parsedQuery[param];
-            this.query = stringify(parsedQuery);
+            this.query = queryString.stringify(parsedQuery);
         }
     };
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-var index = require('./index-6a014dd5.js');
+var index = require('./index-f599a34d.js');
 
 var LEADING_DELIMITER = /^[\\\/]+/;
 var TRAILING_DELIMITER = /[\\\/]+$/;

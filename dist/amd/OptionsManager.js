@@ -1,4 +1,4 @@
-define(['exports', './tslib.es6-ee56af75', './index-271cf777'], function (exports, tslib_es6, index$2) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-c53f140f'], function (exports, tslib_es6, index) { 'use strict';
 
     var DIVIDER = "#R!:";
     var catchPopState = null;
@@ -55,10 +55,10 @@ define(['exports', './tslib.es6-ee56af75', './index-271cf777'], function (export
                 filteredOpts[key] = value;
             }
         });
-        return index$2.stringify(filteredOpts);
+        return index.queryString.stringify(filteredOpts);
     }
     function get() {
-        return index$2.parse(splitHref()[1]);
+        return index.queryString.parse(splitHref()[1]);
     }
     function set(opts) {
         var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);

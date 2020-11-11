@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var index$1 = require('./index-6a014dd5.js');
+var index = require('./index-f599a34d.js');
 
 var LEADING_DELIMITER = /^[\\\/]+/;
 var TRAILING_DELIMITER = /[\\\/]+$/;
@@ -22,7 +22,7 @@ function generate(path, keys) {
     if (typeof path === "string") {
         path = prepare(path);
     }
-    return index$1.pathToRegexp(path, keys);
+    return index.pathToRegexp(path, keys);
 }
 
 exports.generate = generate;

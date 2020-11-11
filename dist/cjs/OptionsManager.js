@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var tslib_es6 = require('./tslib.es6-088f17e5.js');
-var index$2 = require('./index-6a756adc.js');
+var index = require('./index-241ea07e.js');
 
 var DIVIDER = "#R!:";
 var catchPopState = null;
@@ -60,10 +60,10 @@ function optsToStr(opts) {
             filteredOpts[key] = value;
         }
     });
-    return index$2.stringify(filteredOpts);
+    return index.queryString.stringify(filteredOpts);
 }
 function get() {
-    return index$2.parse(splitHref()[1]);
+    return index.queryString.parse(splitHref()[1]);
 }
 function set(opts) {
     var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);

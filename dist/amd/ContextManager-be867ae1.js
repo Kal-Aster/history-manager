@@ -1,4 +1,4 @@
-define(['exports', './tslib.es6-ee56af75', './PathGenerator-2df3f407', './OptionsManager-0057cf14'], function (exports, tslib_es6, PathGenerator, OptionsManager) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './PathGenerator-7f8059ee', './OptionsManager-1b0e876e'], function (exports, tslib_es6, PathGenerator, OptionsManager) { 'use strict';
 
     var BASE = window.location.href.split("#")[0] + "#";
     function base(value) {

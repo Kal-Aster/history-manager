@@ -1,4 +1,4 @@
-import { p as pathToRegexp } from './index-c2fda29c.js';
+import { p as pathToRegexp } from './index-71b123e0.js';
 
 var LEADING_DELIMITER = /^[\\\/]+/;
 var TRAILING_DELIMITER = /[\\\/]+$/;

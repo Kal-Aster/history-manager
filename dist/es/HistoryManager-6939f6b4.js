@@ -1,6 +1,6 @@
 import { _ as __read } from './tslib.es6-4eedd806.js';
-import { g as goWith, s as set, a as get$1 } from './OptionsManager-bbe4ea74.js';
-import { g as get, c as construct, C as ContextManager } from './ContextManager-cdca1809.js';
+import { g as goWith, s as set, a as get$1 } from './OptionsManager-fa51c5df.js';
+import { g as get, c as construct, C as ContextManager } from './ContextManager-75e17814.js';
 
 var started = false;
 var works = [];
@@ -476,4 +476,4 @@ var HistoryManager = /*#__PURE__*/Object.freeze({
     start: start
 });
 
-export { HistoryManager as H, acquire as a, addContextPath as b, setContextDefaultHref as c, setContext as d, getContext as e, replace as f, getHREFAt as g, assign as h, index as i, go as j, onWorkFinished as o, restore as r, start as s };
+export { HistoryManager as H, addContextPath as a, setContextDefaultHref as b, setContext as c, getContext as d, replace as e, assign as f, getHREFAt as g, go as h, index as i, acquire as j, onWorkFinished as o, restore as r, start as s };

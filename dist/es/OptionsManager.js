@@ -1,5 +1,5 @@
 import { _ as __read } from './tslib.es6-4eedd806.js';
-import { p as parse, s as stringify } from './index-d109065d.js';
+import { q as queryString } from './index-42276b71.js';
 
 var DIVIDER = "#R!:";
 var catchPopState = null;
@@ -56,10 +56,10 @@ function optsToStr(opts) {
             filteredOpts[key] = value;
         }
     });
-    return stringify(filteredOpts);
+    return queryString.stringify(filteredOpts);
 }
 function get() {
-    return parse(splitHref()[1]);
+    return queryString.parse(splitHref()[1]);
 }
 function set(opts) {
     var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);

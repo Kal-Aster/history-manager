@@ -1,4 +1,4 @@
-define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-2df3f407', './index-271cf777', './OptionsManager-0057cf14', './ContextManager-8067c64b', './HistoryManager-bf546f14', './NavigationLock-61821803'], function (exports, tslib_es6, index$1, PathGenerator, index$2, OptionsManager, ContextManager, HistoryManager, NavigationLock) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-0e011f4d', './PathGenerator-7f8059ee', './index-c53f140f', './OptionsManager-1b0e876e', './ContextManager-be867ae1', './HistoryManager-163bc7fe', './NavigationLock-09fd05ba'], function (exports, tslib_es6, index$2, PathGenerator, index$1, OptionsManager, ContextManager, HistoryManager, NavigationLock) { 'use strict';
 
     var _a, _b, _c;
     var ROUTES = Symbol("routes");
@@ -131,7 +131,7 @@ define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-
                     return {};
                 }
                 if (!cachedQuery) {
-                    cachedQuery = index$2.parse(query.replace(/^\?/, ""));
+                    cachedQuery = index$1.queryString.parse(query.replace(/^\?/, ""));
                 }
                 return cachedQuery;
             },
@@ -152,7 +152,7 @@ define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-
                 if (value === void 0) { value = null; }
                 var newQuery = tslib_es6.__assign(tslib_es6.__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
                 cachedQuery = null;
-                query = index$2.stringify(newQuery);
+                query = index$1.queryString.stringify(newQuery);
                 if (query) {
                     query = "?" + query;
                 }
@@ -163,7 +163,7 @@ define(['exports', './tslib.es6-ee56af75', './index-b965db6c', './PathGenerator-
                 }
                 var parsedQuery = this.parsedQuery;
                 delete parsedQuery[param];
-                this.query = index$2.stringify(parsedQuery);
+                this.query = index$1.queryString.stringify(parsedQuery);
             }
         };
     }

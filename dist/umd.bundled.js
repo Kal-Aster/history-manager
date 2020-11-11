@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    (global = global || self, factory(global.historyManager = {}));
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.historyManager = {}));
 }(this, (function (exports) { 'use strict';
 
     /*! *****************************************************************************
@@ -250,18 +250,19 @@
     function regexpToRegexp(path, keys) {
         if (!keys)
             return path;
-        // Use a negative lookahead to match only capturing groups.
-        var groups = path.source.match(/\((?!\?)/g);
-        if (groups) {
-            for (var i = 0; i < groups.length; i++) {
-                keys.push({
-                    name: i,
-                    prefix: "",
-                    suffix: "",
-                    modifier: "",
-                    pattern: ""
-                });
-            }
+        var groupsRegex = /\((?:\?<(.*?)>)?(?!\?)/g;
+        var index = 0;
+        var execResult = groupsRegex.exec(path.source);
+        while (execResult) {
+            keys.push({
+                // Use parenthesized substring match if available, index otherwise
+                name: execResult[1] || index++,
+                prefix: "",
+                suffix: "",
+                modifier: "",
+                pattern: ""
+            });
+            execResult = groupsRegex.exec(path.source);
         }
         return path;
     }
@@ -896,8 +897,10 @@
     		case 'comma':
     		case 'separator':
     			return (key, value, accumulator) => {
-    				const isArray = typeof value === 'string' && value.split('').indexOf(options.arrayFormatSeparator) > -1;
-    				const newValue = isArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : value === null ? value : decode(value, options);
+    				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
+    				const isEncodedArray = (typeof value === 'string' && !isArray && decode(value, options).includes(options.arrayFormatSeparator));
+    				value = isEncodedArray ? decode(value, options) : value;
+    				const newValue = isArray || isEncodedArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : value === null ? value : decode(value, options);
     				accumulator[key] = newValue;
     			};
 
@@ -988,7 +991,7 @@
     	return value;
     }
 
-    function parse(input, options) {
+    function parse(query, options) {
     	options = Object.assign({
     		decode: true,
     		sort: true,
@@ -1005,17 +1008,17 @@
     	// Create an object with no prototype
     	const ret = Object.create(null);
 
-    	if (typeof input !== 'string') {
+    	if (typeof query !== 'string') {
     		return ret;
     	}
 
-    	input = input.trim().replace(/^[?#&]/, '');
+    	query = query.trim().replace(/^[?#&]/, '');
 
-    	if (!input) {
+    	if (!query) {
     		return ret;
     	}
 
-    	for (const param of input.split('&')) {
+    	for (const param of query.split('&')) {
     		let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
 
     		// Missing `=` should be `null`:
@@ -1111,41 +1114,41 @@
     	}).filter(x => x.length > 0).join('&');
     };
 
-    exports.parseUrl = (input, options) => {
+    exports.parseUrl = (url, options) => {
     	options = Object.assign({
     		decode: true
     	}, options);
 
-    	const [url, hash] = splitOnFirst(input, '#');
+    	const [url_, hash] = splitOnFirst(url, '#');
 
     	return Object.assign(
     		{
-    			url: url.split('?')[0] || '',
-    			query: parse(extract(input), options)
+    			url: url_.split('?')[0] || '',
+    			query: parse(extract(url), options)
     		},
     		options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}
     	);
     };
 
-    exports.stringifyUrl = (input, options) => {
+    exports.stringifyUrl = (object, options) => {
     	options = Object.assign({
     		encode: true,
     		strict: true
     	}, options);
 
-    	const url = removeHash(input.url).split('?')[0] || '';
-    	const queryFromUrl = exports.extract(input.url);
+    	const url = removeHash(object.url).split('?')[0] || '';
+    	const queryFromUrl = exports.extract(object.url);
     	const parsedQueryFromUrl = exports.parse(queryFromUrl, {sort: false});
 
-    	const query = Object.assign(parsedQueryFromUrl, input.query);
+    	const query = Object.assign(parsedQueryFromUrl, object.query);
     	let queryString = exports.stringify(query, options);
     	if (queryString) {
     		queryString = `?${queryString}`;
     	}
 
-    	let hash = getHash(input.url);
-    	if (input.fragmentIdentifier) {
-    		hash = `#${encode(input.fragmentIdentifier, options)}`;
+    	let hash = getHash(object.url);
+    	if (object.fragmentIdentifier) {
+    		hash = `#${encode(object.fragmentIdentifier, options)}`;
     	}
 
     	return `${url}${queryString}${hash}`;

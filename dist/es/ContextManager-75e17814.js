@@ -1,6 +1,6 @@
 import { _ as __read, a as __values } from './tslib.es6-4eedd806.js';
-import { p as prepare, g as generate } from './PathGenerator-70ab30e9.js';
-import { c as clearHref } from './OptionsManager-bbe4ea74.js';
+import { p as prepare, g as generate } from './PathGenerator-5ecdbddb.js';
+import { c as clearHref } from './OptionsManager-fa51c5df.js';
 
 var BASE = window.location.href.split("#")[0] + "#";
 function base(value) {

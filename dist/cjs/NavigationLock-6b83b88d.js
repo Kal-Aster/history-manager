@@ -1,6 +1,8 @@
-import { b as __assign } from './tslib.es6-4eedd806.js';
-import { g as goWith, a as get, c as clearHref } from './OptionsManager-bbe4ea74.js';
-import { o as onWorkFinished, a as acquire } from './HistoryManager-bfd3b7f7.js';
+'use strict';
+
+var tslib_es6 = require('./tslib.es6-088f17e5.js');
+var OptionsManager = require('./OptionsManager-3fd4d9f6.js');
+var HistoryManager = require('./HistoryManager-be86dede.js');
 
 var locks = [];
 var catchPopState = null;
@@ -30,8 +32,8 @@ function lock() {
     var promise = new Promise(function (resolve) {
         promiseResolve = resolve;
     });
-    onWorkFinished(function () {
-        historyLock = acquire();
+    HistoryManager.onWorkFinished(function () {
+        historyLock = HistoryManager.acquire();
         var lock = {
             lock: {
                 get id() {
@@ -85,7 +87,7 @@ function lock() {
             return true;
         };
         locks.push(lock);
-        goWith(clearHref(), __assign(__assign({}, get()), { locked: lock.lock.id })).then(function () {
+        OptionsManager.goWith(OptionsManager.clearHref(), tslib_es6.__assign(tslib_es6.__assign({}, OptionsManager.get()), { locked: lock.lock.id })).then(function () {
             promiseResolve(lock.lock);
         });
     });
@@ -116,7 +118,7 @@ function handlePopState() {
     if (locks.length === 0) {
         return;
     }
-    var lockId = parseInt(get().locked, 10);
+    var lockId = parseInt(OptionsManager.get().locked, 10);
     if (isNaN(lockId)) {
         shouldUnlock = true;
         window.history.go(1);
@@ -147,4 +149,7 @@ var NavigationLock = /*#__PURE__*/Object.freeze({
     locked: locked
 });
 
-export { NavigationLock as N, locked as a, lock as l, unlock as u };
+exports.NavigationLock = NavigationLock;
+exports.lock = lock;
+exports.locked = locked;
+exports.unlock = unlock;

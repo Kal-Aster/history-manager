@@ -1,13 +1,7 @@
 const commonjs = require('@rollup/plugin-commonjs');
 const typescript = require('@rollup/plugin-typescript');
 const multiInput = require("rollup-plugin-multi-input").default;
-const externalizer = require("./externalizer").default;
 const nodeResolve = require("@rollup/plugin-node-resolve").default;
-
-let externalizerFull = externalizer();
-let externalizerLib = externalizer({ full: false });
-let externalizerLibCJS = externalizer({ full: false });
-let externalizerLibES = externalizer({ full: false });
 
 export default [
     {

@@ -1,5 +1,7 @@
-import { _ as __read } from './tslib.es6-4eedd806.js';
-import { p as parse, s as stringify } from './index-d109065d.js';
+'use strict';
+
+var tslib_es6 = require('./tslib.es6-088f17e5.js');
+var index = require('./index-241ea07e.js');
 
 var DIVIDER = "#R!:";
 var catchPopState = null;
@@ -51,15 +53,15 @@ function splitHref(href) {
 function optsToStr(opts) {
     var filteredOpts = {};
     Object.entries(opts).forEach(function (_a) {
-        var _b = __read(_a, 2), key = _b[0], value = _b[1];
+        var _b = tslib_es6.__read(_a, 2), key = _b[0], value = _b[1];
         if (value !== undefined) {
             filteredOpts[key] = value;
         }
     });
-    return stringify(filteredOpts);
+    return index.queryString.stringify(filteredOpts);
 }
 function get() {
-    return parse(splitHref()[1]);
+    return index.queryString.parse(splitHref()[1]);
 }
 function set(opts) {
     var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);
@@ -103,4 +105,8 @@ var OptionsManager = /*#__PURE__*/Object.freeze({
     clearHref: clearHref
 });
 
-export { OptionsManager as O, get as a, clearHref as c, goWith as g, set as s };
+exports.OptionsManager = OptionsManager;
+exports.clearHref = clearHref;
+exports.get = get;
+exports.goWith = goWith;
+exports.set = set;

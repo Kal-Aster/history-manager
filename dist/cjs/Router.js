@@ -3,13 +3,13 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var tslib_es6 = require('./tslib.es6-088f17e5.js');
-require('./index-6a014dd5.js');
-var PathGenerator = require('./PathGenerator-6eadb801.js');
-var index$2 = require('./index-6a756adc.js');
-require('./OptionsManager-c87b8948.js');
-var ContextManager = require('./ContextManager-84e0cbfb.js');
-var HistoryManager = require('./HistoryManager-35b063fe.js');
-var NavigationLock = require('./NavigationLock-c205a7ea.js');
+require('./index-f599a34d.js');
+var PathGenerator = require('./PathGenerator-4901c320.js');
+var index$1 = require('./index-241ea07e.js');
+require('./OptionsManager-3fd4d9f6.js');
+var ContextManager = require('./ContextManager-6ca49066.js');
+var HistoryManager = require('./HistoryManager-be86dede.js');
+var NavigationLock = require('./NavigationLock-6b83b88d.js');
 
 var _a, _b, _c;
 var ROUTES = Symbol("routes");
@@ -142,7 +142,7 @@ function getLocation(href) {
                 return {};
             }
             if (!cachedQuery) {
-                cachedQuery = index$2.parse(query.replace(/^\?/, ""));
+                cachedQuery = index$1.queryString.parse(query.replace(/^\?/, ""));
             }
             return cachedQuery;
         },
@@ -163,7 +163,7 @@ function getLocation(href) {
             if (value === void 0) { value = null; }
             var newQuery = tslib_es6.__assign(tslib_es6.__assign({}, this.parsedQuery), (_d = {}, _d[param] = value, _d));
             cachedQuery = null;
-            query = index$2.stringify(newQuery);
+            query = index$1.queryString.stringify(newQuery);
             if (query) {
                 query = "?" + query;
             }
@@ -174,7 +174,7 @@ function getLocation(href) {
             }
             var parsedQuery = this.parsedQuery;
             delete parsedQuery[param];
-            this.query = index$2.stringify(parsedQuery);
+            this.query = index$1.queryString.stringify(parsedQuery);
         }
     };
 }

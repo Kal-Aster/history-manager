@@ -1,4 +1,4 @@
-define(['exports', './index-b965db6c'], function (exports, index$1) { 'use strict';
+define(['exports', './index-0e011f4d'], function (exports, index) { 'use strict';
 
     var LEADING_DELIMITER = /^[\\\/]+/;
     var TRAILING_DELIMITER = /[\\\/]+$/;
@@ -18,7 +18,7 @@ define(['exports', './index-b965db6c'], function (exports, index$1) { 'use stric
         if (typeof path === "string") {
             path = prepare(path);
         }
-        return index$1.pathToRegexp(path, keys);
+        return index.pathToRegexp(path, keys);
     }
 
     exports.generate = generate;
