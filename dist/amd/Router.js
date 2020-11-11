@@ -1,4 +1,4 @@
-define(['exports', './tslib.es6-ee56af75', './index-0e011f4d', './PathGenerator-7f8059ee', './index-c53f140f', './OptionsManager-1b0e876e', './ContextManager-be867ae1', './HistoryManager-163bc7fe', './NavigationLock-09fd05ba'], function (exports, tslib_es6, index$2, PathGenerator, index$1, OptionsManager, ContextManager, HistoryManager, NavigationLock) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-0e011f4d', './PathGenerator-7f8059ee', './index-c53f140f', './OptionsManager-1b0e876e', './ContextManager-be867ae1', './HistoryManager-bbeac4a5', './NavigationLock-9d25bdc7'], function (exports, tslib_es6, index$2, PathGenerator, index$1, OptionsManager, ContextManager, HistoryManager, NavigationLock) { 'use strict';
 
     var _a, _b, _c;
     var ROUTES = Symbol("routes");

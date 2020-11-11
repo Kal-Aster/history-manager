@@ -436,7 +436,7 @@ export function unroute(path: string): void {
 }
 // :TODO:
 // main.start = function (startingContext: string, organizeHistory: boolean = true): boolean {
-export function start (startingContext: string): void {
+export function start (startingContext: string): Promise<undefined> {
     return HistoryManager.start(startingContext);
 }
 export function index(): number {

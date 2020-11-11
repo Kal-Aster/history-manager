@@ -345,9 +345,11 @@ export function go(direction: number): Promise<void> {
     return promise;
 }
 
-export function start(fallbackContext: string | null = contextManager.getContextNames()[0]): void {
+export function start(fallbackContext: string | null = contextManager.getContextNames()[0]): Promise<undefined> {
     let href: string = URLManager.get();
     let context: string | null = contextManager.contextOf(href, false);
+    let promiseResolve: () => void;
+    const promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve; });
     if (context == null) {
         if (!fallbackContext) {
             throw new Error("must define a fallback context");
@@ -359,14 +361,16 @@ export function start(fallbackContext: string | null = contextManager.getContext
         started = true;
         href = defaultHREF;
         workToRelease = createWork();
-        onCatchPopState(onlanded, true);
+        onCatchPopState(() => { onlanded(); promiseResolve(); }, true);
         goTo(defaultHREF, true);
     }
     contextManager.insert(href);
     if (context != null) {
         started = true;
         onlanded();
+        promiseResolve!();
     }
+    return promise;
 }
 
 function onlanded(): void {

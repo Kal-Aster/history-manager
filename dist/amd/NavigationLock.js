@@ -1,4 +1,4 @@
-define(['exports', './tslib.es6-ee56af75', './index-0e011f4d', './PathGenerator-7f8059ee', './index-c53f140f', './OptionsManager-1b0e876e', './ContextManager-be867ae1', './HistoryManager-163bc7fe'], function (exports, tslib_es6, index, PathGenerator, index$1, OptionsManager, ContextManager, HistoryManager) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './index-0e011f4d', './PathGenerator-7f8059ee', './index-c53f140f', './OptionsManager-1b0e876e', './ContextManager-be867ae1', './HistoryManager-bbeac4a5'], function (exports, tslib_es6, index, PathGenerator, index$1, OptionsManager, ContextManager, HistoryManager) { 'use strict';
 
     var locks = [];
     var catchPopState = null;

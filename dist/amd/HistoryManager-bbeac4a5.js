@@ -313,6 +313,8 @@ define(['exports', './tslib.es6-ee56af75', './OptionsManager-1b0e876e', './Conte
         if (fallbackContext === void 0) { fallbackContext = contextManager.getContextNames()[0]; }
         var href = ContextManager.get();
         var context = contextManager.contextOf(href, false);
+        var promiseResolve;
+        var promise = new Promise(function (resolve) { promiseResolve = resolve; });
         if (context == null) {
             if (!fallbackContext) {
                 throw new Error("must define a fallback context");
@@ -324,14 +326,16 @@ define(['exports', './tslib.es6-ee56af75', './OptionsManager-1b0e876e', './Conte
             started = true;
             href = defaultHREF;
             workToRelease = createWork();
-            onCatchPopState(onlanded, true);
+            onCatchPopState(function () { onlanded(); promiseResolve(); }, true);
             goTo(defaultHREF, true);
         }
         contextManager.insert(href);
         if (context != null) {
             started = true;
             onlanded();
+            promiseResolve();
         }
+        return promise;
     }
     function onlanded() {
         window.dispatchEvent(new Event("historylanded"));

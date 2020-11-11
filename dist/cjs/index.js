@@ -8,8 +8,8 @@ var PathGenerator = require('./PathGenerator-4901c320.js');
 var index$1 = require('./index-241ea07e.js');
 var OptionsManager = require('./OptionsManager-3fd4d9f6.js');
 var ContextManager = require('./ContextManager-6ca49066.js');
-var HistoryManager = require('./HistoryManager-be86dede.js');
-var NavigationLock = require('./NavigationLock-6b83b88d.js');
+var HistoryManager = require('./HistoryManager-2d438168.js');
+var NavigationLock = require('./NavigationLock-98e110ab.js');
 
 var _a, _b, _c;
 var ROUTES = Symbol("routes");

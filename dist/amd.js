@@ -1597,6 +1597,8 @@ define(['exports'], function (exports) { 'use strict';
         if (fallbackContext === void 0) { fallbackContext = contextManager.getContextNames()[0]; }
         var href = get$1();
         var context = contextManager.contextOf(href, false);
+        var promiseResolve;
+        var promise = new Promise(function (resolve) { promiseResolve = resolve; });
         if (context == null) {
             if (!fallbackContext) {
                 throw new Error("must define a fallback context");
@@ -1608,14 +1610,16 @@ define(['exports'], function (exports) { 'use strict';
             started = true;
             href = defaultHREF;
             workToRelease = createWork();
-            onCatchPopState$1(onlanded, true);
+            onCatchPopState$1(function () { onlanded(); promiseResolve(); }, true);
             goTo$1(defaultHREF, true);
         }
         contextManager.insert(href);
         if (context != null) {
             started = true;
             onlanded();
+            promiseResolve();
         }
+        return promise;
     }
     function onlanded() {
         window.dispatchEvent(new Event("historylanded"));

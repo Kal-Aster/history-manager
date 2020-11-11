@@ -8,7 +8,7 @@ require('./PathGenerator-4901c320.js');
 require('./index-241ea07e.js');
 var OptionsManager = require('./OptionsManager-3fd4d9f6.js');
 require('./ContextManager-6ca49066.js');
-var HistoryManager = require('./HistoryManager-be86dede.js');
+var HistoryManager = require('./HistoryManager-2d438168.js');
 
 var locks = [];
 var catchPopState = null;
