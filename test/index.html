@@ -54,10 +54,11 @@
 
         <button id="replaceissamecontext">Replace is same context?</button>
         
-        <script src="../dist/umd.bundled.js"></script>
-        <script>{
-            let Router = window.historyManager.Router;
-            let NavigationLock = window.historyManager.NavigationLock;
+        <script src="../dist/umd.js"></script>
+        <script>
+        {
+            const Router = window.historyManager.Router;
+            const NavigationLock = window.historyManager.NavigationLock;
             Router.setContext({
                 name: "home",
                 paths: [
@@ -95,14 +96,19 @@
             Router.route("/(.*)*", function (location) {
                 console.log("landed at", location.href);
             });
-            Router.create().route("/:route*", function (_, keymap) {
+            Router.create().route("/:route(.*)", function (_, keymap) {
                 console.log("landed with", keymap);
             });
+            {
+                const r = Router.create();
+                r.route("me", function () { console.log("landed at me", arguments); });
+                r.redirect("users/12", "me");
+            }
             document.querySelector("#lock").addEventListener("click", function () {
                 NavigationLock.lock();
             });
             document.querySelector("#weakLock").addEventListener("click", function () {
-                NavigationLock.lock().listen(function (e) { return e.preventDefault(); });
+                NavigationLock.lock().then(lock => { lock.listen(function (e) { return e.preventDefault(); }); });
             });
             document.querySelector("#unlock").addEventListener("click", function () {
                 NavigationLock.unlock();
@@ -126,7 +132,7 @@
             });
             var page = 1;
             document.querySelector("#queryparam").addEventListener("click", function () {
-                if (Router.location.pathname !== "queryparam") {
+                if (Router.getLocation().pathname !== "queryparam") {
                     Router.go("queryparam?filters[color]=blue,red");
                 }
                 Router.setQueryParam("page", ++page).then(function () {
@@ -140,6 +146,7 @@
                 });
             });
             Router.start("home");
-        }</script>
+        }
+        </script>
     </body>
 </html>

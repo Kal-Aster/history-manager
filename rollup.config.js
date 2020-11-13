@@ -46,9 +46,9 @@ export default [
     {
         input: "src/index.ts",
         plugins: [
+            nodeResolve(),
             commonjs(),
-            typescript(),
-            nodeResolve()
+            typescript()
         ],
         output: {
             file: "dist/amd.js",
@@ -58,9 +58,9 @@ export default [
     {
         input: "src/index.ts",
         plugins: [
+            nodeResolve(),
             commonjs(),
-            typescript(),
-            nodeResolve()
+            typescript()
         ],
         output: {
             name: "historyManager",

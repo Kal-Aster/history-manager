@@ -656,7 +656,7 @@
     	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
     }
 
-    var C__Users_Qmap_Desktop_backup_hdd_repos_modules_historyManager_node_modules_strictUriEncode = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
+    var strictUriEncode = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
 
     var token = '%[a-f0-9]{2}';
     var singleMatcher = new RegExp(token, 'gi');
@@ -736,7 +736,7 @@
     	return input;
     }
 
-    var C__Users_Qmap_Desktop_backup_hdd_repos_modules_historyManager_node_modules_decodeUriComponent = function (encodedURI) {
+    var decodeUriComponent = function (encodedURI) {
     	if (typeof encodedURI !== 'string') {
     		throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
     	}
@@ -924,7 +924,7 @@
 
     function encode(value, options) {
     	if (options.encode) {
-    		return options.strict ? C__Users_Qmap_Desktop_backup_hdd_repos_modules_historyManager_node_modules_strictUriEncode(value) : encodeURIComponent(value);
+    		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
     	}
 
     	return value;
@@ -932,7 +932,7 @@
 
     function decode(value, options) {
     	if (options.decode) {
-    		return C__Users_Qmap_Desktop_backup_hdd_repos_modules_historyManager_node_modules_decodeUriComponent(value);
+    		return decodeUriComponent(value);
     	}
 
     	return value;

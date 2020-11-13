@@ -559,4 +559,4 @@ export function isLocked(): boolean {
 }
 
 export type Redirection = { location: ILocation, keymap: KeyMap };
-export * as NavigationLock from "./NavigationLock";
+export { NavigationLock };
