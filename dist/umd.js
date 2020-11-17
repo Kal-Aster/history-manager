@@ -1453,6 +1453,9 @@
     function setContextDefaultHref(context, href) {
         return contextManager.setContextDefaultHref(context, href);
     }
+    function getContextDefaultOf(context) {
+        return contextManager.getDefaultOf(context);
+    }
     function getContext(href) {
         if (href === void 0) { href = null; }
         if (href == null) {
@@ -1757,6 +1760,7 @@
         setContext: setContext,
         addContextPath: addContextPath,
         setContextDefaultHref: setContextDefaultHref,
+        getContextDefaultOf: getContextDefaultOf,
         getContext: getContext,
         getHREFs: getHREFs,
         restore: restore,
@@ -2254,6 +2258,9 @@
     function restoreContext(context, defaultHref) {
         return restore(context);
     }
+    function getContextDefaultOf$1(context) {
+        return getContextDefaultOf(context);
+    }
     function emit(single) {
         if (single === void 0) { single = false; }
         if (single) {
@@ -2343,6 +2350,7 @@
         setContext: setContext$1,
         getContext: getContext$1,
         restoreContext: restoreContext,
+        getContextDefaultOf: getContextDefaultOf$1,
         emit: emit,
         create: create,
         go: go$1,

@@ -8,8 +8,8 @@ var PathGenerator = require('./PathGenerator-4901c320.js');
 var index$1 = require('./index-241ea07e.js');
 var OptionsManager = require('./OptionsManager-3fd4d9f6.js');
 var ContextManager = require('./ContextManager-6ca49066.js');
-var HistoryManager = require('./HistoryManager-2d438168.js');
-var NavigationLock = require('./NavigationLock-98e110ab.js');
+var HistoryManager = require('./HistoryManager-377f9dde.js');
+var NavigationLock = require('./NavigationLock-d1fe8181.js');
 
 var _a, _b, _c;
 var ROUTES = Symbol("routes");
@@ -354,6 +354,9 @@ function getContext(href) {
 function restoreContext(context, defaultHref) {
     return HistoryManager.restore(context);
 }
+function getContextDefaultOf(context) {
+    return HistoryManager.getContextDefaultOf(context);
+}
 function emit(single) {
     if (single === void 0) { single = false; }
     if (single) {
@@ -443,6 +446,7 @@ var Router = /*#__PURE__*/Object.freeze({
     setContext: setContext,
     getContext: getContext,
     restoreContext: restoreContext,
+    getContextDefaultOf: getContextDefaultOf,
     emit: emit,
     create: create,
     go: go,

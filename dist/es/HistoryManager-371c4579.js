@@ -167,6 +167,9 @@ function addContextPath(context, href, isFallback) {
 function setContextDefaultHref(context, href) {
     return contextManager.setContextDefaultHref(context, href);
 }
+function getContextDefaultOf(context) {
+    return contextManager.getDefaultOf(context);
+}
 function getContext(href) {
     if (href === void 0) { href = null; }
     if (href == null) {
@@ -471,6 +474,7 @@ var HistoryManager = /*#__PURE__*/Object.freeze({
     setContext: setContext,
     addContextPath: addContextPath,
     setContextDefaultHref: setContextDefaultHref,
+    getContextDefaultOf: getContextDefaultOf,
     getContext: getContext,
     getHREFs: getHREFs,
     restore: restore,
@@ -480,4 +484,4 @@ var HistoryManager = /*#__PURE__*/Object.freeze({
     start: start
 });
 
-export { HistoryManager as H, addContextPath as a, setContextDefaultHref as b, setContext as c, getContext as d, replace as e, assign as f, getHREFAt as g, go as h, index as i, acquire as j, onWorkFinished as o, restore as r, start as s };
+export { HistoryManager as H, addContextPath as a, setContextDefaultHref as b, setContext as c, getContext as d, getContextDefaultOf as e, replace as f, getHREFAt as g, assign as h, index as i, go as j, acquire as k, onWorkFinished as o, restore as r, start as s };

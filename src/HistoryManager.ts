@@ -198,6 +198,9 @@ export function addContextPath(context: string, href: string, isFallback: boolea
 export function setContextDefaultHref(context: string, href: string): void {
     return contextManager.setContextDefaultHref(context, href);
 }
+export function getContextDefaultOf(context: string): string | null {
+    return contextManager.getDefaultOf(context);
+}
 
 export function getContext(href: string | null = null): string | null {
     if (href == null) {

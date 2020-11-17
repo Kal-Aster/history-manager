@@ -468,6 +468,9 @@ export function getContext(href?: string): string | null {
 export function restoreContext(context: string, defaultHref?: string): Promise<void> {
     return HistoryManager.restore(context);
 }
+export function getContextDefaultOf(context: string): string | null {
+    return HistoryManager.getContextDefaultOf(context);
+}
 export function emit(single: boolean = false): void {
     if (single) {
         return emitSingle(main);

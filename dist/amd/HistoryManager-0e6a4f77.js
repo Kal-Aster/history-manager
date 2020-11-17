@@ -165,6 +165,9 @@ define(['exports', './tslib.es6-ee56af75', './OptionsManager-1b0e876e', './Conte
     function setContextDefaultHref(context, href) {
         return contextManager.setContextDefaultHref(context, href);
     }
+    function getContextDefaultOf(context) {
+        return contextManager.getDefaultOf(context);
+    }
     function getContext(href) {
         if (href === void 0) { href = null; }
         if (href == null) {
@@ -469,6 +472,7 @@ define(['exports', './tslib.es6-ee56af75', './OptionsManager-1b0e876e', './Conte
         setContext: setContext,
         addContextPath: addContextPath,
         setContextDefaultHref: setContextDefaultHref,
+        getContextDefaultOf: getContextDefaultOf,
         getContext: getContext,
         getHREFs: getHREFs,
         restore: restore,
@@ -483,6 +487,7 @@ define(['exports', './tslib.es6-ee56af75', './OptionsManager-1b0e876e', './Conte
     exports.addContextPath = addContextPath;
     exports.assign = assign;
     exports.getContext = getContext;
+    exports.getContextDefaultOf = getContextDefaultOf;
     exports.getHREFAt = getHREFAt;
     exports.go = go;
     exports.index = index;

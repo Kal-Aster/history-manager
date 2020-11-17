@@ -4,7 +4,7 @@ import './PathGenerator-5ecdbddb.js';
 import './index-42276b71.js';
 import { g as goWith, a as get, c as clearHref } from './OptionsManager-fa51c5df.js';
 import './ContextManager-75e17814.js';
-import { o as onWorkFinished, j as acquire } from './HistoryManager-79b56ee3.js';
+import { o as onWorkFinished, k as acquire } from './HistoryManager-371c4579.js';
 
 var locks = [];
 var catchPopState = null;

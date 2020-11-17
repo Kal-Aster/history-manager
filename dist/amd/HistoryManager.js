@@ -165,6 +165,9 @@ define(['exports', './tslib.es6-ee56af75', './index-0e011f4d', './PathGenerator-
     function setContextDefaultHref(context, href) {
         return contextManager.setContextDefaultHref(context, href);
     }
+    function getContextDefaultOf(context) {
+        return contextManager.getDefaultOf(context);
+    }
     function getContext(href) {
         if (href === void 0) { href = null; }
         if (href == null) {
@@ -464,6 +467,7 @@ define(['exports', './tslib.es6-ee56af75', './index-0e011f4d', './PathGenerator-
     exports.addFront = addFront;
     exports.assign = assign;
     exports.getContext = getContext;
+    exports.getContextDefaultOf = getContextDefaultOf;
     exports.getHREFAt = getHREFAt;
     exports.getHREFs = getHREFs;
     exports.go = go;

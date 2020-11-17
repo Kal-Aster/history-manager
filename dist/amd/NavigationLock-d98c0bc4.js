@@ -1,4 +1,4 @@
-define(['exports', './tslib.es6-ee56af75', './OptionsManager-1b0e876e', './HistoryManager-bbeac4a5'], function (exports, tslib_es6, OptionsManager, HistoryManager) { 'use strict';
+define(['exports', './tslib.es6-ee56af75', './OptionsManager-1b0e876e', './HistoryManager-0e6a4f77'], function (exports, tslib_es6, OptionsManager, HistoryManager) { 'use strict';
 
     var locks = [];
     var catchPopState = null;

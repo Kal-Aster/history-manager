@@ -174,6 +174,9 @@ function addContextPath(context, href, isFallback) {
 function setContextDefaultHref(context, href) {
     return contextManager.setContextDefaultHref(context, href);
 }
+function getContextDefaultOf(context) {
+    return contextManager.getDefaultOf(context);
+}
 function getContext(href) {
     if (href === void 0) { href = null; }
     if (href == null) {
@@ -473,6 +476,7 @@ exports.addContextPath = addContextPath;
 exports.addFront = addFront;
 exports.assign = assign;
 exports.getContext = getContext;
+exports.getContextDefaultOf = getContextDefaultOf;
 exports.getHREFAt = getHREFAt;
 exports.getHREFs = getHREFs;
 exports.go = go;

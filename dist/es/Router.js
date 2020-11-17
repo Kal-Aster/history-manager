@@ -4,9 +4,9 @@ import { p as prepare, g as generate } from './PathGenerator-5ecdbddb.js';
 import { q as queryString } from './index-42276b71.js';
 import './OptionsManager-fa51c5df.js';
 import { g as get, b as base } from './ContextManager-75e17814.js';
-import { s as start$1, i as index$1, g as getHREFAt, a as addContextPath$1, b as setContextDefaultHref$1, c as setContext$1, d as getContext$1, r as restore, e as replace, f as assign, h as go$1, o as onWorkFinished } from './HistoryManager-79b56ee3.js';
-import { l as lock$1, u as unlock$1, a as locked } from './NavigationLock-481dfcde.js';
-export { N as NavigationLock } from './NavigationLock-481dfcde.js';
+import { s as start$1, i as index$1, g as getHREFAt, a as addContextPath$1, b as setContextDefaultHref$1, c as setContext$1, d as getContext$1, r as restore, e as getContextDefaultOf$1, f as replace, h as assign, j as go$1, o as onWorkFinished } from './HistoryManager-371c4579.js';
+import { l as lock$1, u as unlock$1, a as locked } from './NavigationLock-2e339f5d.js';
+export { N as NavigationLock } from './NavigationLock-2e339f5d.js';
 
 var _a, _b, _c;
 var ROUTES = Symbol("routes");
@@ -351,6 +351,9 @@ function getContext(href) {
 function restoreContext(context, defaultHref) {
     return restore(context);
 }
+function getContextDefaultOf(context) {
+    return getContextDefaultOf$1(context);
+}
 function emit(single) {
     if (single === void 0) { single = false; }
     if (single) {
@@ -425,4 +428,4 @@ function isLocked() {
     return locked();
 }
 
-export { addContextPath, create, destroy, emit, getBase, getContext, getLocation, getLocationAt, go, index, isLocked, lock, redirect, restoreContext, route, setBase, setContext, setContextDefaultHref, setQueryParam, start, unlock, unredirect, unroute };
+export { addContextPath, create, destroy, emit, getBase, getContext, getContextDefaultOf, getLocation, getLocationAt, go, index, isLocked, lock, redirect, restoreContext, route, setBase, setContext, setContextDefaultHref, setQueryParam, start, unlock, unredirect, unroute };

@@ -170,6 +170,9 @@ function addContextPath(context, href, isFallback) {
 function setContextDefaultHref(context, href) {
     return contextManager.setContextDefaultHref(context, href);
 }
+function getContextDefaultOf(context) {
+    return contextManager.getDefaultOf(context);
+}
 function getContext(href) {
     if (href === void 0) { href = null; }
     if (href == null) {
@@ -463,4 +466,4 @@ function handlePopState() {
     }
 }
 
-export { acquire, addBack, addContextPath, addFront, assign, getContext, getHREFAt, getHREFs, go, index, onWorkFinished, replace, restore, setContext, setContextDefaultHref, start };
+export { acquire, addBack, addContextPath, addFront, assign, getContext, getContextDefaultOf, getHREFAt, getHREFs, go, index, onWorkFinished, replace, restore, setContext, setContextDefaultHref, start };
