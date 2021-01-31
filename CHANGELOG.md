@@ -1,16 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [any] - Unreleased
-### Add
-- Write documentation
-### Change
-- Possibility to avoid contexts definition
-- First defined path of context become default href, if not already specified
-- Fix [#3](https://github.com/EliteXXL/history-manager/issues/3)
+## [1.2.1] - 2021-01-31
+- fix NavigationLock.unlock not having instant effect
+- fix ts warnings
+- change "dist" structure
+- edit entry points in "package.json"
+- add "files" in "package.json"
+- update dependencies
+- add "ROADMAP.md" file
 
 ## [1.2.0] - 2020-11-17
-### Added
-- `HistoryManager.getContextDefaultOf`
-- `Router.getContextDefaultOf`
-### Changed
+- add `HistoryManager.getContextDefaultOf`
+- add `Router.getContextDefaultOf`

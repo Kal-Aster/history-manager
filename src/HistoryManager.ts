@@ -65,7 +65,7 @@ function createWork(locking: boolean = false): IWork | ILock {
 
             if (i >= 0 && works.length === 0) {
                 while (onworkfinished.length > 0 && works.length === 0) {
-                    let [callback, context] = onworkfinished.shift();
+                    let [callback, context] = onworkfinished.shift()!;
                     callback.call(context || window);
                 }
             }
@@ -134,7 +134,7 @@ export function addFront(frontHref: string = "next"): Promise<void> {
             onCatchPopState(resolve, true);
             window.history.go(-1);
         }))
-        .then(() => new Promise(resolve => {
+        .then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             goTo(href, true);
         }))
@@ -148,12 +148,12 @@ export function addFront(frontHref: string = "next"): Promise<void> {
 export function addBack(backHref: string = ""): Promise<void> {
     let href: string = URLManager.get();
     let work: IWork = createWork();
-    return new Promise(resolve => {
-        (new Promise(resolve => {
+    return new Promise<void>(resolve => {
+        (new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             window.history.go(-1);
         }))
-        .then(() => new Promise(resolve => {
+        .then(() => new Promise<void>(resolve => {
             if (backHref) {
                 onCatchPopState(resolve, true);
                 goTo(backHref, true);
@@ -162,7 +162,7 @@ export function addBack(backHref: string = ""): Promise<void> {
             }
         }))
         .then(() => OptionsManager.set({ back: null, front: undefined }))
-        .then(() => new Promise(resolve => {
+        .then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             goTo(href);
         }))
@@ -232,10 +232,10 @@ let workToRelease: IWork | null = null;
 export function restore(context: string): Promise<void> {
     let locksFinished: number = tryUnlock();
     if (locksFinished === -1) {
-        return new Promise((_, reject) => { reject(); });
+        return new Promise<void>((_, reject) => { reject(); });
     }
     let promiseResolve: () => void;
-    let promise: Promise<void> = new Promise(resolve => { promiseResolve = resolve;});
+    let promise: Promise<void> = new Promise<void>(resolve => { promiseResolve = resolve;});
     onWorkFinished(() => {
         let previousIndex: number = contextManager.index();
         if (contextManager.restore(context)) {
@@ -264,7 +264,7 @@ export function restore(context: string): Promise<void> {
                     });
                 }
             }))
-            .then(() => new Promise(resolve => {
+            .then(() => new Promise<void>(resolve => {
                 if (hadBack || replace) {
                     onCatchPopState(resolve, true);
                     goTo(href, true);
@@ -283,10 +283,10 @@ export function restore(context: string): Promise<void> {
 export function assign(href: string): Promise<void> {
     let locksFinished: number = tryUnlock();
     if (locksFinished === -1) {
-        return new Promise((_, reject) => { reject(); });
+        return new Promise<void>((_, reject) => { reject(); });
     }
     let promiseResolve: () => void;
-    let promise: Promise<void> = new Promise(resolve => { promiseResolve = resolve;});
+    let promise: Promise<void> = new Promise<void>(resolve => { promiseResolve = resolve;});
     onWorkFinished(() => {
         workToRelease = createWork();
         onWorkFinished(promiseResolve);
@@ -299,10 +299,10 @@ let replacing: boolean = false;
 export function replace(href: string): Promise<void> {
     let locksFinished: number = tryUnlock();
     if (locksFinished === -1) {
-        return new Promise((_, reject) => { reject(); });
+        return new Promise<void>((_, reject) => { reject(); });
     }
     let promiseResolve: () => void;
-    let promise: Promise<void> = new Promise(resolve => { promiseResolve = resolve; });
+    let promise: Promise<void> = new Promise<void>(resolve => { promiseResolve = resolve; });
     onWorkFinished(() => {
         workToRelease = createWork();
         onWorkFinished(promiseResolve);
@@ -314,7 +314,7 @@ export function replace(href: string): Promise<void> {
 export function go(direction: number): Promise<void> {
     let locksFinished: number = tryUnlock();
     if (locksFinished === -1) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             reject();
         });
     }
@@ -329,7 +329,7 @@ export function go(direction: number): Promise<void> {
         return Promise.resolve();
     }
     let promiseResolve: () => void;
-    let promise: Promise<void> = new Promise((resolve, reject) => { promiseResolve = resolve; });
+    let promise: Promise<void> = new Promise<void>((resolve, reject) => { promiseResolve = resolve; });
     onWorkFinished(() => {
         let index: number = contextManager.index() + direction;
         if (index < 0 || index >= contextManager.length()) {
@@ -348,11 +348,11 @@ export function go(direction: number): Promise<void> {
     return promise;
 }
 
-export function start(fallbackContext: string | null = contextManager.getContextNames()[0]): Promise<undefined> {
+export function start(fallbackContext: string | null = contextManager.getContextNames()[0]): Promise<void> {
     let href: string = URLManager.get();
     let context: string | null = contextManager.contextOf(href, false);
     let promiseResolve: () => void;
-    const promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve; });
+    const promise: Promise<void> = new Promise<void>(resolve => { promiseResolve = resolve; });
     if (context == null) {
         if (!fallbackContext) {
             throw new Error("must define a fallback context");
@@ -484,7 +484,7 @@ function handlePopState(): void {
             }
             return addBack(backHref);
         })
-        .then(() => new Promise(resolve => {
+        .then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             goTo(href, true);
         }))

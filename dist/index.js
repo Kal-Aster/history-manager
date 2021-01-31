@@ -1,4 +1,8 @@
-define(['exports'], function (exports) { 'use strict';
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.historyManager = {}));
+}(this, (function (exports) { 'use strict';
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -515,7 +519,7 @@ define(['exports'], function (exports) { 'use strict';
             if (index === void 0) { index = this._index; }
             var href;
             if (this._hrefs.some(function (_a) {
-                var _b = __read(_a, 2), c = _b[0], hrefs = _b[1];
+                var _b = __read(_a, 2); _b[0]; var hrefs = _b[1];
                 var length = hrefs.length;
                 if (index >= length) {
                     index -= length;
@@ -625,7 +629,7 @@ define(['exports'], function (exports) { 'use strict';
         ContextManager.prototype.hrefs = function () {
             var hrefs = [];
             this._hrefs.forEach(function (_a) {
-                var _b = __read(_a, 2), c = _b[0], c_hrefs = _b[1];
+                var _b = __read(_a, 2); _b[0]; var c_hrefs = _b[1];
                 hrefs.push.apply(hrefs, c_hrefs);
             });
             return hrefs;
@@ -638,18 +642,9 @@ define(['exports'], function (exports) { 'use strict';
         ContextManager: ContextManager
     });
 
-    function createCommonjsModule(fn, basedir, module) {
-    	return module = {
-    	  path: basedir,
-    	  exports: {},
-    	  require: function (path, base) {
-          return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-        }
-    	}, fn(module, module.exports), module.exports;
-    }
-
-    function commonjsRequire () {
-    	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+    function createCommonjsModule(fn) {
+      var module = { exports: {} };
+    	return fn(module, module.exports), module.exports;
     }
 
     var strictUriEncode = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
@@ -1791,8 +1786,12 @@ define(['exports'], function (exports) { 'use strict';
         var id = Date.now();
         var historyLock;
         var promiseResolve;
+        var isPromiseResolved = false;
         var promise = new Promise(function (resolve) {
-            promiseResolve = resolve;
+            promiseResolve = function (lock) {
+                resolve(lock);
+                isPromiseResolved = true;
+            };
         });
         onWorkFinished(function () {
             historyLock = acquire();
@@ -1811,7 +1810,7 @@ define(['exports'], function (exports) { 'use strict';
                         if (!locks.length || historyLock.finishing) {
                             return;
                         }
-                        promise.then(function () {
+                        var fn = function () {
                             if (locks[locks.length - 1].lock.id === id) {
                                 unlock();
                             }
@@ -1823,7 +1822,13 @@ define(['exports'], function (exports) { 'use strict';
                                     return false;
                                 });
                             }
-                        });
+                        };
+                        if (isPromiseResolved) {
+                            fn();
+                        }
+                        else {
+                            promise.then(fn);
+                        }
                     }
                 },
                 fire: function () {
@@ -1836,9 +1841,12 @@ define(['exports'], function (exports) { 'use strict';
                 },
                 beginRelease: function (start_fn) {
                     historyLock.beginFinish();
-                    promise.then(function () {
+                    if (isPromiseResolved) {
                         start_fn();
-                    });
+                    }
+                    else {
+                        promise.then(function () { return start_fn(); });
+                    }
                 }
             };
             historyLock.askFinish = function () {
@@ -2365,7 +2373,6 @@ define(['exports'], function (exports) { 'use strict';
         var released = false;
         var releasing = false;
         var onrelease = [];
-        var promise;
         var lock = {
             get released() {
                 return released;
@@ -2402,7 +2409,7 @@ define(['exports'], function (exports) { 'use strict';
                 onrelease.push([callback, context || null]);
             }
         };
-        return promise = new Promise(function (resolve) {
+        return new Promise(function (resolve) {
             ondone(function () {
                 var result = locking_fn.call(lock, lock);
                 locks$1.push(lock);
@@ -2485,4 +2492,4 @@ define(['exports'], function (exports) { 'use strict';
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-});
+})));

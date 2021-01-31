@@ -42,16 +42,20 @@ function onCatchPopState(onCatchPopState: () => void, once: boolean = false): vo
 }
 
 export function lock(): Promise<Lock> {
-    let delegate: EventTarget = new EventTarget();
-    let id: number = Date.now();
+    const delegate: EventTarget = new EventTarget();
+    const id: number = Date.now();
     let historyLock: HistoryManager.ILock;
     let promiseResolve: (lock: Lock) => void;
-    let promise: Promise<Lock> = new Promise<Lock>(resolve => {
-        promiseResolve = resolve;
+    let isPromiseResolved: boolean = false;
+    const promise: Promise<Lock> = new Promise<Lock>(resolve => {
+        promiseResolve = lock => {
+            resolve(lock);
+            isPromiseResolved = true;
+        };
     });
     HistoryManager.onWorkFinished(() => {
         historyLock = HistoryManager.acquire();
-        let lock: Wrapper = {
+        const lock: Wrapper = {
             lock: {
                 get id(): number {
                     return id;
@@ -66,7 +70,7 @@ export function lock(): Promise<Lock> {
                     if (!locks.length || historyLock.finishing) {
                         return;
                     }
-                    promise.then(() => {
+                    const fn: () => void = () => {
                         if (locks[locks.length - 1].lock.id === id) {
                             unlock();
                         } else {
@@ -77,7 +81,12 @@ export function lock(): Promise<Lock> {
                                 return false;
                             });
                         }
-                    });
+                    };
+                    if (isPromiseResolved) {
+                        fn();
+                    } else {
+                        promise.then(fn);
+                    }
                 }
             },
             fire(): boolean {
@@ -90,9 +99,11 @@ export function lock(): Promise<Lock> {
             },
             beginRelease(start_fn: () => void): void {
                 historyLock.beginFinish();
-                promise.then(() => {
+                if (isPromiseResolved) {
                     start_fn();
-                });
+                } else {
+                    promise.then(() => start_fn());
+                }
             }
         };
         historyLock.askFinish = () => {

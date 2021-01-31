@@ -436,7 +436,7 @@ export function unroute(path: string): void {
 }
 // :TODO:
 // main.start = function (startingContext: string, organizeHistory: boolean = true): boolean {
-export function start (startingContext: string): Promise<undefined> {
+export function start (startingContext: string): Promise<void> {
     return HistoryManager.start(startingContext);
 }
 export function index(): number {
@@ -483,7 +483,7 @@ export function create(): GenericRouter {
 export function go(path_index: string | number, options: {
     emit: boolean
     replace?: boolean,
-}): Promise<undefined> {
+}): Promise<void> {
     // tslint:disable-next-line: typedef
     let path_index_type = typeof path_index;
     if (path_index_type !== "string" && path_index_type !== "number") {
@@ -491,7 +491,7 @@ export function go(path_index: string | number, options: {
     }
     // let promiseResolve: () => void;
     options = { ...options };
-    return new Promise((promiseResolve: () => void, promiseReject: () => void) => {
+    return new Promise<void>((promiseResolve: () => void, promiseReject: () => void) => {
         let goingEvent: CustomEvent<{
             direction: string | number, replace?: boolean, emit: boolean
         }> = new CustomEvent<{ direction: string | number, replace?: boolean, emit: boolean }>(
@@ -527,9 +527,9 @@ export function go(path_index: string | number, options: {
 export function setQueryParam(param: string, value: string | null | undefined, options: {
     emit: boolean,
     replace?: boolean
-}): Promise<undefined> {
+}): Promise<void> {
     let promiseResolve: () => void;
-    let promise: Promise<undefined> = new Promise(resolve => { promiseResolve = resolve;});
+    let promise: Promise<void> = new Promise<void>(resolve => { promiseResolve = resolve;});
     HistoryManager.onWorkFinished(() => {
         let location: ILocation = getLocation();
         if (value === undefined) {

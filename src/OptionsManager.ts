@@ -28,8 +28,8 @@ function onCatchPopState(onCatchPopState: () => void, once: boolean = false): vo
     catchPopState = onCatchPopState;
 }
 
-function goTo(href: string, replace: boolean = false): Promise<undefined> {
-    return new Promise(resolve => {
+function goTo(href: string, replace: boolean = false): Promise<void> {
+    return new Promise<void>(resolve => {
         if (href === window.location.href) {
             return resolve();
         }
@@ -79,32 +79,32 @@ export function get(): Options {
  * Sets the options
  * @param opts
  */
-export function set(opts: Options): Promise<undefined> {
+export function set(opts: Options): Promise<void> {
     let newHref: string = splitHref()[0] + DIVIDER + optsToStr(opts);
     return goTo(newHref, true);
 }
 /**
  * Add an option to those stored in the url
  */
-export function add(opt: string, value?: string): Promise<undefined> {
+export function add(opt: string, value?: string): Promise<void> {
     let opts: Options = get();
     if (opts[opt] === undefined || opts[opt] !== value) {
         opts[opt] = value || null;
         return set(opts);
     }
-    return new Promise(resolve => { resolve(); });
+    return new Promise<void>(resolve => { resolve(); });
 }
 /**
  * Remove given option
  * @param opt
  */
-export function remove(opt: string): Promise<undefined> {
+export function remove(opt: string): Promise<void> {
     let opts: Options = get();
     if (opts[opt] !== undefined) {
         delete opts[opt];
         return set(opts);
     }
-    return new Promise(resolve => { resolve(); });
+    return new Promise<void>(resolve => { resolve(); });
 }
 
 /**
@@ -113,7 +113,7 @@ export function remove(opt: string): Promise<undefined> {
  * @param opts
  * @param replace
  */
-export function goWith(href: string, opts: Options, replace: boolean = false): Promise<undefined> {
+export function goWith(href: string, opts: Options, replace: boolean = false): Promise<void> {
     let newHref: string = splitHref(href)[0] + DIVIDER + optsToStr(opts);
     return goTo(newHref, replace);
 }

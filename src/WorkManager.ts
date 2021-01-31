@@ -73,7 +73,7 @@ function completeWork(): void {
     if (--working === 0) {
         currentWork = -1;
         while (ondoneCallbacks.length && currentWork === -1) {
-            let [callback, context] = ondoneCallbacks.shift();
+            let [callback, context] = ondoneCallbacks.shift()!;
             callback.call(context || null);
         }
     }

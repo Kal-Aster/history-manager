@@ -9,19 +9,9 @@
         <title>history-manager - test page</title>
     </head>
     <body>
-        <script type="text/javascript">
-            var require = {
-                paths: {
-                    "history-manager": "../../",
-                    "path-to-regexp": "../../scripts/lib/path-to-regexp",
-                    "query-string": "../../scripts/lib/query-string"
-                },
-                baseUrl: "./scripts"
-            };
-        </script>
-
         <a href="#me">me [PROFILE]</a><br>
         <a href="#user/12">user/12 [PROFILE as fallback]</a><br>
+        <span id="user-12-replace">user/12 [PROFILE as fallback, replace]</span><br>
         <a href="#home">home [HOME]</a><br>
         <a href="#search?query=test">search?query=test [SEARCH]</a><br>
 
@@ -54,7 +44,7 @@
 
         <button id="replaceissamecontext">Replace is same context?</button>
         
-        <script src="../dist/umd.js"></script>
+        <script src="../dist/index.js"></script>
         <script>
         {
             const Router = window.historyManager.Router;
@@ -81,6 +71,9 @@
                 ],
                 default: "search?recent"
             });
+            document.querySelector("#user-12-replace").addEventListener("click", function () {
+                Router.go("users/12", { replace: true });
+            });
             document.querySelector("#restoreHome").addEventListener("click", function () {
                 Router.restoreContext("home");
             });
@@ -102,7 +95,7 @@
             {
                 const r = Router.create();
                 r.route("me", function () { console.log("landed at me", arguments); });
-                r.redirect("users/12", "me");
+                // r.redirect("users/12", "me");
             }
             document.querySelector("#lock").addEventListener("click", function () {
                 NavigationLock.lock();
@@ -114,11 +107,17 @@
                 NavigationLock.unlock();
             });
             document.querySelector("#locktest").addEventListener("click", function () {
-                NavigationLock.lock();
-                NavigationLock.unlock();
-                Router.go("user/22");
-                Router.go("user/123");
-                Router.go("user/123");
+                NavigationLock.lock().then(lock => {
+                    lock.unlock();
+                    Router.go("user/22");
+                    Router.go("user/123");
+                    Router.go("user/123");
+                });
+                // NavigationLock.lock();
+                // NavigationLock.unlock();
+                // Router.go("user/22");
+                // Router.go("user/123");
+                // Router.go("user/123");
             });
             document.querySelector("#gotest").addEventListener("click", function () {
                 Router.go("user/123");
