@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2021-03-11
+- add possibility to avoid auto href management (can skip context definition)
+- fix bug in HistoryManager::go
+
 ## [1.2.1] - 2021-01-31
 - fix NavigationLock.unlock not having instant effect
 - fix ts warnings

@@ -8,6 +8,17 @@ import * as URLManager from "./URLManager";
 import { ContextManager } from "./ContextManager";
 
 let started: boolean = false;
+let historyManaged: boolean | null = null;
+
+export function setAutoManagement(value: boolean): void {
+    if (started) {
+        throw new Error("HistoryManager already started");
+    }
+    historyManaged = !!value;
+}
+export function getAutoManagement(): boolean {
+    return historyManaged || false;
+}
 
 export interface IWork {
     finish(): void;
@@ -189,13 +200,22 @@ export function setContext(context: {
     paths: { path: string, fallback?: boolean }[],
     default?: string | null
 }): void {
+    if (historyManaged === null) {
+        historyManaged = true;
+    }
     return contextManager.setContext(context);
 }
 
 export function addContextPath(context: string, href: string, isFallback: boolean = false): RegExp {
+    if (historyManaged === null) {
+        historyManaged = true;
+    }
     return contextManager.addContextPath(context, href, isFallback);
 }
 export function setContextDefaultHref(context: string, href: string): void {
+    if (historyManaged === null) {
+        historyManaged = true;
+    }
     return contextManager.setContextDefaultHref(context, href);
 }
 export function getContextDefaultOf(context: string): string | null {
@@ -210,6 +230,9 @@ export function getContext(href: string | null = null): string | null {
 }
 
 export function getHREFs(): string[] {
+    if (!historyManaged) {
+        throw new Error("can't keep track of hrefs without history management");
+    }
     return contextManager.hrefs();
 }
 
@@ -230,6 +253,9 @@ function tryUnlock(): number {
 let workToRelease: IWork | null = null;
 
 export function restore(context: string): Promise<void> {
+    if (!historyManaged) {
+        throw new Error("can't restore a context without history management");
+    }
     let locksFinished: number = tryUnlock();
     if (locksFinished === -1) {
         return new Promise<void>((_, reject) => { reject(); });
@@ -319,7 +345,7 @@ export function go(direction: number): Promise<void> {
         });
     }
     if (direction === 0) {
-        throw new Error("direction must be different than 0");
+        return Promise.resolve();
     }
     direction = parseInt(direction as any, 10) + locksFinished;
     if (isNaN(direction)) {
@@ -331,9 +357,17 @@ export function go(direction: number): Promise<void> {
     let promiseResolve: () => void;
     let promise: Promise<void> = new Promise<void>((resolve, reject) => { promiseResolve = resolve; });
     onWorkFinished(() => {
-        let index: number = contextManager.index() + direction;
-        if (index < 0 || index >= contextManager.length()) {
-            return onlanded();
+        if (historyManaged === false) {
+            window.history.go(direction);
+            promiseResolve();
+            return;
+        }
+        const contextIndex: number = contextManager.index();
+        let index: number = Math.max(0, Math.min(contextManager.length() - 1, contextIndex + direction));
+        if (contextIndex === index) {
+            onlanded();
+            promiseResolve();
+            return;
         }
         workToRelease = createWork();
         onWorkFinished(promiseResolve);
@@ -348,31 +382,45 @@ export function go(direction: number): Promise<void> {
     return promise;
 }
 
-export function start(fallbackContext: string | null = contextManager.getContextNames()[0]): Promise<void> {
+export function start(fallbackContext: string | null): Promise<void> {
+    if (historyManaged === null) {
+        historyManaged = false;
+    }
+    fallbackContext = historyManaged ?
+        (fallbackContext === void 0 ? contextManager.getContextNames()[0] : fallbackContext)
+        : null
+    ;
     let href: string = URLManager.get();
-    let context: string | null = contextManager.contextOf(href, false);
     let promiseResolve: () => void;
-    const promise: Promise<void> = new Promise<void>(resolve => { promiseResolve = resolve; });
-    if (context == null) {
-        if (!fallbackContext) {
-            throw new Error("must define a fallback context");
+    let promiseReject: () => void;
+    const promise: Promise<void> = new Promise<void>((resolve, reject) => {
+        promiseResolve = resolve; promiseReject = reject;
+    });
+    if (historyManaged) {
+        let context: string | null = contextManager.contextOf(href, false);
+        if (context == null) {
+            if (!fallbackContext) {
+                throw new Error("must define a fallback context");
+            }
+            let defaultHREF: string | null = contextManager.getDefaultOf(fallbackContext);
+            if (defaultHREF == null) {
+                throw new Error("must define a default href for the fallback context");
+            }
+            started = true;
+            href = defaultHREF;
+            workToRelease = createWork();
+            onCatchPopState(() => { onlanded(); promiseResolve(); }, true);
+            goTo(defaultHREF, true);
         }
-        let defaultHREF: string | null = contextManager.getDefaultOf(fallbackContext);
-        if (defaultHREF == null) {
-            throw new Error("must define a default href for the fallback context");
+        contextManager.insert(href);
+        if (context == null) {
+            promiseReject!();
+            return promise;
         }
-        started = true;
-        href = defaultHREF;
-        workToRelease = createWork();
-        onCatchPopState(() => { onlanded(); promiseResolve(); }, true);
-        goTo(defaultHREF, true);
     }
-    contextManager.insert(href);
-    if (context != null) {
-        started = true;
-        onlanded();
-        promiseResolve!();
-    }
+    started = true;
+    onlanded();
+    promiseResolve!();
     return promise;
 }
 
@@ -386,7 +434,10 @@ function onlanded(): void {
 }
 
 function handlePopState(): void {
-    let options: OptionsManager.Options = OptionsManager.get();
+    let options: OptionsManager.Options = {
+        ...OptionsManager.get(),
+        ...(historyManaged ? {} : { front: undefined, back: undefined })
+    };
     if (options.locked) {
         onCatchPopState(() => {
             if (OptionsManager.get().locked) {
@@ -463,7 +514,7 @@ function handlePopState(): void {
         // should add new page to history
         let href: string = URLManager.get();
         let backHref: string = contextManager.get()!;
-        if (href === backHref) {
+        if (href === backHref || !historyManaged) {
             return onlanded();
         }
         let replaced: boolean = replacing;

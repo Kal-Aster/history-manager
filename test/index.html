@@ -49,28 +49,28 @@
         {
             const Router = window.historyManager.Router;
             const NavigationLock = window.historyManager.NavigationLock;
-            Router.setContext({
-                name: "home",
-                paths: [
-                    { path: "home" }
-                ],
-                default: "home"
-            });
-            Router.setContext({
-                name: "profile",
-                paths: [
-                    { path: "me" },
-                    { path: "user/:id", fallback: true }
-                ],
-                default: "me"
-            });
-            Router.setContext({
-                name: "search",
-                paths: [
-                    { path: "search" }
-                ],
-                default: "search?recent"
-            });
+            // Router.setContext({
+            //     name: "home",
+            //     paths: [
+            //         { path: "home" }
+            //     ],
+            //     default: "home"
+            // });
+            // Router.setContext({
+            //     name: "profile",
+            //     paths: [
+            //         { path: "me" },
+            //         { path: "user/:id", fallback: true }
+            //     ],
+            //     default: "me"
+            // });
+            // Router.setContext({
+            //     name: "search",
+            //     paths: [
+            //         { path: "search" }
+            //     ],
+            //     default: "search?recent"
+            // });
             document.querySelector("#user-12-replace").addEventListener("click", function () {
                 Router.go("users/12", { replace: true });
             });

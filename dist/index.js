@@ -764,7 +764,25 @@
     	];
     };
 
+    var filterObj = function (obj, predicate) {
+    	var ret = {};
+    	var keys = Object.keys(obj);
+    	var isArr = Array.isArray(predicate);
+
+    	for (var i = 0; i < keys.length; i++) {
+    		var key = keys[i];
+    		var val = obj[key];
+
+    		if (isArr ? predicate.indexOf(key) !== -1 : predicate(key, val, obj)) {
+    			ret[key] = val;
+    		}
+    	}
+
+    	return ret;
+    };
+
     var queryString = createCommonjsModule(function (module, exports) {
+
 
 
 
@@ -1010,6 +1028,10 @@
     	}
 
     	for (const param of query.split('&')) {
+    		if (param === '') {
+    			continue;
+    		}
+
     		let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
 
     		// Missing `=` should be `null`:
@@ -1144,36 +1166,55 @@
 
     	return `${url}${queryString}${hash}`;
     };
+
+    exports.pick = (input, filter, options) => {
+    	options = Object.assign({
+    		parseFragmentIdentifier: true
+    	}, options);
+
+    	const {url, query, fragmentIdentifier} = exports.parseUrl(input, options);
+    	return exports.stringifyUrl({
+    		url,
+    		query: filterObj(query, filter),
+    		fragmentIdentifier
+    	}, options);
+    };
+
+    exports.exclude = (input, filter, options) => {
+    	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
+
+    	return exports.pick(input, exclusionFilter, options);
+    };
     });
 
     var DIVIDER = "#R!:";
-    var catchPopState = null;
+    var catchPopState$2 = null;
     window.addEventListener("popstate", function (event) {
-        if (catchPopState == null) {
+        if (catchPopState$2 == null) {
             return;
         }
         event.stopImmediatePropagation();
         event.stopPropagation();
-        catchPopState();
+        catchPopState$2();
     }, true);
-    function onCatchPopState(onCatchPopState, once) {
+    function onCatchPopState$2(onCatchPopState, once) {
         if (once === void 0) { once = false; }
         if (once) {
             var tmpOnCatchPopState_1 = onCatchPopState;
             onCatchPopState = function () {
-                catchPopState = null;
+                catchPopState$2 = null;
                 tmpOnCatchPopState_1();
             };
         }
-        catchPopState = onCatchPopState;
+        catchPopState$2 = onCatchPopState;
     }
-    function goTo(href, replace) {
+    function goTo$1(href, replace) {
         if (replace === void 0) { replace = false; }
         return new Promise(function (resolve) {
             if (href === window.location.href) {
                 return resolve();
             }
-            onCatchPopState(resolve, true);
+            onCatchPopState$2(resolve, true);
             if (replace) {
                 window.location.replace(href);
             }
@@ -1203,15 +1244,15 @@
         });
         return queryString.stringify(filteredOpts);
     }
-    function get() {
+    function get$1() {
         return queryString.parse(splitHref()[1]);
     }
     function set(opts) {
         var newHref = splitHref()[0] + DIVIDER + optsToStr(opts);
-        return goTo(newHref, true);
+        return goTo$1(newHref, true);
     }
     function add(opt, value) {
-        var opts = get();
+        var opts = get$1();
         if (opts[opt] === undefined || opts[opt] !== value) {
             opts[opt] = value || null;
             return set(opts);
@@ -1219,7 +1260,7 @@
         return new Promise(function (resolve) { resolve(); });
     }
     function remove(opt) {
-        var opts = get();
+        var opts = get$1();
         if (opts[opt] !== undefined) {
             delete opts[opt];
             return set(opts);
@@ -1229,18 +1270,18 @@
     function goWith(href, opts, replace) {
         if (replace === void 0) { replace = false; }
         var newHref = splitHref(href)[0] + DIVIDER + optsToStr(opts);
-        return goTo(newHref, replace);
+        return goTo$1(newHref, replace);
     }
     function clearHref() {
         return splitHref()[0];
     }
-    if (Object.keys(get()).length > 0) {
+    if (Object.keys(get$1()).length > 0) {
         set({});
     }
 
     var OptionsManager = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        get: get,
+        get: get$1,
         set: set,
         add: add,
         remove: remove,
@@ -1255,17 +1296,17 @@
         }
         return BASE;
     }
-    function get$1() {
+    function get() {
         return prepare(clearHref().split(BASE).slice(1).join(BASE));
     }
     function construct(href) {
         switch (href[0]) {
             case "?": {
-                href = get$1().split("?")[0] + href;
+                href = get().split("?")[0] + href;
                 break;
             }
             case "#": {
-                href = get$1().split("#")[0] + href;
+                href = get().split("#")[0] + href;
                 break;
             }
         }
@@ -1275,11 +1316,21 @@
     var URLManager = /*#__PURE__*/Object.freeze({
         __proto__: null,
         base: base,
-        get: get$1,
+        get: get,
         construct: construct
     });
 
     var started = false;
+    var historyManaged = null;
+    function setAutoManagement(value) {
+        if (started) {
+            throw new Error("HistoryManager already started");
+        }
+        historyManaged = !!value;
+    }
+    function getAutoManagement() {
+        return historyManaged || false;
+    }
     var works = [];
     var onworkfinished = [];
     function onWorkFinished(callback, context) {
@@ -1337,16 +1388,16 @@
         var lock = createWork(true);
         return lock;
     }
-    function isLocked() {
+    function isLocked$1() {
         return works.some(function (w) { return w.locking; });
     }
     var catchPopState$1 = null;
     window.addEventListener("popstate", function (event) {
-        if (!started || isLocked()) {
+        if (!started || isLocked$1()) {
             return;
         }
         if (catchPopState$1 == null) {
-            handlePopState();
+            handlePopState$1();
             return;
         }
         event.stopImmediatePropagation();
@@ -1363,7 +1414,7 @@
         }
         catchPopState$1 = onCatchPopState;
     }
-    function goTo$1(href, replace) {
+    function goTo(href, replace) {
         if (replace === void 0) { replace = false; }
         href = construct(href);
         if (window.location.href === href) {
@@ -1379,7 +1430,7 @@
     }
     function addFront(frontHref) {
         if (frontHref === void 0) { frontHref = "next"; }
-        var href = get$1();
+        var href = get();
         var work = createWork();
         return new Promise(function (resolve) {
             goWith(construct(frontHref), { back: undefined, front: null })
@@ -1389,7 +1440,7 @@
             }); })
                 .then(function () { return new Promise(function (resolve) {
                 onCatchPopState$1(resolve, true);
-                goTo$1(href, true);
+                goTo(href, true);
             }); })
                 .then(function () {
                 work.finish();
@@ -1399,7 +1450,7 @@
     }
     function addBack(backHref) {
         if (backHref === void 0) { backHref = ""; }
-        var href = get$1();
+        var href = get();
         var work = createWork();
         return new Promise(function (resolve) {
             (new Promise(function (resolve) {
@@ -1409,7 +1460,7 @@
                 .then(function () { return new Promise(function (resolve) {
                 if (backHref) {
                     onCatchPopState$1(resolve, true);
-                    goTo$1(backHref, true);
+                    goTo(backHref, true);
                 }
                 else {
                     resolve();
@@ -1418,7 +1469,7 @@
                 .then(function () { return set({ back: null, front: undefined }); })
                 .then(function () { return new Promise(function (resolve) {
                 onCatchPopState$1(resolve, true);
-                goTo$1(href);
+                goTo(href);
             }); })
                 .then(function () {
                 work.finish();
@@ -1428,26 +1479,35 @@
     }
     var hasBack = false;
     var contextManager = new ContextManager();
-    function index() {
+    function index$1() {
         return contextManager.index();
     }
     function getHREFAt(index) {
         return contextManager.get(index);
     }
-    function setContext(context) {
+    function setContext$1(context) {
+        if (historyManaged === null) {
+            historyManaged = true;
+        }
         return contextManager.setContext(context);
     }
-    function addContextPath(context, href, isFallback) {
+    function addContextPath$1(context, href, isFallback) {
         if (isFallback === void 0) { isFallback = false; }
+        if (historyManaged === null) {
+            historyManaged = true;
+        }
         return contextManager.addContextPath(context, href, isFallback);
     }
-    function setContextDefaultHref(context, href) {
+    function setContextDefaultHref$1(context, href) {
+        if (historyManaged === null) {
+            historyManaged = true;
+        }
         return contextManager.setContextDefaultHref(context, href);
     }
-    function getContextDefaultOf(context) {
+    function getContextDefaultOf$1(context) {
         return contextManager.getDefaultOf(context);
     }
-    function getContext(href) {
+    function getContext$1(href) {
         if (href === void 0) { href = null; }
         if (href == null) {
             return contextManager.currentContext();
@@ -1455,6 +1515,9 @@
         return contextManager.contextOf(href);
     }
     function getHREFs() {
+        if (!historyManaged) {
+            throw new Error("can't keep track of hrefs without history management");
+        }
         return contextManager.hrefs();
     }
     function tryUnlock() {
@@ -1472,6 +1535,9 @@
     }
     var workToRelease = null;
     function restore(context) {
+        if (!historyManaged) {
+            throw new Error("can't restore a context without history management");
+        }
         var locksFinished = tryUnlock();
         if (locksFinished === -1) {
             return new Promise(function (_, reject) { reject(); });
@@ -1489,7 +1555,7 @@
                 (new Promise(function (resolve) {
                     if (!replace_1 && !hasBack) {
                         onCatchPopState$1(resolve, true);
-                        goTo$1(href_1);
+                        goTo(href_1);
                     }
                     else {
                         resolve();
@@ -1511,7 +1577,7 @@
                     .then(function () { return new Promise(function (resolve) {
                     if (hadBack_1 || replace_1) {
                         onCatchPopState$1(resolve, true);
-                        goTo$1(href_1, true);
+                        goTo(href_1, true);
                     }
                     else {
                         resolve();
@@ -1535,7 +1601,7 @@
         onWorkFinished(function () {
             workToRelease = createWork();
             onWorkFinished(promiseResolve);
-            goTo$1(href);
+            goTo(href);
         });
         return promise;
     }
@@ -1550,11 +1616,11 @@
         onWorkFinished(function () {
             workToRelease = createWork();
             onWorkFinished(promiseResolve);
-            goTo$1(href, replacing = true);
+            goTo(href, replacing = true);
         });
         return promise;
     }
-    function go(direction) {
+    function go$1(direction) {
         var locksFinished = tryUnlock();
         if (locksFinished === -1) {
             return new Promise(function (resolve, reject) {
@@ -1562,7 +1628,7 @@
             });
         }
         if (direction === 0) {
-            throw new Error("direction must be different than 0");
+            return Promise.resolve();
         }
         direction = parseInt(direction, 10) + locksFinished;
         if (isNaN(direction)) {
@@ -1574,9 +1640,17 @@
         var promiseResolve;
         var promise = new Promise(function (resolve, reject) { promiseResolve = resolve; });
         onWorkFinished(function () {
-            var index = contextManager.index() + direction;
-            if (index < 0 || index >= contextManager.length()) {
-                return onlanded();
+            if (historyManaged === false) {
+                window.history.go(direction);
+                promiseResolve();
+                return;
+            }
+            var contextIndex = contextManager.index();
+            var index = Math.max(0, Math.min(contextManager.length() - 1, contextIndex + direction));
+            if (contextIndex === index) {
+                onlanded();
+                promiseResolve();
+                return;
             }
             workToRelease = createWork();
             onWorkFinished(promiseResolve);
@@ -1591,32 +1665,45 @@
         });
         return promise;
     }
-    function start(fallbackContext) {
-        if (fallbackContext === void 0) { fallbackContext = contextManager.getContextNames()[0]; }
-        var href = get$1();
-        var context = contextManager.contextOf(href, false);
+    function start$1(fallbackContext) {
+        if (historyManaged === null) {
+            historyManaged = false;
+        }
+        fallbackContext = historyManaged ?
+            (fallbackContext === void 0 ? contextManager.getContextNames()[0] : fallbackContext)
+            : null;
+        var href = get();
         var promiseResolve;
-        var promise = new Promise(function (resolve) { promiseResolve = resolve; });
-        if (context == null) {
-            if (!fallbackContext) {
-                throw new Error("must define a fallback context");
+        var promiseReject;
+        var promise = new Promise(function (resolve, reject) {
+            promiseResolve = resolve;
+            promiseReject = reject;
+        });
+        if (historyManaged) {
+            var context = contextManager.contextOf(href, false);
+            if (context == null) {
+                if (!fallbackContext) {
+                    throw new Error("must define a fallback context");
+                }
+                var defaultHREF = contextManager.getDefaultOf(fallbackContext);
+                if (defaultHREF == null) {
+                    throw new Error("must define a default href for the fallback context");
+                }
+                started = true;
+                href = defaultHREF;
+                workToRelease = createWork();
+                onCatchPopState$1(function () { onlanded(); promiseResolve(); }, true);
+                goTo(defaultHREF, true);
             }
-            var defaultHREF = contextManager.getDefaultOf(fallbackContext);
-            if (defaultHREF == null) {
-                throw new Error("must define a default href for the fallback context");
+            contextManager.insert(href);
+            if (context == null) {
+                promiseReject();
+                return promise;
             }
-            started = true;
-            href = defaultHREF;
-            workToRelease = createWork();
-            onCatchPopState$1(function () { onlanded(); promiseResolve(); }, true);
-            goTo$1(defaultHREF, true);
         }
-        contextManager.insert(href);
-        if (context != null) {
-            started = true;
-            onlanded();
-            promiseResolve();
-        }
+        started = true;
+        onlanded();
+        promiseResolve();
         return promise;
     }
     function onlanded() {
@@ -1627,12 +1714,12 @@
             work.finish();
         }
     }
-    function handlePopState() {
-        var options = get();
+    function handlePopState$1() {
+        var options = __assign(__assign({}, get$1()), (historyManaged ? {} : { front: undefined, back: undefined }));
         if (options.locked) {
             onCatchPopState$1(function () {
-                if (get().locked) {
-                    handlePopState();
+                if (get$1().locked) {
+                    handlePopState$1();
                 }
             }, true);
             window.history.go(-1);
@@ -1659,7 +1746,7 @@
             }))
                 .then(function () { return new Promise(function (resolve) {
                 onCatchPopState$1(resolve, true);
-                goTo$1(href_2, true);
+                goTo(href_2, true);
             }); })
                 .then(addBack.bind(null, backHref))
                 .then(function () { return new Promise(function (resolve) {
@@ -1696,7 +1783,7 @@
                 }
             })).then(function () { return new Promise(function (resolve) {
                 onCatchPopState$1(resolve, true);
-                goTo$1(href_3, true);
+                goTo(href_3, true);
             }); })
                 .then(addFront.bind(null, frontHref))
                 .then(function () {
@@ -1705,9 +1792,9 @@
             });
         }
         else {
-            var href_4 = get$1();
+            var href_4 = get();
             var backHref_1 = contextManager.get();
-            if (href_4 === backHref_1) {
+            if (href_4 === backHref_1 || !historyManaged) {
                 return onlanded();
             }
             var replaced_1 = replacing;
@@ -1731,7 +1818,7 @@
             })
                 .then(function () { return new Promise(function (resolve) {
                 onCatchPopState$1(resolve, true);
-                goTo$1(href_4, true);
+                goTo(href_4, true);
             }); })
                 .then(function () {
                 hasBack = willHaveBack_1;
@@ -1742,46 +1829,48 @@
 
     var HistoryManager = /*#__PURE__*/Object.freeze({
         __proto__: null,
+        setAutoManagement: setAutoManagement,
+        getAutoManagement: getAutoManagement,
         onWorkFinished: onWorkFinished,
         acquire: acquire,
         addFront: addFront,
         addBack: addBack,
-        index: index,
+        index: index$1,
         getHREFAt: getHREFAt,
-        setContext: setContext,
-        addContextPath: addContextPath,
-        setContextDefaultHref: setContextDefaultHref,
-        getContextDefaultOf: getContextDefaultOf,
-        getContext: getContext,
+        setContext: setContext$1,
+        addContextPath: addContextPath$1,
+        setContextDefaultHref: setContextDefaultHref$1,
+        getContextDefaultOf: getContextDefaultOf$1,
+        getContext: getContext$1,
         getHREFs: getHREFs,
         restore: restore,
         assign: assign,
         replace: replace,
-        go: go,
-        start: start
+        go: go$1,
+        start: start$1
     });
 
-    var locks = [];
-    var catchPopState$2 = null;
+    var locks$1 = [];
+    var catchPopState = null;
     window.addEventListener("popstate", function (event) {
-        if (catchPopState$2 == null) {
-            return handlePopState$1();
+        if (catchPopState == null) {
+            return handlePopState();
         }
         event.stopImmediatePropagation();
-        catchPopState$2();
+        catchPopState();
     }, true);
-    function onCatchPopState$2(onCatchPopState, once) {
+    function onCatchPopState(onCatchPopState, once) {
         if (once === void 0) { once = false; }
         if (once) {
             var tmpOnCatchPopState_1 = onCatchPopState;
             onCatchPopState = function () {
-                catchPopState$2 = null;
+                catchPopState = null;
                 tmpOnCatchPopState_1();
             };
         }
-        catchPopState$2 = onCatchPopState;
+        catchPopState = onCatchPopState;
     }
-    function lock() {
+    function lock$2() {
         var delegate = new EventTarget();
         var id = Date.now();
         var historyLock;
@@ -1807,17 +1896,17 @@
                         delegate.removeEventListener("navigation", listener);
                     },
                     unlock: function () {
-                        if (!locks.length || historyLock.finishing) {
+                        if (!locks$1.length || historyLock.finishing) {
                             return;
                         }
                         var fn = function () {
-                            if (locks[locks.length - 1].lock.id === id) {
-                                unlock();
+                            if (locks$1[locks$1.length - 1].lock.id === id) {
+                                unlock$1();
                             }
                             else {
-                                locks.some(function (lock, index) {
+                                locks$1.some(function (lock, index) {
                                     if (lock.lock.id === id) {
-                                        locks.splice(index, 1)[0].release();
+                                        locks$1.splice(index, 1)[0].release();
                                     }
                                     return false;
                                 });
@@ -1856,16 +1945,16 @@
                 lock.lock.unlock();
                 return true;
             };
-            locks.push(lock);
-            goWith(clearHref(), __assign(__assign({}, get()), { locked: lock.lock.id })).then(function () {
+            locks$1.push(lock);
+            goWith(clearHref(), __assign(__assign({}, get$1()), { locked: lock.lock.id })).then(function () {
                 promiseResolve(lock.lock);
             });
         });
         return promise;
     }
-    function unlock(force) {
+    function unlock$1(force) {
         if (force === void 0) { force = true; }
-        var wrapper = locks.splice(locks.length - 1, 1)[0];
+        var wrapper = locks$1.splice(locks$1.length - 1, 1)[0];
         if (wrapper == null) {
             return true;
         }
@@ -1873,31 +1962,31 @@
             return false;
         }
         wrapper.beginRelease(function () {
-            onCatchPopState$2(function () {
+            onCatchPopState(function () {
                 wrapper.release();
             }, true);
             window.history.go(-1);
         });
         return true;
     }
-    function locked() {
-        return locks.length > 0;
+    function locked$1() {
+        return locks$1.length > 0;
     }
     var shouldUnlock = false;
-    function handlePopState$1() {
-        if (locks.length === 0) {
+    function handlePopState() {
+        if (locks$1.length === 0) {
             return;
         }
-        var lockId = parseInt(get().locked, 10);
+        var lockId = parseInt(get$1().locked, 10);
         if (isNaN(lockId)) {
             shouldUnlock = true;
             window.history.go(1);
         }
         else {
-            var lock_1 = locks[locks.length - 1];
+            var lock_1 = locks$1[locks$1.length - 1];
             if (lockId === lock_1.lock.id) {
                 if (shouldUnlock && lock_1.fire()) {
-                    unlock();
+                    unlock$1();
                 }
                 shouldUnlock = false;
                 return;
@@ -1914,9 +2003,9 @@
 
     var NavigationLock = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        lock: lock,
-        unlock: unlock,
-        locked: locked
+        lock: lock$2,
+        unlock: unlock$1,
+        locked: locked$1
     });
 
     var _a, _b, _c;
@@ -1932,7 +2021,7 @@
     }
     var routers = [];
     function getLocation(href) {
-        if (href === void 0) { href = get$1(); }
+        if (href === void 0) { href = get(); }
         var pathname = "";
         var hash = "";
         var query = "";
@@ -2233,11 +2322,11 @@
     function unroute(path) {
         return main.unroute(path);
     }
-    function start$1(startingContext) {
-        return start(startingContext);
+    function start(startingContext) {
+        return start$1(startingContext);
     }
-    function index$1() {
-        return index();
+    function index() {
+        return index$1();
     }
     function getLocationAt(index) {
         var href = getHREFAt(index);
@@ -2246,24 +2335,24 @@
         }
         return getLocation(href);
     }
-    function addContextPath$1(context, href, isFallback) {
+    function addContextPath(context, href, isFallback) {
         if (isFallback === void 0) { isFallback = false; }
-        return addContextPath(context, href, isFallback);
+        return addContextPath$1(context, href, isFallback);
     }
-    function setContextDefaultHref$1(context, href) {
-        return setContextDefaultHref(context, href);
+    function setContextDefaultHref(context, href) {
+        return setContextDefaultHref$1(context, href);
     }
-    function setContext$1(context) {
-        return setContext(context);
+    function setContext(context) {
+        return setContext$1(context);
     }
-    function getContext$1(href) {
-        return getContext(href);
+    function getContext(href) {
+        return getContext$1(href);
     }
     function restoreContext(context, defaultHref) {
         return restore(context);
     }
-    function getContextDefaultOf$1(context) {
-        return getContextDefaultOf(context);
+    function getContextDefaultOf(context) {
+        return getContextDefaultOf$1(context);
     }
     function emit(single) {
         if (single === void 0) { single = false; }
@@ -2275,7 +2364,7 @@
     function create() {
         return new GenericRouter();
     }
-    function go$1(path_index, options) {
+    function go(path_index, options) {
         var path_index_type = typeof path_index;
         if (path_index_type !== "string" && path_index_type !== "number") {
             throw new Error("router.go should receive an url string or a number");
@@ -2297,7 +2386,7 @@
             else {
                 var lastEmitRoute_1 = emitRoute;
                 emitRoute = options.emit == null ? true : options.emit;
-                go(path_index).then(promiseResolve, function () {
+                go$1(path_index).then(promiseResolve, function () {
                     emitRoute = lastEmitRoute_1;
                 });
             }
@@ -2314,16 +2403,16 @@
             else {
                 location.addQueryParam(param, value);
             }
-            go$1(location.href, options).then(promiseResolve);
+            go(location.href, options).then(promiseResolve);
         });
         return promise;
     }
     function lock$1() {
-        return lock();
+        return lock$2();
     }
-    function unlock$1(force) {
+    function unlock(force) {
         if (force === void 0) { force = true; }
-        return unlock(force);
+        return unlock$1(force);
     }
     function destroy() {
         throw new Error("cannot destroy main Router");
@@ -2335,8 +2424,8 @@
         base(newBase.replace(/[\/]+$/, ""));
         _emit();
     }
-    function isLocked$1() {
-        return locked();
+    function isLocked() {
+        return locked$1();
     }
 
     var Router = /*#__PURE__*/Object.freeze({
@@ -2346,30 +2435,30 @@
         unredirect: unredirect,
         route: route,
         unroute: unroute,
-        start: start$1,
-        index: index$1,
+        start: start,
+        index: index,
         getLocationAt: getLocationAt,
-        addContextPath: addContextPath$1,
-        setContextDefaultHref: setContextDefaultHref$1,
-        setContext: setContext$1,
-        getContext: getContext$1,
+        addContextPath: addContextPath,
+        setContextDefaultHref: setContextDefaultHref,
+        setContext: setContext,
+        getContext: getContext,
         restoreContext: restoreContext,
-        getContextDefaultOf: getContextDefaultOf$1,
+        getContextDefaultOf: getContextDefaultOf,
         emit: emit,
         create: create,
-        go: go$1,
+        go: go,
         setQueryParam: setQueryParam,
         lock: lock$1,
-        unlock: unlock$1,
+        unlock: unlock,
         destroy: destroy,
         getBase: getBase,
         setBase: setBase,
-        isLocked: isLocked$1,
+        isLocked: isLocked,
         NavigationLock: NavigationLock
     });
 
-    var locks$1 = [];
-    function lock$2(locking_fn) {
+    var locks = [];
+    function lock(locking_fn) {
         var released = false;
         var releasing = false;
         var onrelease = [];
@@ -2386,10 +2475,10 @@
                 }
                 released = true;
                 releasing = false;
-                var i = locks$1.length - 1;
+                var i = locks.length - 1;
                 for (; i >= 0; i--) {
-                    if (locks$1[i] === lock) {
-                        locks$1.splice(i, 1);
+                    if (locks[i] === lock) {
+                        locks.splice(i, 1);
                         break;
                     }
                 }
@@ -2412,7 +2501,7 @@
         return new Promise(function (resolve) {
             ondone(function () {
                 var result = locking_fn.call(lock, lock);
-                locks$1.push(lock);
+                locks.push(lock);
                 if (result !== false && result !== void 0) {
                     lock.release();
                 }
@@ -2420,8 +2509,8 @@
             });
         });
     }
-    function locked$1() {
-        return locks$1.length > 0 && locks$1.every(function (lock) { return !lock.releasing && !lock.released; });
+    function locked() {
+        return locks.length > 0 && locks.every(function (lock) { return !lock.releasing && !lock.released; });
     }
     var currentWork = -1;
     var working = 0;
@@ -2447,7 +2536,7 @@
     }
     function startWork(start_fn, id) {
         if (id === void 0) { id = Date.now(); }
-        if (locked$1()) {
+        if (locked()) {
             console.error("navigation is locked");
             return -1;
         }
@@ -2475,8 +2564,8 @@
 
     var WorkManager = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        lock: lock$2,
-        locked: locked$1,
+        lock: lock,
+        locked: locked,
         startWork: startWork,
         ondone: ondone
     });
