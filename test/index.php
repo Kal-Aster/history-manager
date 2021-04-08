@@ -15,32 +15,32 @@
         <a data-href="home">home [HOME]</a><br>
         <a data-href="search?query=test">search?query=test [SEARCH]</a><br>
 
-        <div />
+        <div></div>
 
         <button id="restoreHome">Restore home</button>
         <button id="restoreProfile">Restore profile</button>
         <button id="restoreSearch">Restore search</button>
 
-        <div />
+        <div></div>
         
         <button id="lock">Lock</button>
         <button id="weakLock">Lock weakly</button>
         <button id="unlock">Unlock</button>
 
-        <div />
+        <div></div>
         
         <button id="locktest">Lock test</button>
         <button id="gotest">Go test</button>
 
-        <div />
+        <div></div>
 
         <button id="goreplace">Replace with search?recent=test</button>
 
-        <div />
+        <div></div>
         
         <button id="queryparam">Set query param test</button>
 
-        <div />
+        <div></div>
 
         <button id="replaceissamecontext">Replace is same context?</button>
 

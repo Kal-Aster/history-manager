@@ -2,8 +2,8 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import * as OptionsManager from "./OptionsManager";
-import * as PathGenerator from "./PathGenerator";
+import { clearHref } from "./OptionsManager";
+import { prepare } from "./PathGenerator";
 
 let BASE: string = "#";
 const LOCATION_BASE: string = `${
@@ -35,7 +35,8 @@ export function base(value?: string): string {
     return BASE;
 }
 export function get(): string {
-    return PathGenerator.prepare(OptionsManager.clearHref().split(BASE).slice(1).join(BASE));
+    const LOCATION = LOCATION_BASE + LOCATION_PATHNAME;
+    return prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE));
 }
 export function construct(href: string, full: boolean = false): string {
     switch (href[0]) {

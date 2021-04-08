@@ -1322,7 +1322,8 @@
         return BASE;
     }
     function get() {
-        return prepare(clearHref().split(BASE).slice(1).join(BASE));
+        var LOCATION = LOCATION_BASE + LOCATION_PATHNAME;
+        return prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE));
     }
     function construct(href, full) {
         if (full === void 0) { full = false; }
