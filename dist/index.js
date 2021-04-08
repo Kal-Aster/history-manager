@@ -1303,6 +1303,9 @@
     var BASE = "#";
     var LOCATION_BASE = window.location.protocol + "//" + window.location.host + (window.location.port ? ":" + window.location.port : "");
     var LOCATION_PATHNAME = window.location.pathname;
+    function getLocation$1() {
+        return LOCATION_BASE + (BASE[0] === "#" ? LOCATION_PATHNAME : "");
+    }
     var parenthesesRegex = /[\\\/]+/g;
     function base(value) {
         if (value != null) {
@@ -1322,7 +1325,7 @@
         return BASE;
     }
     function get() {
-        var LOCATION = LOCATION_BASE + LOCATION_PATHNAME;
+        var LOCATION = getLocation$1();
         return prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE));
     }
     function construct(href, full) {
@@ -1337,7 +1340,7 @@
                 break;
             }
         }
-        return (full ? LOCATION_BASE + (BASE[0] === "#" ? LOCATION_PATHNAME : "") : "") +
+        return (full ? getLocation$1() : "") +
             (BASE + "/" + href).replace(parenthesesRegex, "/");
     }
 

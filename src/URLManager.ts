@@ -15,6 +15,10 @@ const LOCATION_BASE: string = `${
 }`;
 const LOCATION_PATHNAME = window.location.pathname;
 
+function getLocation() {
+    return LOCATION_BASE + (BASE[0] === "#" ? LOCATION_PATHNAME : "");
+}
+
 const parenthesesRegex: RegExp = /[\\\/]+/g;
 
 export function base(value?: string): string {
@@ -35,7 +39,7 @@ export function base(value?: string): string {
     return BASE;
 }
 export function get(): string {
-    const LOCATION = LOCATION_BASE + LOCATION_PATHNAME;
+    const LOCATION = getLocation();
     return prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE));
 }
 export function construct(href: string, full: boolean = false): string {
@@ -50,7 +54,7 @@ export function construct(href: string, full: boolean = false): string {
         }
         default: { break; }
     }
-    return (full ? LOCATION_BASE + (BASE[0] === "#" ? LOCATION_PATHNAME : "") : "") +
+    return (full ? getLocation() : "") +
         (BASE + "/" + href).replace(parenthesesRegex, "/")
     ;
 }
