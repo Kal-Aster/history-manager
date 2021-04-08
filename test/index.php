@@ -9,11 +9,11 @@
         <title>history-manager - test page</title>
     </head>
     <body>
-        <a href="#me">me [PROFILE]</a><br>
-        <a href="#user/12">user/12 [PROFILE as fallback]</a><br>
+        <a data-href="me">me [PROFILE]</a><br>
+        <a data-href="user/12">user/12 [PROFILE as fallback]</a><br>
         <span id="user-12-replace">user/12 [PROFILE as fallback, replace]</span><br>
-        <a href="#home">home [HOME]</a><br>
-        <a href="#search?query=test">search?query=test [SEARCH]</a><br>
+        <a data-href="home">home [HOME]</a><br>
+        <a data-href="search?query=test">search?query=test [SEARCH]</a><br>
 
         <div />
 
@@ -43,34 +43,60 @@
         <div />
 
         <button id="replaceissamecontext">Replace is same context?</button>
+
+        <script>
+            if (window.history.replaceState) {
+                window._ROUTER_BASE = window.location.pathname.split("/").slice(0, -1).join("/");
+                window.history.replaceState({}, "", window._ROUTER_BASE + "<?php
+                    echo array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : (
+                        array_key_exists('ORIG_PATH_INFO', $_SERVER) ? $_SERVER['ORIG_PATH_INFO'] : '/'
+                    )
+                ?>");
+            }
+        </script>
         
         <script src="../dist/index.js"></script>
         <script>
         {
+            if (window._ROUTER_BASE != null) {
+                window.historyManager.URLManager.base(window._ROUTER_BASE);
+            }
+            Array.prototype.forEach.call(document.querySelectorAll("a[data-href]"), a => {
+                const dataHref = a.getAttribute("data-href");
+                const href = window.historyManager.URLManager.construct(dataHref, true);
+                a.href = href;
+                console.log(dataHref, href);
+                a.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    window.historyManager.Router.go(dataHref);
+                    return false;
+                });
+            });
+
             const Router = window.historyManager.Router;
             const NavigationLock = window.historyManager.NavigationLock;
-            // Router.setContext({
-            //     name: "home",
-            //     paths: [
-            //         { path: "home" }
-            //     ],
-            //     default: "home"
-            // });
-            // Router.setContext({
-            //     name: "profile",
-            //     paths: [
-            //         { path: "me" },
-            //         { path: "user/:id", fallback: true }
-            //     ],
-            //     default: "me"
-            // });
-            // Router.setContext({
-            //     name: "search",
-            //     paths: [
-            //         { path: "search" }
-            //     ],
-            //     default: "search?recent"
-            // });
+            Router.setContext({
+                name: "home",
+                paths: [
+                    { path: "home" }
+                ],
+                default: "home"
+            });
+            Router.setContext({
+                name: "profile",
+                paths: [
+                    { path: "me" },
+                    { path: "user/:id", fallback: true }
+                ],
+                default: "me"
+            });
+            Router.setContext({
+                name: "search",
+                paths: [
+                    { path: "search" }
+                ],
+                default: "search?recent"
+            });
             document.querySelector("#user-12-replace").addEventListener("click", function () {
                 Router.go("users/12", { replace: true });
             });

@@ -124,15 +124,25 @@ function onCatchPopState(onCatchPopState: () => void, once: boolean = false): vo
 }
 
 function goTo(href: string, replace: boolean = false): void {
+    const fullHref = URLManager.construct(href, true);
     href = URLManager.construct(href);
-    if (window.location.href === href) {
+    if (window.location.href === fullHref) {
         window.dispatchEvent(new Event("popstate"));
         return;
     }
-    if (replace) {
-        window.location.replace(href);
+    if (href[0] === "#") {
+        if (replace) {
+            window.location.replace(href);
+        } else {
+            window.location.assign(href);
+        }
     } else {
-        window.location.assign(href);
+        if (replace) {
+            window.history.replaceState({}, "", href);
+        } else {
+            window.history.pushState({}, "", href);
+        }
+        window.dispatchEvent(new Event("popstate"));
     }
 }
 
@@ -140,7 +150,7 @@ export function addFront(frontHref: string = "next"): Promise<void> {
     let href: string = URLManager.get();
     let work: IWork = createWork();
     return new Promise(resolve => {
-        OptionsManager.goWith(URLManager.construct(frontHref), { back: undefined, front: null })
+        OptionsManager.goWith(URLManager.construct(frontHref, true), { back: undefined, front: null })
         .then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             window.history.go(-1);
@@ -501,7 +511,8 @@ function handlePopState(): void {
             } else {
                 resolve();
             }
-        })).then(() => new Promise<void>(resolve => {
+        }))
+        .then(() => new Promise<void>(resolve => {
             onCatchPopState(resolve, true);
             goTo(href, true);
         }))

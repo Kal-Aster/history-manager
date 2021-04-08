@@ -34,10 +34,19 @@ function goTo(href: string, replace: boolean = false): Promise<void> {
             return resolve();
         }
         onCatchPopState(resolve, true);
-        if (replace) {
-            window.location.replace(href);
+        if (href[0] === "#") {
+            if (replace) {
+                window.location.replace(href);
+            } else {
+                window.location.assign(href);
+            }
         } else {
-            window.location.assign(href);
+            if (replace) {
+                window.history.replaceState({}, "", href);
+            } else {
+                window.history.pushState({}, "", href);
+            }
+            window.dispatchEvent(new Event("popstate"));
         }
     });
 }

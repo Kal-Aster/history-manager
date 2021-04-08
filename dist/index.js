@@ -1215,11 +1215,22 @@
                 return resolve();
             }
             onCatchPopState$2(resolve, true);
-            if (replace) {
-                window.location.replace(href);
+            if (href[0] === "#") {
+                if (replace) {
+                    window.location.replace(href);
+                }
+                else {
+                    window.location.assign(href);
+                }
             }
             else {
-                window.location.assign(href);
+                if (replace) {
+                    window.history.replaceState({}, "", href);
+                }
+                else {
+                    window.history.pushState({}, "", href);
+                }
+                window.dispatchEvent(new Event("popstate"));
             }
         });
     }
@@ -1289,9 +1300,23 @@
         clearHref: clearHref
     });
 
-    var BASE = window.location.href.split("#")[0] + "#";
+    var BASE = "#";
+    var LOCATION_BASE = window.location.protocol + "//" + window.location.host + (window.location.port ? ":" + window.location.port : "");
+    var LOCATION_PATHNAME = window.location.pathname.split("/").slice(0, -1).join("/");
+    var parenthesesRegex = /[\\\/]+/g;
     function base(value) {
         if (value != null) {
+            if (typeof value !== "string") {
+                throw new TypeError("invalid base value");
+            }
+            value += "/";
+            value.replace(parenthesesRegex, "/");
+            if (value[0] !== "#" && value[0] !== "/") {
+                value = "/" + value;
+            }
+            if (value[0] === "/" && !window.history.pushState) {
+                value = "#" + value;
+            }
             BASE = value;
         }
         return BASE;
@@ -1299,7 +1324,8 @@
     function get() {
         return prepare(clearHref().split(BASE).slice(1).join(BASE));
     }
-    function construct(href) {
+    function construct(href, full) {
+        if (full === void 0) { full = false; }
         switch (href[0]) {
             case "?": {
                 href = get().split("?")[0] + href;
@@ -1310,7 +1336,8 @@
                 break;
             }
         }
-        return BASE + href;
+        return (full ? LOCATION_BASE + (BASE[0] === "#" ? LOCATION_PATHNAME : "") : "") +
+            (BASE + "/" + href).replace(parenthesesRegex, "/");
     }
 
     var URLManager = /*#__PURE__*/Object.freeze({
@@ -1416,16 +1443,28 @@
     }
     function goTo(href, replace) {
         if (replace === void 0) { replace = false; }
+        var fullHref = construct(href, true);
         href = construct(href);
-        if (window.location.href === href) {
+        if (window.location.href === fullHref) {
             window.dispatchEvent(new Event("popstate"));
             return;
         }
-        if (replace) {
-            window.location.replace(href);
+        if (href[0] === "#") {
+            if (replace) {
+                window.location.replace(href);
+            }
+            else {
+                window.location.assign(href);
+            }
         }
         else {
-            window.location.assign(href);
+            if (replace) {
+                window.history.replaceState({}, "", href);
+            }
+            else {
+                window.history.pushState({}, "", href);
+            }
+            window.dispatchEvent(new Event("popstate"));
         }
     }
     function addFront(frontHref) {
@@ -1433,7 +1472,7 @@
         var href = get();
         var work = createWork();
         return new Promise(function (resolve) {
-            goWith(construct(frontHref), { back: undefined, front: null })
+            goWith(construct(frontHref, true), { back: undefined, front: null })
                 .then(function () { return new Promise(function (resolve) {
                 onCatchPopState$1(resolve, true);
                 window.history.go(-1);
@@ -1781,7 +1820,8 @@
                 else {
                     resolve();
                 }
-            })).then(function () { return new Promise(function (resolve) {
+            }))
+                .then(function () { return new Promise(function (resolve) {
                 onCatchPopState$1(resolve, true);
                 goTo(href_3, true);
             }); })

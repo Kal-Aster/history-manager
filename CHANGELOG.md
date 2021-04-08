@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2021-04-08
+- allow not "#" base, using History API
+
 ## [1.3.0] - 2021-03-11
 - add possibility to avoid auto href management (can skip context definition)
 - fix bug in HistoryManager::go
