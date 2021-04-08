@@ -13,7 +13,7 @@ const LOCATION_BASE: string = `${
 }${
     window.location.port ? `:${window.location.port}` : ""
 }`;
-const LOCATION_PATHNAME = window.location.pathname.split("/").slice(0, -1).join("/");
+const LOCATION_PATHNAME = window.location.pathname;
 
 const parenthesesRegex: RegExp = /[\\\/]+/g;
 

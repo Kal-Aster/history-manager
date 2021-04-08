@@ -1296,7 +1296,7 @@ var OptionsManager = /*#__PURE__*/Object.freeze({
 
 var BASE = "#";
 var LOCATION_BASE = window.location.protocol + "//" + window.location.host + (window.location.port ? ":" + window.location.port : "");
-var LOCATION_PATHNAME = window.location.pathname.split("/").slice(0, -1).join("/");
+var LOCATION_PATHNAME = window.location.pathname;
 var parenthesesRegex = /[\\\/]+/g;
 function base(value) {
     if (value != null) {
