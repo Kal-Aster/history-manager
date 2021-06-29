@@ -434,6 +434,10 @@ export function start(fallbackContext: string | null): Promise<void> {
     return promise;
 }
 
+export function isStarted(): boolean {
+    return started;
+}
+
 function onlanded(): void {
     window.dispatchEvent(new Event("historylanded"));
     if (workToRelease != null) {

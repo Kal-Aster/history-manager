@@ -636,10 +636,7 @@ var ContextManager$1 = /*#__PURE__*/Object.freeze({
     ContextManager: ContextManager
 });
 
-function createCommonjsModule(fn) {
-  var module = { exports: {} };
-	return fn(module, module.exports), module.exports;
-}
+var queryString = {};
 
 var strictUriEncode = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
 
@@ -775,13 +772,15 @@ var filterObj = function (obj, predicate) {
 	return ret;
 };
 
-var queryString = createCommonjsModule(function (module, exports) {
-
-
-
-
+(function (exports) {
+const strictUriEncode$1 = strictUriEncode;
+const decodeComponent = decodeUriComponent;
+const splitOnFirst$1 = splitOnFirst;
+const filterObject = filterObj;
 
 const isNullOrUndefined = value => value === null || value === undefined;
+
+const encodeFragmentIdentifier = Symbol('encodeFragmentIdentifier');
 
 function encoderForArrayFormat(options) {
 	switch (options.arrayFormat) {
@@ -826,17 +825,30 @@ function encoderForArrayFormat(options) {
 
 		case 'comma':
 		case 'separator':
+		case 'bracket-separator': {
+			const keyValueSep = options.arrayFormat === 'bracket-separator' ?
+				'[]=' :
+				'=';
+
 			return key => (result, value) => {
-				if (value === null || value === undefined || value.length === 0) {
+				if (
+					value === undefined ||
+					(options.skipNull && value === null) ||
+					(options.skipEmptyString && value === '')
+				) {
 					return result;
 				}
 
+				// Translate null to an empty string so that it doesn't serialize as 'null'
+				value = value === null ? '' : value;
+
 				if (result.length === 0) {
-					return [[encode(key, options), '=', encode(value, options)].join('')];
+					return [[encode(key, options), keyValueSep, encode(value, options)].join('')];
 				}
 
 				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
 			};
+		}
 
 		default:
 			return key => (result, value) => {
@@ -907,6 +919,28 @@ function parserForArrayFormat(options) {
 				accumulator[key] = newValue;
 			};
 
+		case 'bracket-separator':
+			return (key, value, accumulator) => {
+				const isArray = /(\[\])$/.test(key);
+				key = key.replace(/\[\]$/, '');
+
+				if (!isArray) {
+					accumulator[key] = value ? decode(value, options) : value;
+					return;
+				}
+
+				const arrayValue = value === null ?
+					[] :
+					value.split(options.arrayFormatSeparator).map(item => decode(item, options));
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = arrayValue;
+					return;
+				}
+
+				accumulator[key] = [].concat(accumulator[key], arrayValue);
+			};
+
 		default:
 			return (key, value, accumulator) => {
 				if (accumulator[key] === undefined) {
@@ -927,7 +961,7 @@ function validateArrayFormatSeparator(value) {
 
 function encode(value, options) {
 	if (options.encode) {
-		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+		return options.strict ? strictUriEncode$1(value) : encodeURIComponent(value);
 	}
 
 	return value;
@@ -935,7 +969,7 @@ function encode(value, options) {
 
 function decode(value, options) {
 	if (options.decode) {
-		return decodeUriComponent(value);
+		return decodeComponent(value);
 	}
 
 	return value;
@@ -1026,11 +1060,11 @@ function parse(query, options) {
 			continue;
 		}
 
-		let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
+		let [key, value] = splitOnFirst$1(options.decode ? param.replace(/\+/g, ' ') : param, '=');
 
 		// Missing `=` should be `null`:
 		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
-		value = value === undefined ? null : ['comma', 'separator'].includes(options.arrayFormat) ? value : decode(value, options);
+		value = value === undefined ? null : ['comma', 'separator', 'bracket-separator'].includes(options.arrayFormat) ? value : decode(value, options);
 		formatter(decode(key, options), value, ret);
 	}
 
@@ -1112,6 +1146,10 @@ exports.stringify = (object, options) => {
 		}
 
 		if (Array.isArray(value)) {
+			if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
+				return encode(key, options) + '[]';
+			}
+
 			return value
 				.reduce(formatter(key), [])
 				.join('&');
@@ -1126,7 +1164,7 @@ exports.parseUrl = (url, options) => {
 		decode: true
 	}, options);
 
-	const [url_, hash] = splitOnFirst(url, '#');
+	const [url_, hash] = splitOnFirst$1(url, '#');
 
 	return Object.assign(
 		{
@@ -1140,7 +1178,8 @@ exports.parseUrl = (url, options) => {
 exports.stringifyUrl = (object, options) => {
 	options = Object.assign({
 		encode: true,
-		strict: true
+		strict: true,
+		[encodeFragmentIdentifier]: true
 	}, options);
 
 	const url = removeHash(object.url).split('?')[0] || '';
@@ -1155,7 +1194,7 @@ exports.stringifyUrl = (object, options) => {
 
 	let hash = getHash(object.url);
 	if (object.fragmentIdentifier) {
-		hash = `#${encode(object.fragmentIdentifier, options)}`;
+		hash = `#${options[encodeFragmentIdentifier] ? encode(object.fragmentIdentifier, options) : object.fragmentIdentifier}`;
 	}
 
 	return `${url}${queryString}${hash}`;
@@ -1163,13 +1202,14 @@ exports.stringifyUrl = (object, options) => {
 
 exports.pick = (input, filter, options) => {
 	options = Object.assign({
-		parseFragmentIdentifier: true
+		parseFragmentIdentifier: true,
+		[encodeFragmentIdentifier]: false
 	}, options);
 
 	const {url, query, fragmentIdentifier} = exports.parseUrl(input, options);
 	return exports.stringifyUrl({
 		url,
-		query: filterObj(query, filter),
+		query: filterObject(query, filter),
 		fragmentIdentifier
 	}, options);
 };
@@ -1179,7 +1219,7 @@ exports.exclude = (input, filter, options) => {
 
 	return exports.pick(input, exclusionFilter, options);
 };
-});
+}(queryString));
 
 var DIVIDER = "#R!:";
 var catchPopState$2 = null;
@@ -1743,6 +1783,9 @@ function start$1(fallbackContext) {
     promiseResolve();
     return promise;
 }
+function isStarted() {
+    return started;
+}
 function onlanded() {
     window.dispatchEvent(new Event("historylanded"));
     if (workToRelease != null) {
@@ -1885,7 +1928,8 @@ var HistoryManager = /*#__PURE__*/Object.freeze({
     assign: assign,
     replace: replace,
     go: go$1,
-    start: start$1
+    start: start$1,
+    isStarted: isStarted
 });
 
 var locks$1 = [];
