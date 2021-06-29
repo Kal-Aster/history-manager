@@ -1347,7 +1347,7 @@ function base(value) {
             throw new TypeError("invalid base value");
         }
         value += "/";
-        value.replace(parenthesesRegex, "/");
+        value = value.replace(parenthesesRegex, "/");
         if (value[0] !== "#" && value[0] !== "/") {
             value = "/" + value;
         }
@@ -1360,7 +1360,7 @@ function base(value) {
 }
 function get() {
     var LOCATION = getLocation$1();
-    return prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE));
+    return ("/" + prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE))).replace(parenthesesRegex, "/");
 }
 function construct(href, full) {
     if (full === void 0) { full = false; }

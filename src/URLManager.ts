@@ -27,7 +27,7 @@ export function base(value?: string): string {
             throw new TypeError("invalid base value");
         }
         value += "/";
-        value.replace(parenthesesRegex, "/");
+        value = value.replace(parenthesesRegex, "/");
         if (value[0] !== "#" && value[0] !== "/") {
             value = "/" + value;
         }
@@ -40,7 +40,9 @@ export function base(value?: string): string {
 }
 export function get(): string {
     const LOCATION = getLocation();
-    return prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE));
+    return `/${
+        prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE))
+    }`.replace(parenthesesRegex, "/");
 }
 export function construct(href: string, full: boolean = false): string {
     switch (href[0]) {

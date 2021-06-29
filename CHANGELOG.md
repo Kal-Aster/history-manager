@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2021-06-29
+- fix `URLManager.base` and `URLManager.get`
+
 ## [1.5.0] - 2021-06-29
 - implement `HistoryManager.isStarted`
 
