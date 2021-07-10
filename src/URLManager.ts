@@ -10,8 +10,6 @@ const LOCATION_BASE: string = `${
     window.location.protocol
 }//${
     window.location.host
-}${
-    window.location.port ? `:${window.location.port}` : ""
 }`;
 const LOCATION_PATHNAME = window.location.pathname;
 

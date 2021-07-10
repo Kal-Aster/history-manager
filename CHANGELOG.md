@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.5.2] - 2021-07-10
+- fix duplicate port in `LOCATION_BASE` in `URLMananager`
+
 ## [1.5.1] - 2021-06-29
 - fix `URLManager.base` and `URLManager.get`
 
