@@ -64,6 +64,7 @@ export class ContextManager {
         return foundContext;
     }
     insert(href: string, replace: boolean = false): void {
+        href = PathGenerator.prepare(href);
         this.clean();
         // console.group(`ContextManager.insert("${href}", ${replace})`);
         // console.log(`current href: ${this.hrefs()}`);
@@ -245,7 +246,7 @@ export class ContextManager {
         if (context == null) {
             this._contexts.set(context_name, context = [[], null]);
         }
-        context[1] = href;
+        context[1] = href !== null ? PathGenerator.prepare(href) : null;
     }
     setContext(context: {
         name: string,

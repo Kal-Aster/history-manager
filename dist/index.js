@@ -357,7 +357,7 @@
     var TRAILING_DELIMITER = /[\\\/]+$/;
     var DELIMITER_NOT_IN_PARENTHESES = /[\\\/]+(?![^(]*[)])/g;
     function prepare(path) {
-        return path.replace(LEADING_DELIMITER, "").replace(TRAILING_DELIMITER, "").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
+        return ("/" + path).replace(TRAILING_DELIMITER, "").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
     }
     function generate(path, keys) {
         if (Array.isArray(path)) {
@@ -376,6 +376,9 @@
 
     var PathGenerator = /*#__PURE__*/Object.freeze({
         __proto__: null,
+        LEADING_DELIMITER: LEADING_DELIMITER,
+        TRAILING_DELIMITER: TRAILING_DELIMITER,
+        DELIMITER_NOT_IN_PARENTHESES: DELIMITER_NOT_IN_PARENTHESES,
         prepare: prepare,
         generate: generate
     });
@@ -455,6 +458,7 @@
         };
         ContextManager.prototype.insert = function (href, replace) {
             if (replace === void 0) { replace = false; }
+            href = prepare(href);
             this.clean();
             var foundContext = this.contextOf(href, this._length > 0);
             var previousContext = this._hrefs.length > 0 ? this._hrefs[this._hrefs.length - 1] : null;
@@ -615,7 +619,7 @@
             if (context == null) {
                 this._contexts.set(context_name, context = [[], null]);
             }
-            context[1] = href;
+            context[1] = href !== null ? prepare(href) : null;
         };
         ContextManager.prototype.setContext = function (context) {
             var _this = this;
@@ -1229,14 +1233,25 @@
 
     var DIVIDER = "#R!:";
     var catchPopState$2 = null;
-    window.addEventListener("popstate", function (event) {
-        if (catchPopState$2 == null) {
-            return;
+    var destroyEventListener$3 = null;
+    function initEventListener$3() {
+        if (destroyEventListener$3 !== null) {
+            return destroyEventListener$3;
         }
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        catchPopState$2();
-    }, true);
+        var listener = function (event) {
+            if (catchPopState$2 == null) {
+                return;
+            }
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            catchPopState$2();
+        };
+        window.addEventListener("popstate", listener, true);
+        return destroyEventListener$3 = function () {
+            window.removeEventListener("popstate", listener, true);
+            destroyEventListener$3 = null;
+        };
+    }
     function onCatchPopState$2(onCatchPopState, once) {
         if (once === void 0) { once = false; }
         if (once) {
@@ -1332,6 +1347,7 @@
 
     var OptionsManager = /*#__PURE__*/Object.freeze({
         __proto__: null,
+        initEventListener: initEventListener$3,
         get: get$1,
         set: set,
         add: add,
@@ -1463,17 +1479,30 @@
         return works.some(function (w) { return w.locking; });
     }
     var catchPopState$1 = null;
-    window.addEventListener("popstate", function (event) {
-        if (!started || isLocked$1()) {
-            return;
+    var destroyEventListener$2 = null;
+    function initEventListener$2() {
+        if (destroyEventListener$2 !== null) {
+            return destroyEventListener$2;
         }
-        if (catchPopState$1 == null) {
-            handlePopState$1();
-            return;
-        }
-        event.stopImmediatePropagation();
-        catchPopState$1();
-    }, true);
+        var destroyOptionsEventListener = initEventListener$3();
+        var listener = function (event) {
+            if (!started || isLocked$1()) {
+                return;
+            }
+            if (catchPopState$1 == null) {
+                handlePopState$1();
+                return;
+            }
+            event.stopImmediatePropagation();
+            catchPopState$1();
+        };
+        window.addEventListener("popstate", listener, true);
+        return destroyEventListener$2 = function () {
+            window.removeEventListener("popstate", listener, true);
+            destroyOptionsEventListener();
+            destroyEventListener$2 = null;
+        };
+    }
     function onCatchPopState$1(onCatchPopState, once) {
         if (once === void 0) { once = false; }
         if (once) {
@@ -1920,6 +1949,7 @@
         getAutoManagement: getAutoManagement,
         onWorkFinished: onWorkFinished,
         acquire: acquire,
+        initEventListener: initEventListener$2,
         addFront: addFront,
         addBack: addBack,
         index: index$1,
@@ -1940,13 +1970,24 @@
 
     var locks$1 = [];
     var catchPopState = null;
-    window.addEventListener("popstate", function (event) {
-        if (catchPopState == null) {
-            return handlePopState();
+    var destroyEventListener$1 = null;
+    function initEventListener$1() {
+        if (destroyEventListener$1 !== null) {
+            return destroyEventListener$1;
         }
-        event.stopImmediatePropagation();
-        catchPopState();
-    }, true);
+        var listener = function (event) {
+            if (catchPopState == null) {
+                return handlePopState();
+            }
+            event.stopImmediatePropagation();
+            catchPopState();
+        };
+        window.addEventListener("popstate", listener, true);
+        return destroyEventListener$1 = function () {
+            window.removeEventListener("popstate", listener, true);
+            destroyEventListener$1 = null;
+        };
+    }
     function onCatchPopState(onCatchPopState, once) {
         if (once === void 0) { once = false; }
         if (once) {
@@ -2091,6 +2132,7 @@
 
     var NavigationLock = /*#__PURE__*/Object.freeze({
         __proto__: null,
+        initEventListener: initEventListener$1,
         lock: lock$2,
         unlock: unlock$1,
         locked: locked$1
@@ -2307,7 +2349,21 @@
             emitRoute = true;
         }
     }
-    window.addEventListener("historylanded", onland);
+    var destroyEventListener = null;
+    function initEventListener() {
+        if (destroyEventListener !== null) {
+            return destroyEventListener;
+        }
+        var destroyHistoryEventListener = initEventListener$2();
+        var destroyNavigationLockEventListener = initEventListener$1();
+        window.addEventListener("historylanded", onland);
+        return destroyEventListener = function () {
+            window.removeEventListener("historylanded", onland);
+            destroyNavigationLockEventListener();
+            destroyHistoryEventListener();
+            destroyEventListener = null;
+        };
+    }
     function _go(path, replace$1, emit) {
         if (replace$1 === void 0) { replace$1 = false; }
         if (emit === void 0) { emit = true; }
@@ -2411,6 +2467,7 @@
         return main.unroute(path);
     }
     function start(startingContext) {
+        initEventListener();
         return start$1(startingContext);
     }
     function index() {
@@ -2519,6 +2576,7 @@
     var Router = /*#__PURE__*/Object.freeze({
         __proto__: null,
         getLocation: getLocation,
+        initEventListener: initEventListener,
         redirect: redirect,
         unredirect: unredirect,
         route: route,

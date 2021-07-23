@@ -259,7 +259,23 @@ function onland(): void {
         emitRoute = true;
     }
 }
-window.addEventListener("historylanded", onland);
+let destroyEventListener: (() => void) | null = null;
+export function initEventListener() {
+    if (destroyEventListener !== null) {
+        return destroyEventListener;
+    }
+
+    const destroyHistoryEventListener = HistoryManager.initEventListener();
+    const destroyNavigationLockEventListener = NavigationLock.initEventListener();
+
+    window.addEventListener("historylanded", onland);
+    return destroyEventListener = () => {
+        window.removeEventListener("historylanded", onland);
+        destroyNavigationLockEventListener();
+        destroyHistoryEventListener();
+        destroyEventListener = null;
+    };
+}
 
 function _go(path: string, replace: boolean = false, emit: boolean = true): Promise<void | undefined> {
     let lastEmitRoute: boolean = emitRoute;
@@ -437,6 +453,7 @@ export function unroute(path: string): void {
 // :TODO:
 // main.start = function (startingContext: string, organizeHistory: boolean = true): boolean {
 export function start (startingContext: string): Promise<void> {
+    initEventListener();
     return HistoryManager.start(startingContext);
 }
 export function index(): number {

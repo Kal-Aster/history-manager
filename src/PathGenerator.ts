@@ -4,12 +4,12 @@
 
 import { pathToRegexp, Path, Key } from "path-to-regexp";
 
-const LEADING_DELIMITER: RegExp = /^[\\\/]+/;
-const TRAILING_DELIMITER: RegExp = /[\\\/]+$/;
-const DELIMITER_NOT_IN_PARENTHESES: RegExp = /[\\\/]+(?![^(]*[)])/g;
+export const LEADING_DELIMITER: RegExp = /^[\\\/]+/;
+export const TRAILING_DELIMITER: RegExp = /[\\\/]+$/;
+export const DELIMITER_NOT_IN_PARENTHESES: RegExp = /[\\\/]+(?![^(]*[)])/g;
 
 export function prepare(path: string): string {
-    return path.replace(LEADING_DELIMITER, "").replace(TRAILING_DELIMITER, "").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
+    return ("/" + path).replace(TRAILING_DELIMITER, "").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
 }
 export function generate(path: Path, keys?: Key[]): RegExp {
     if (Array.isArray(path)) {

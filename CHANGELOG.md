@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2021-08-23
+- export function `initEventListener` avoid side effect on module import
+
 ## [1.5.2] - 2021-07-10
 - fix duplicate port in `LOCATION_BASE` in `URLMananager`
 

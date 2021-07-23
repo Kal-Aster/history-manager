@@ -22,13 +22,25 @@ type Wrapper = {
 let locks: Wrapper[] = [];
 
 let catchPopState: null | (() => void) = null;
-window.addEventListener("popstate", event => {
-    if (catchPopState == null) {
-        return handlePopState();
+let destroyEventListener: (() => void) | null = null;
+export function initEventListener() {
+    if (destroyEventListener !== null) {
+        return destroyEventListener;
     }
-    event.stopImmediatePropagation();
-    catchPopState();
-}, true);
+
+    const listener = event => {
+        if (catchPopState == null) {
+            return handlePopState();
+        }
+        event.stopImmediatePropagation();
+        catchPopState();
+    };
+    window.addEventListener("popstate", listener, true);
+    return destroyEventListener = () => {
+        window.removeEventListener("popstate", listener, true);
+        destroyEventListener = null;
+    };
+}
 
 function onCatchPopState(onCatchPopState: () => void, once: boolean = false): void {
     if (once) {

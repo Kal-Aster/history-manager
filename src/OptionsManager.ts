@@ -8,14 +8,26 @@ const DIVIDER: string = "#R!:";
 
 // add a listener to popstate event to stop propagation on option handling
 let catchPopState: (() => void) | null = null;
-window.addEventListener("popstate", function (event: PopStateEvent): void {
-    if (catchPopState == null) {
-        return;
+let destroyEventListener: (() => void) | null = null;
+export function initEventListener() {
+    if (destroyEventListener !== null) {
+        return destroyEventListener;
     }
-    event.stopImmediatePropagation();
-    event.stopPropagation();
-    catchPopState();
-}, true);
+
+    const listener = event => {
+        if (catchPopState == null) {
+            return;
+        }
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        catchPopState();
+    };
+    window.addEventListener("popstate", listener, true);
+    return destroyEventListener = () => {
+        window.removeEventListener("popstate", listener, true);
+        destroyEventListener = null;
+    };
+}
 
 function onCatchPopState(onCatchPopState: () => void, once: boolean = false): void {
     if (once) {

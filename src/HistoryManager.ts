@@ -100,17 +100,32 @@ function isLocked(): boolean {
     return works.some(w => w.locking);
 }
 let catchPopState: (() => void) | null = null;
-window.addEventListener("popstate", event => {
-    if (!started || isLocked()) {
-        return;
+let destroyEventListener: (() => void) | null = null;
+export function initEventListener() {
+    if (destroyEventListener !== null) {
+        return destroyEventListener;
     }
-    if (catchPopState == null) {
-        handlePopState();
-        return;
-    }
-    event.stopImmediatePropagation();
-    catchPopState();
-}, true);
+
+    const destroyOptionsEventListener = OptionsManager.initEventListener();
+
+    const listener = event => {
+        if (!started || isLocked()) {
+            return;
+        }
+        if (catchPopState == null) {
+            handlePopState();
+            return;
+        }
+        event.stopImmediatePropagation();
+        catchPopState();
+    };
+    window.addEventListener("popstate", listener, true);
+    return destroyEventListener = () => {
+        window.removeEventListener("popstate", listener, true);
+        destroyOptionsEventListener();
+        destroyEventListener = null;
+    };
+}
 
 function onCatchPopState(onCatchPopState: () => void, once: boolean = false): void {
     if (once) {
