@@ -1247,6 +1247,9 @@
             catchPopState$2();
         };
         window.addEventListener("popstate", listener, true);
+        if (Object.keys(get$1()).length > 0) {
+            set({});
+        }
         return destroyEventListener$3 = function () {
             window.removeEventListener("popstate", listener, true);
             destroyEventListener$3 = null;
@@ -1341,9 +1344,6 @@
     function clearHref() {
         return splitHref()[0];
     }
-    if (Object.keys(get$1()).length > 0) {
-        set({});
-    }
 
     var OptionsManager = /*#__PURE__*/Object.freeze({
         __proto__: null,
@@ -1357,10 +1357,22 @@
     });
 
     var BASE = "#";
-    var LOCATION_BASE = window.location.protocol + "//" + window.location.host;
-    var LOCATION_PATHNAME = window.location.pathname;
+    var LOCATION_BASE = null;
+    var LOCATION_PATHNAME = null;
+    function getLocationBase() {
+        if (LOCATION_BASE !== null) {
+            return LOCATION_BASE;
+        }
+        return LOCATION_BASE = window.location.protocol + "//" + window.location.host;
+    }
+    function getLocationPathname() {
+        if (LOCATION_PATHNAME !== null) {
+            return LOCATION_PATHNAME;
+        }
+        return LOCATION_PATHNAME = window.location.pathname;
+    }
     function getLocation$1() {
-        return LOCATION_BASE + (BASE[0] === "#" ? LOCATION_PATHNAME : "");
+        return getLocationBase() + (BASE[0] === "#" ? getLocationPathname() : "");
     }
     var parenthesesRegex = /[\\\/]+/g;
     function base(value) {

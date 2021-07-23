@@ -1,7 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [2.0.0] - 2021-08-23
+## [2.1.0] - 2021-07-23
+- avoid any setup on module import
+
+## [2.0.0] - 2021-07-23
 - export function `initEventListener` avoid side effect on module import
 
 ## [1.5.2] - 2021-07-10

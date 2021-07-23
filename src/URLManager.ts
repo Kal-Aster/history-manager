@@ -6,15 +6,28 @@ import { clearHref } from "./OptionsManager";
 import { prepare } from "./PathGenerator";
 
 let BASE: string = "#";
-const LOCATION_BASE: string = `${
-    window.location.protocol
-}//${
-    window.location.host
-}`;
-const LOCATION_PATHNAME = window.location.pathname;
+let LOCATION_BASE: string | null = null;
+let LOCATION_PATHNAME: string | null = null;
 
-function getLocation() {
-    return LOCATION_BASE + (BASE[0] === "#" ? LOCATION_PATHNAME : "");
+function getLocationBase() {
+    if (LOCATION_BASE !== null) {
+        return LOCATION_BASE;
+    }
+    return LOCATION_BASE = `${
+        window.location.protocol
+    }//${
+        window.location.host
+    }`;
+}
+function getLocationPathname() {
+    if (LOCATION_PATHNAME !== null) {
+        return LOCATION_PATHNAME;
+    }
+    return LOCATION_PATHNAME = window.location.pathname;
+}
+
+function getLocation(): string {
+    return getLocationBase() + (BASE[0] === "#" ? getLocationPathname() : "");
 }
 
 const parenthesesRegex: RegExp = /[\\\/]+/g;

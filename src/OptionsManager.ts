@@ -23,6 +23,12 @@ export function initEventListener() {
         catchPopState();
     };
     window.addEventListener("popstate", listener, true);
+
+    // remove options of just loaded page
+    if (Object.keys(get()).length > 0) {
+        set({});
+    }
+
     return destroyEventListener = () => {
         window.removeEventListener("popstate", listener, true);
         destroyEventListener = null;
@@ -144,9 +150,4 @@ export function goWith(href: string, opts: Options, replace: boolean = false): P
  */
 export function clearHref(): string {
     return splitHref()[0];
-}
-
-// remove options of just loaded page
-if (Object.keys(get()).length > 0) {
-    set({});
 }
