@@ -1,17 +1,17 @@
 {
   "name": "history-manager",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "",
   "dependencies": {
     "path-to-regexp": "^6.2.0",
     "query-string": "^7.0.1"
   },
   "devDependencies": {
-    "@riotjs/compiler": "^6.0.1",
-    "@rollup/plugin-commonjs": "^19.0.1",
-    "@rollup/plugin-node-resolve": "^13.0.2",
-    "@rollup/plugin-typescript": "^8.2.3",
-    "rollup": "^2.53.3",
+    "@riotjs/compiler": "^6.0.2",
+    "@rollup/plugin-commonjs": "^20.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.4",
+    "@rollup/plugin-typescript": "^8.2.5",
+    "rollup": "^2.55.1",
     "tslib": "^2.3.0",
     "typescript": "^4.3.5"
   },

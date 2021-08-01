@@ -2158,7 +2158,7 @@ function KeyMapFrom(keys, values) {
 var routers = [];
 function getLocation(href) {
     if (href === void 0) { href = get(); }
-    var pathname = "";
+    var pathname = "/";
     var hash = "";
     var query = "";
     var cachedQuery = null;
@@ -2170,7 +2170,7 @@ function getLocation(href) {
     }
     {
         var split = pathname.split("?");
-        pathname = split.shift();
+        pathname = split.shift() || "/";
         query = split.join("?");
         query = query ? "?" + query : "";
     }

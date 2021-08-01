@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2021-08-01
+- fix location pathname in `Router`
+
 ## [2.1.0] - 2021-07-23
 - avoid any setup on module import
 
