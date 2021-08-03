@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] - 2021-08-03
+- always have trailing backslash in routes
+
 ## [2.1.1] - 2021-08-01
 - fix location pathname in `Router`
 

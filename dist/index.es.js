@@ -351,7 +351,7 @@ var LEADING_DELIMITER = /^[\\\/]+/;
 var TRAILING_DELIMITER = /[\\\/]+$/;
 var DELIMITER_NOT_IN_PARENTHESES = /[\\\/]+(?![^(]*[)])/g;
 function prepare(path) {
-    return ("/" + path).replace(TRAILING_DELIMITER, "").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
+    return ("/" + path).replace(TRAILING_DELIMITER, "/").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
 }
 function generate(path, keys) {
     if (Array.isArray(path)) {
@@ -2158,7 +2158,7 @@ function KeyMapFrom(keys, values) {
 var routers = [];
 function getLocation(href) {
     if (href === void 0) { href = get(); }
-    var pathname = "/";
+    var pathname = "";
     var hash = "";
     var query = "";
     var cachedQuery = null;
@@ -2170,7 +2170,7 @@ function getLocation(href) {
     }
     {
         var split = pathname.split("?");
-        pathname = split.shift() || "/";
+        pathname = split.shift();
         query = split.join("?");
         query = query ? "?" + query : "";
     }

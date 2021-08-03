@@ -57,7 +57,7 @@ interface IRedirectionRoute {
 let routers: Array<GenericRouter> = [];
 
 export function getLocation(href: string = URLManager.get()): ILocation {
-    let pathname: string = "/";
+    let pathname: string = "";
     let hash: string = "";
     let query: string = "";
     let cachedQuery: { [key: string]: any } | null = null;
@@ -69,7 +69,7 @@ export function getLocation(href: string = URLManager.get()): ILocation {
         hash = hash ? "#" + hash : "";
     }{
         let split: string[] = pathname.split("?");
-        pathname = split.shift()! || "/";
+        pathname = split.shift()!;
         query = split.join("?");
         query = query ? "?" + query : "";
     }
