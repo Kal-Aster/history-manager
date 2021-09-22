@@ -249,7 +249,7 @@ declare namespace Router {
     function getContextDefaultOf(context: string): string | null;
     function emit(single?: boolean): void;
     function create(): GenericRouter;
-    function go(path_index: string | number, options: {
+    function go(path_index: string | number, options?: {
         emit?: boolean;
         replace?: boolean;
     }): Promise<void>;

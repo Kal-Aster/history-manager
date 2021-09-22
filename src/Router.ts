@@ -500,7 +500,7 @@ export function create(): GenericRouter {
 export function go(path_index: string | number, options: {
     emit?: boolean,
     replace?: boolean,
-}): Promise<void> {
+} = {}): Promise<void> {
     // tslint:disable-next-line: typedef
     let path_index_type = typeof path_index;
     if (path_index_type !== "string" && path_index_type !== "number") {
