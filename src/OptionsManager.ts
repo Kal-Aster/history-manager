@@ -14,7 +14,7 @@ export function initEventListener() {
         return destroyEventListener;
     }
 
-    const listener = event => {
+    const listener = (event: PopStateEvent) => {
         if (catchPopState == null) {
             return;
         }

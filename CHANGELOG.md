@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2021-09-22
+- emit typescript declaration
+
 ## [2.1.2] - 2021-08-03
 - always have trailing backslash in routes
 

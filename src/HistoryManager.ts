@@ -108,7 +108,7 @@ export function initEventListener() {
 
     const destroyOptionsEventListener = OptionsManager.initEventListener();
 
-    const listener = event => {
+    const listener = (event: PopStateEvent) => {
         if (!started || isLocked()) {
             return;
         }
