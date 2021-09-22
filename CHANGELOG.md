@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.1] - 2021-09-22
+- fix `Router.go` type hint
+
 ## [2.2.0] - 2021-09-22
 - emit typescript declaration
 

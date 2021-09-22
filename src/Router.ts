@@ -498,7 +498,7 @@ export function create(): GenericRouter {
     return new GenericRouter();
 }
 export function go(path_index: string | number, options: {
-    emit: boolean
+    emit?: boolean,
     replace?: boolean,
 }): Promise<void> {
     // tslint:disable-next-line: typedef
@@ -507,7 +507,7 @@ export function go(path_index: string | number, options: {
         throw new Error("router.go should receive an url string or a number");
     }
     // let promiseResolve: () => void;
-    options = { ...options };
+    const normalizedOptions = { emit: true, replace: false, ...options };
     return new Promise<void>((promiseResolve: () => void, promiseReject: () => void) => {
         let goingEvent: CustomEvent<{
             direction: string | number, replace?: boolean, emit: boolean
@@ -516,7 +516,7 @@ export function go(path_index: string | number, options: {
             {
                 detail: {
                     direction: path_index,
-                    ...options
+                    ...normalizedOptions
                 },
                 cancelable: true
             }
@@ -529,12 +529,12 @@ export function go(path_index: string | number, options: {
         if (path_index_type === "string") {
             _go(
                 path_index as string,
-                (options && options.replace) || false,
-                (options == null || options.emit == null) ? true : options.emit
+                (normalizedOptions && normalizedOptions.replace) || false,
+                (normalizedOptions == null || normalizedOptions.emit == null) ? true : normalizedOptions.emit
             ).then(promiseResolve);
         } else {
             let lastEmitRoute: boolean = emitRoute;
-            emitRoute = options.emit == null ? true : options.emit;
+            emitRoute = normalizedOptions.emit == null ? true : normalizedOptions.emit;
             HistoryManager.go(path_index as number).then(promiseResolve, () => {
                 emitRoute = lastEmitRoute;
             });

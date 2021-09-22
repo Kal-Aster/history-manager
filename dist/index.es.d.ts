@@ -250,7 +250,7 @@ declare namespace Router {
     function emit(single?: boolean): void;
     function create(): GenericRouter;
     function go(path_index: string | number, options: {
-        emit: boolean;
+        emit?: boolean;
         replace?: boolean;
     }): Promise<void>;
     function setQueryParam(param: string, value: string | null | undefined, options: {

@@ -2586,12 +2586,12 @@
             throw new Error("router.go should receive an url string or a number");
         }
         // let promiseResolve: () => void;
-        options = { ...options };
+        const normalizedOptions = { emit: true, replace: false, ...options };
         return new Promise((promiseResolve, promiseReject) => {
             let goingEvent = new CustomEvent("router:going", {
                 detail: {
                     direction: path_index,
-                    ...options
+                    ...normalizedOptions
                 },
                 cancelable: true
             });
@@ -2601,11 +2601,11 @@
                 return;
             }
             if (path_index_type === "string") {
-                _go(path_index, (options && options.replace) || false, (options == null || options.emit == null) ? true : options.emit).then(promiseResolve);
+                _go(path_index, (normalizedOptions && normalizedOptions.replace) || false, (normalizedOptions == null || normalizedOptions.emit == null) ? true : normalizedOptions.emit).then(promiseResolve);
             }
             else {
                 let lastEmitRoute = emitRoute;
-                emitRoute = options.emit == null ? true : options.emit;
+                emitRoute = normalizedOptions.emit == null ? true : normalizedOptions.emit;
                 go$1(path_index).then(promiseResolve, () => {
                     emitRoute = lastEmitRoute;
                 });
