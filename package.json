@@ -1,29 +1,29 @@
 {
   "name": "history-manager",
-  "version": "2.2.3",
+  "version": "3.0.0",
   "description": "",
   "dependencies": {
-    "path-to-regexp": "^6.2.0",
-    "query-string": "^7.0.1",
-    "rollup-plugin-ts": "^1.4.6"
+    "path-to-regexp": "^8.2.0",
+    "query-string": "^9.1.1",
+    "rollup-plugin-ts": "^3.4.5"
   },
   "devDependencies": {
-    "@riotjs/compiler": "^6.0.4",
-    "@rollup/plugin-commonjs": "^20.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.5",
-    "chai": "^4.3.4",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "chai": "^5.1.2",
     "cross-env": "^7.0.3",
-    "express": "^4.17.2",
-    "mocha": "^9.1.3",
-    "playwright": "^1.17.1",
-    "rollup": "^2.57.0",
-    "tslib": "^2.3.1",
-    "typescript": "^4.4.3"
+    "express": "^4.21.1",
+    "mocha": "^10.8.2",
+    "playwright": "^1.48.2",
+    "rollup": "^4.25.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.6.3"
   },
   "scripts": {
-    "test:chromium": "npx cross-env BROWSER=chromium npx mocha ./test/test.spec.js",
-    "test:firefox": "npx cross-env BROWSER=firefox npx mocha ./test/test.spec.js",
-    "test:webkit": "npx cross-env BROWSER=webkit npx mocha ./test/test.spec.js",
+    "test:chromium": "npx cross-env BROWSER=chromium npx mocha ./test/test.spec.mjs",
+    "test:firefox": "npx cross-env BROWSER=firefox npx mocha ./test/test.spec.mjs",
+    "test:webkit": "npx cross-env BROWSER=webkit npx mocha ./test/test.spec.mjs",
     "test": "npm run test:chromium && npm run test:firefox && npm run test:webkit"
   },
   "author": "Giuliano Collacchioni",

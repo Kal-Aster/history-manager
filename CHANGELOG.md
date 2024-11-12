@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.0] - 12/11/2024
+- update packages
+
 ## [2.2.3] - 12/11/2024
 - Describe tests using Mocha and Playwright
 

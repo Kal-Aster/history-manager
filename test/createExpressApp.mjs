@@ -1,14 +1,18 @@
-const express = require("express");
+import express from "express";
 
-const { readFileSync } = require("fs");
-const { join } = require("path");
+import { readFileSync } from "fs";
+import { join, } from "path";
 
-function createExpressApp() {
+export default function createExpressApp() {
     const app = express();
+
+    const distdir = join(
+        import.meta.dirname, "..", "dist"
+    );
 
     app.get("/index.js", (req, res) => {
         res.send(
-            readFileSync(join(__dirname, "..", "dist", "index.js"))
+            readFileSync(join(distdir, "index.js"))
         );
     });
     app.get("/*", (req, res) => {
@@ -31,4 +35,3 @@ function createExpressApp() {
 
     return app;
 }
-module.exports = createExpressApp;

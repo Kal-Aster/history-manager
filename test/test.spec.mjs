@@ -1,10 +1,10 @@
-const express = require("express");
-const playwright = require("playwright");
+import express from "express";
+import playwright from "playwright";
 
-const { expect } = require("chai");
+import { expect } from "chai";
 
-const createExpressApp = require("./createExpressApp");
-const startRouter = require("./startRouter");
+import createExpressApp from "./createExpressApp.mjs";
+import startRouter from "./startRouter.mjs";
 
 const { chromium, firefox, webkit } = playwright;
 

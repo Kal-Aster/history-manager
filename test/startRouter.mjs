@@ -1,11 +1,13 @@
-const playwright = require("playwright");
+import playwright from "playwright";
 
 /** @type {(
         page: playwright.Page,
         defaultContext?: null | string,
         base?: string
     )} */
-function startRouter(page, defaultContext, base) {
+export default function startRouter(
+    page, defaultContext, base
+) {
     return page.evaluate(async ({ defaultContext, base }) => {
         const Router = window.historyManager.Router;
         if (defaultContext !== undefined) {
@@ -39,5 +41,3 @@ function startRouter(page, defaultContext, base) {
         await Router.start(defaultContext || undefined);
     }, { defaultContext, base });
 }
-
-module.exports = startRouter;
