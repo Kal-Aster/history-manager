@@ -3,7 +3,7 @@ import express from "express";
 import { readFileSync } from "fs";
 import { join, } from "path";
 
-export default function createExpressApp() {
+export default function createExpressApp(useIndexHTML) {
     const app = express();
 
     const distdir = join(
@@ -11,12 +11,16 @@ export default function createExpressApp() {
     );
 
     app.get("/index.js", (req, res) => {
+        res.contentType("js");
         res.send(
             readFileSync(join(distdir, "index.js"))
         );
     });
-    app.get("/*", (req, res) => {
-        res.send(
+    const indexHTML = (useIndexHTML ?
+        readFileSync(
+            join(import.meta.dirname, "index.html"),
+            { encoding: "utf-8" }
+        ) : (
             `<!DOCTYPE html>\n` +
             `<html>\n` +
             `    <head>\n` +
@@ -30,7 +34,10 @@ export default function createExpressApp() {
             `        <script src="/index.js"></script>\n` +
             `    </body>\n` +
             `</html>`
-        );
+        )
+    )
+    app.get("/*", (req, res) => {
+        res.send(indexHTML.replaceAll("$REPLACE_WITH_REQUESTED_PATH$", req.path));
     });
 
     return app;

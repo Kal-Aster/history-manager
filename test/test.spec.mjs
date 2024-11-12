@@ -1,21 +1,19 @@
 import express from "express";
-import playwright from "playwright";
+import playwright from "playwright"
 
 import { expect } from "chai";
 
-import createExpressApp from "./createExpressApp.mjs";
+import openPlaywrightBrowser from "./openPlaywrightBrowser.mjs";
 import startRouter from "./startRouter.mjs";
-
-const { chromium, firefox, webkit } = playwright;
 
 describe("Router", function () {
     this.timeout(20000);
 
-    /** @type {pw.Browser} */
+    /** @type {playwright.Browser} */
     let browser;
-    /** @type {pw.BrowserContext} */
+    /** @type {playwright.BrowserContext} */
     let context;
-    /** @type {pw.Page} */
+    /** @type {playwright.Page} */
     let page;
 
     /** @type {number} */
@@ -24,40 +22,13 @@ describe("Router", function () {
     let server;
 
     before(async () => {
-        let app = createExpressApp();
-
-        for (let i = 0; i < 100; i++) {
-            let tempPort = 81 + i;
-            const err = await new Promise(resolve => {
-                server = app.listen(tempPort, () => {
-                    resolve(null);
-                }).on("error", err => {
-                    resolve(err);
-                });
-            });
-            if (err) {
-                if (err.message.indexOf("EADDRINUSE") === -1) {
-                    throw err;
-                }
-                continue;
-            }
-            port = server.address().port;
-            break;
-        }
-
-        if (port == void 0) {
-            throw new Error("Cannot start express app");
-        }
-
-        browser = await ({
-            chromium, firefox, webkit
-        }[process.env.browser || "firefox"] || firefox).launch({
-            headless: true
-        });
-        context = await browser.newContext({
-            ignoreHTTPSErrors: true,
-            javaScriptEnabled: true
-        });
+        ({
+            server, port,
+            browser, context,
+        } = await openPlaywrightBrowser({
+            headless: true,
+            useIndexHTML: false
+        }));
     });
     after(async () => {
         server.close();
