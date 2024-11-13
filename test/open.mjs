@@ -30,5 +30,4 @@ import { exit } from "node:process";
     }, 1000);
 
     await page.goto(`http://localhost:${port}/`);
-    await startRouter(page, undefined, "/");
 })();

@@ -2,7 +2,7 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import { clearHref } from "./OptionsManager";
+import OptionsManager from "./OptionsManager";
 import { prepare } from "./PathGenerator";
 
 let BASE: string = "#";
@@ -52,7 +52,7 @@ export function base(value?: string): string {
 export function get(): string {
     const LOCATION = getLocation();
     return `/${
-        prepare(clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE))
+        prepare(OptionsManager.clearHref().split(LOCATION).slice(1).join(LOCATION).split(BASE).slice(1).join(BASE))
     }`.replace(parenthesesRegex, "/");
 }
 export function construct(href: string, full: boolean = false): string {

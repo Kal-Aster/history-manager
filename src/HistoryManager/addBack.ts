@@ -1,9 +1,11 @@
 import * as URLManager from "../URLManager";
-import * as OptionsManager from "../OptionsManager";
+
+import OptionsManager from "../OptionsManager";
 
 import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import Work from "../types/Work";
-import awaitableCatchPopState from "./awaitableCatchPopState";
+
+import awaitableOnCatchPopState from "./awaitableOnCatchPopState";
 import createWork from "./createWork";
 import goToHREF from "./goToHREF";
 
@@ -14,19 +16,19 @@ export default async function addBack(
     const href: string = URLManager.get();
     const work: Work = createWork(false, internalState);
 
-    await awaitableCatchPopState(internalState, () => {
+    await awaitableOnCatchPopState(internalState, () => {
         window.history.go(-1);
     });
 
     if (backHref) {
-        await awaitableCatchPopState(internalState, () => {
+        await awaitableOnCatchPopState(internalState, () => {
             goToHREF(backHref, true);
         });
     }
 
     await OptionsManager.set({ back: null, front: undefined });
 
-    await awaitableCatchPopState(internalState, () => {
+    await awaitableOnCatchPopState(internalState, () => {
         goToHREF(href);
     });
 

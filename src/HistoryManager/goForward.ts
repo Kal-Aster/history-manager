@@ -1,7 +1,7 @@
 import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import addBack from "./addBack";
 import addFront from "./addFront";
-import awaitableCatchPopState from "./awaitableCatchPopState";
+import awaitableOnCatchPopState from "./awaitableOnCatchPopState";
 import goToHREF from "./goToHREF";
 import onLanded from "./onLanded";
 
@@ -13,12 +13,12 @@ export default async function goForward(
     const backHref: string = contextManager.get()!;
     const href: string = contextManager.goForward();
     if (internalState.hasBack) {
-        await awaitableCatchPopState(internalState, () => {
+        await awaitableOnCatchPopState(internalState, () => {
             window.history.go(-1);
         });
     }
 
-    await awaitableCatchPopState(internalState, () => {
+    await awaitableOnCatchPopState(internalState, () => {
         goToHREF(href, true);
     });
 

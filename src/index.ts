@@ -1,11 +1,11 @@
-import * as ContextManager from "./ContextManager";
-import * as HistoryManager from "./HistoryManager";
-import * as NavigationLock from "./NavigationLock";
-import * as OptionsManager from "./OptionsManager";
 import * as PathGenerator from "./PathGenerator";
 import * as Router from "./Router";
 import * as URLManager from "./URLManager";
-import * as WorkManager from "./WorkManager";
+
+import ContextManager from "./ContextManager";
+import HistoryManager from "./HistoryManager";
+import NavigationLock from "./NavigationLock";
+import OptionsManager from "./OptionsManager";
 
 export {
     ContextManager,
@@ -14,6 +14,5 @@ export {
     OptionsManager,
     PathGenerator,
     Router,
-    URLManager,
-    WorkManager
+    URLManager
 };

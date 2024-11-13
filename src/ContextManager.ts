@@ -1,8 +1,23 @@
 import * as PathGenerator from "./PathGenerator";
 
-export class ContextManager {
-    private _contexts: ContextsMap = new Map();
-    private _hrefs: HREFsArray = [];
+namespace ContextManager {
+    export interface IContextPath {
+        path: RegExp;
+        fallback: boolean;
+    }
+    
+    // [ paths, default_href ]
+    export type ContextInfo = [ IContextPath[], string | null | undefined ];
+    
+    // ( context_name, ContextInfo )
+    export type ContextsMap = Map<string, ContextInfo>;
+    
+    // [ context_name, hrefs ][]
+    export type HREFsArray = [ string, string[] ][];
+}
+export default class ContextManager {
+    private _contextInfos: ContextManager.ContextsMap = new Map();
+    private _contextHrefsPairs: ContextManager.HREFsArray = [];
     private _index: number = -1;
     private _length: number = 0;
     /**
@@ -10,9 +25,9 @@ export class ContextManager {
      */
     clean(): void {
         if (this._index < this._length - 1) {
-            let index: number = this._index;
-            let newHREFs: HREFsArray = [];
-            this._hrefs.some(c_hrefs => {
+            let index = this._index;
+            const newHREFs: ContextManager.HREFsArray = [];
+            this._contextHrefsPairs.some(c_hrefs => {
                 let newCHrefs: string[] = [];
                 let result: boolean = c_hrefs[1].some(href => {
                     // if index is still greater or equal to 0
@@ -28,17 +43,17 @@ export class ContextManager {
                 }
                 return result;
             });
-            this._hrefs = newHREFs;
+            this._contextHrefsPairs = newHREFs;
             this._length = this._index + 1;
         }
     }
     currentContext(): string | null {
-        if (this._hrefs.length === 0) {
+        if (this._contextHrefsPairs.length === 0) {
             return null;
         }
-        let index: number = this._index;
+        let index = this._index;
         let context: string;
-        if (this._hrefs.some(([c, hrefs]) => {
+        if (this._contextHrefsPairs.some(([c, hrefs]) => {
             context = c;
             index -= hrefs.length;
             return index < 0;
@@ -50,7 +65,7 @@ export class ContextManager {
     contextOf(href: string, skipFallback: boolean = true): string | null {
         let foundContext: string | null = null;
         href = href.split("#")[0].split("?")[0];
-        for (let [context, [hrefs]] of this._contexts.entries()) {
+        for (let [context, [hrefs]] of this._contextInfos.entries()) {
             if (hrefs.some(c_href => {
                 if (c_href!.fallback && skipFallback) {
                     return false;
@@ -69,60 +84,65 @@ export class ContextManager {
         // console.group(`ContextManager.insert("${href}", ${replace})`);
         // console.log(`current href: ${this.hrefs()}`);
         // get context of href
-        let foundContext: string | null = this.contextOf(href, this._length > 0);
+        const foundContext = this.contextOf(href, this._length > 0);
         // console.log(`found context: ${foundContext}`);
-        let previousContext: HREFsArray[0] | null = this._hrefs.length > 0 ? this._hrefs[this._hrefs.length - 1] : null;
+        const previousContextHrefsPair = (
+            (this._contextHrefsPairs.length > 0 ?
+                this._contextHrefsPairs.at(-1)! : null
+            )
+        );
         if (foundContext == null) {
-            if (this._hrefs.length > 0) {
-                this._hrefs[this._hrefs.length - 1][1].push(href);
+            if (this._contextHrefsPairs.length > 0) {
+                this._contextHrefsPairs[this._contextHrefsPairs.length - 1][1].push(href);
                 this._length++;
                 this._index++;
             }
         } else {
-            let i: number = -1;
-            if (this._hrefs.some((c_hrefs, index) => {
+            let i = -1;
+            if (this._contextHrefsPairs.some((c_hrefs, index) => {
                 if (c_hrefs[0] === foundContext) {
                     i = index;
                     return true;
                 }
                 return false;
             })) {
-                let c_hrefs: [string, string[]] = this._hrefs.splice(i, 1)[0];
-                if (href !== c_hrefs[1][c_hrefs[1].length - 1]) {
-                    c_hrefs[1].push(href);
+                const c_hrefs = this._contextHrefsPairs.splice(i, 1)[0];
+                const [, hrefs] = c_hrefs;
+                if (href !== hrefs[hrefs.length - 1]) {
+                    hrefs.push(href);
                     this._length++;
                     this._index++;
                 }
-                this._hrefs.push(c_hrefs);
+                this._contextHrefsPairs.push(c_hrefs);
             } else {
-                this._hrefs.push([foundContext, [href]]);
+                this._contextHrefsPairs.push([foundContext, [href]]);
                 this._length++;
                 this._index++;
             }
         }
-        if (replace && this._hrefs.length > 0) {
-            let lastContext: HREFsArray[0] = this._hrefs[this._hrefs.length - 1];
+        if (replace && this._contextHrefsPairs.length > 0) {
+            const lastContextHrefPair = this._contextHrefsPairs.at(-1)!;
             // console.log("replacing");
-            if (previousContext != null) {
+            if (previousContextHrefsPair != null) {
                 // console.log(`last context: ["${ previousContext[0] }", [${ previousContext[1] }] ]`);
             } else {
                 // console.log("last context: null");
             }
             // console.log(`current context: ["${ lastContext[0] }", [${ lastContext[1] }]]`);
-            if (lastContext === previousContext) {
-                if (lastContext[1].length > 1) {
+            if (lastContextHrefPair === previousContextHrefsPair) {
+                if (lastContextHrefPair[1].length > 1) {
                     do {
-                        lastContext[1].splice(-2, 1);
+                        lastContextHrefPair[1].splice(-2, 1);
                         this._length--;
                         this._index--;
                     } while (
-                        lastContext[1].length > 1 &&
-                        lastContext[1][lastContext[1].length - 2] === href
+                        lastContextHrefPair[1].length > 1 &&
+                        lastContextHrefPair[1][lastContextHrefPair[1].length - 2] === href
                     );
                     // console.log(`final hrefs: ${ lastContext[1] }`);
                 }
-            } else if (previousContext != null) {
-                previousContext[1].splice(-1, 1);
+            } else if (previousContextHrefsPair != null) {
+                previousContextHrefsPair[1].splice(-1, 1);
                 this._length--;
                 this._index--;
             }
@@ -147,8 +167,8 @@ export class ContextManager {
     }
     get(index: number = this._index): string | null {
         let href: string;
-        if (this._hrefs.some(([c, hrefs]) => {
-            let length: number = hrefs.length;
+        if (this._contextHrefsPairs.some(([, hrefs]) => {
+            const { length } = hrefs;
             if (index >= length) {
                 index -= length;
                 return false;
@@ -163,10 +183,12 @@ export class ContextManager {
     index(): number;
     index(value: number): void;
     index(value?: number): void | number {
-        if (value === void 0) {
+        if (value == null) {
             return this._index;
         }
-        value = parseInt(value as any, 10);
+        if (typeof value !== "number") {
+            value = parseInt(value, 10);
+        }
         if (isNaN(value)) {
             throw new Error("value must be a number");
         }
@@ -179,48 +201,58 @@ export class ContextManager {
         return this._length;
     }
     getContextNames(): string[] {
-        return Array.from(this._contexts.keys());
+        return Array.from(this._contextInfos.keys());
     }
     getDefaultOf(context: string): string | null {
-        let c: ContextInfo | undefined = this._contexts.get(context);
-        if (!c) {
+        const contextInfo = this._contextInfos.get(context);
+        if (contextInfo == null) {
             return null;
         }
-        let href: string | null | undefined = c[1];
-        if (href == null) {
+        const [,defaultHref] = contextInfo;
+        if (defaultHref == null) {
             return null;
         }
-        return href;
+        return defaultHref;
     }
     restore(context: string): boolean {
-        let tmpHREFs: HREFsArray = this._hrefs;
+        const tempContextHrefsPairs = this._contextHrefsPairs;
         this.clean();
-        if (this._hrefs.length) {
-            let lastContext: HREFsArray[0] = this._hrefs[this._hrefs.length - 1];
-            if (lastContext[0] === context) {
-                let path: string = this._contexts.get(context)![1] || lastContext[1][0];
-                let numPages: number = lastContext[1].splice(1).length;
+        if (this._contextHrefsPairs.length > 0) {
+            const [
+                lastContext,
+                lastHrefs
+            ] = this._contextHrefsPairs.at(-1)!;
+            if (lastContext === context) {
+                const path = (
+                    this._contextInfos.get(context)![1] ||
+                    lastHrefs[0]
+                );
+                const { length: numPages } = lastHrefs.splice(1);
                 this._length -= numPages;
                 this._index -= numPages;
-                lastContext[1][0] = path;
+                lastHrefs[0] = path;
                 return true;
             }
         }
-        if (!this._hrefs.some((c, i) => {
-            if (c[0] === context) {
-                if (i < this._hrefs.length - 1) {
-                    this._hrefs.push(this._hrefs.splice(i, 1)[0]);
+        if (!this._contextHrefsPairs.some(
+            (contextHrefsPair, index, { length }) => {
+                if (contextHrefsPair[0] !== context) {
+                    return false;
+                }
+
+                if (index < length - 1) {
+                    this._contextHrefsPairs.splice(index, 1);
+                    this._contextHrefsPairs.push(contextHrefsPair);
                 }
                 return true;
             }
-            return false;
-        })) {
-            let c: ContextInfo | undefined = this._contexts.get(context);
-            if (c == null) {
-                this._hrefs = tmpHREFs;
+        )) {
+            const contextInfo = this._contextInfos.get(context);
+            if (contextInfo == null) {
+                this._contextHrefsPairs = tempContextHrefsPairs;
                 return false;
             }
-            let href: string | null | undefined = c[1];
+            const [,href] = contextInfo;
             if (href != null) {
                 this.insert(href);
                 return true;
@@ -229,26 +261,34 @@ export class ContextManager {
         }
         return true;
     }
-    addContextPath(context_name: string, path: string, fallback: boolean = false): RegExp {
+    addContextPath(
+        contextName: string,
+        path: string,
+        fallback: boolean = false
+    ): RegExp {
         const {
             regexp: pathRegexp
         } = PathGenerator.generate(path);
-        let context: ContextInfo | undefined = this._contexts.get(context_name);
-        if (context == null) {
-            this._contexts.set(context_name, context = [[], null]);
+        let contextInfo = this._contextInfos.get(contextName);
+        if (contextInfo == null) {
+            contextInfo = [[], null];
+            this._contextInfos.set(contextName, contextInfo);
         }
-        context[0].push({
+        contextInfo[0].push({
             path: pathRegexp,
             fallback
         });
         return pathRegexp;
     }
     setContextDefaultHref(context_name: string, href: string | null): void {
-        let context: ContextInfo | undefined = this._contexts.get(context_name);
-        if (context == null) {
-            this._contexts.set(context_name, context = [[], null]);
+        let contextInfo = this._contextInfos.get(context_name);
+        if (contextInfo == null) {
+            contextInfo = [[], null];
+            this._contextInfos.set(context_name, contextInfo);
         }
-        context[1] = href !== null ? PathGenerator.prepare(href) : null;
+        contextInfo[1] = (href !== null ?
+            PathGenerator.prepare(href) : null
+        );
     }
     setContext(context: {
         name: string,
@@ -263,24 +303,10 @@ export class ContextManager {
         }
     }
     hrefs(): string[] {
-        let hrefs: string[] = [];
-        this._hrefs.forEach(([c, c_hrefs]) => {
-            hrefs.push.apply(hrefs, c_hrefs);
+        const hrefs: string[] = [];
+        this._contextHrefsPairs.forEach(([, c_hrefs]) => {
+            hrefs.push(...c_hrefs);
         });
         return hrefs;
     }
 }
-
-export interface IContextPath {
-    path: RegExp;
-    fallback: boolean;
-}
-
-// [ paths, default_href ]
-export type ContextInfo = [ IContextPath[], string | null | undefined ];
-
-// ( context_name, ContextInfo )
-export type ContextsMap = Map<string, ContextInfo>;
-
-// [ context_name, hrefs ][]
-export type HREFsArray = [ string, string[] ][];

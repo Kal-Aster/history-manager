@@ -6,7 +6,7 @@ import { Key} from "path-to-regexp";
 import qs from "query-string";
 
 import HistoryManager from "./HistoryManager";
-import * as NavigationLock from "./NavigationLock";
+import NavigationLock from "./NavigationLock";
 import * as PathGenerator from "./PathGenerator";
 import * as URLManager from "./URLManager";
 
@@ -566,10 +566,10 @@ export function setQueryParam(param: string, value: string | null | undefined, o
     });
     return promise;
 }
-export function lock(): Promise<NavigationLock.Lock> {
+export function lock() {
     return NavigationLock.lock();
 }
-export function unlock(force: boolean = true): boolean {
+export function unlock(force: boolean = true){
     return NavigationLock.unlock(force);
 }
 export function destroy(): void {

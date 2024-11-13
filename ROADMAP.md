@@ -6,4 +6,5 @@ All todos are listed below.
 - Write documentation
 
 ### Change
-<!-- Nothing to change -->
+- change in ContextManager:218 assigned reference to assigned copy:  
+    `const tempContextHrefsPairs = this._contextHrefsPairs;`

@@ -141,4 +141,55 @@ describe("Router", function () {
             return window.historyManager.Router.getContext();
         })).to.be.equal("profile");
     });
+
+    it("can restore context", async () => {
+        await page.goto(`http://localhost:${port}/`);
+        await startRouter(page, null, "/");
+
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("home");
+
+        await page.evaluate(async () => {
+            await window.historyManager.Router.go("me");
+        });
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("profile");
+
+        await page.evaluate(async () => {
+            await window.historyManager.Router.restoreContext("search");
+        });
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("search");
+        expect(await page.evaluate(() => {
+            return window.location.href;
+        })).to.be.equal(`http://localhost:${port}/search?recent`);
+        
+        await page.evaluate(async () => {
+            await window.historyManager.Router.restoreContext("home");
+        });
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("home");
+        
+        await page.evaluate(async () => {
+            await window.historyManager.Router.restoreContext("profile");
+        });
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("profile");
+
+        expect(await page.evaluate(async () => {
+            window.history.back();
+            await new Promise(resolve => {
+                window.addEventListener("historylanded", () => {
+                    window.removeEventListener("historylanded", resolve);
+                    resolve();
+                });
+            });
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("home");
+    })
 });

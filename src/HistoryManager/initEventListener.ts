@@ -1,8 +1,7 @@
-import {
-    initEventListener as initOptionsManagerEventListener
-} from "../OptionsManager";
+import OptionsManager from "../OptionsManager";
 
 import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+
 import handlePopState from "./handlePopState";
 import isLocked from "./isLocked";
 
@@ -13,7 +12,7 @@ export default function initEventListener(
         return internalState.destroyEventListener;
     }
 
-    const destroyOptionsEventListener = initOptionsManagerEventListener();
+    const destroyOptionsEventListener = OptionsManager.initEventListener();
 
     const listener = (event: PopStateEvent) => {
         if (!internalState.started || isLocked(internalState)) {

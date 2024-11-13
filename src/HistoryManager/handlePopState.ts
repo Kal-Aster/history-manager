@@ -1,6 +1,7 @@
-import * as OptionsManager from "../OptionsManager";
+import OptionsManager from "../OptionsManager";
 
 import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+
 import goBackward from "./goBackward";
 import goForward from "./goForward";
 import goToNewPage from "./goToNewPage";
@@ -9,7 +10,7 @@ import onCatchPopState from "./onCatchPopState";
 export default function handlePopState(
     internalState: InternalHistoryManagerState
 ): void {
-    let options: OptionsManager.Options = {
+    const options: Record<string, any> = {
         ...OptionsManager.get(),
         ...(internalState.historyManaged ?
             {} : { front: undefined, back: undefined }

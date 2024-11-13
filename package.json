@@ -25,7 +25,9 @@
     "test:firefox": "npx cross-env BROWSER=firefox npx mocha ./test/test.spec.mjs",
     "test:webkit": "npx cross-env BROWSER=webkit npx mocha ./test/test.spec.mjs",
     "test": "npm run test:chromium && npm run test:firefox && npm run test:webkit",
-    "build": "npx rollup -c"
+    "manual-test": "npm run build && node ./test/open.mjs",
+    "build": "npx rollup -c",
+    "build-test": "npm run build && npm run test"
   },
   "author": "Giuliano Collacchioni",
   "license": "MIT",

@@ -47,6 +47,7 @@
         <script>
             if (window.history.replaceState) {
                 window._ROUTER_BASE = window.location.pathname.split("/").slice(0, -1).join("/");
+                console.log(window._ROUTER_BASE);
                 window.history.replaceState({}, "", window._ROUTER_BASE + "$REPLACE_WITH_REQUESTED_PATH$");
             }
         </script>
@@ -107,15 +108,14 @@
             Router.route("user/:id", function (location, keymap) {
                 console.log("user:", keymap.get("id"));
             });
-            Router.route("/(.*)*", function (location) {
-                console.log("landed at", location.href);
-            });
-            Router.create().route("/:route(.*)", function (_, keymap) {
-                console.log("landed with", keymap);
+            Router.route("/{*route}", function (location, keymap) {
+                console.log("landed at", {location, keymap});
             });
             {
                 const r = Router.create();
-                r.route("me", function () { console.log("landed at me", arguments); });
+                r.route("me", function () {
+                    console.log("landed at me", arguments);
+                });
                 // r.redirect("users/12", "me");
             }
             document.querySelector("#lock").addEventListener("click", function () {
@@ -165,7 +165,7 @@
                     console.log(Router.getContext());
                 });
             });
-            Router.start("home");
+            console.log(Router.start("home"));
         </script>
     </body>
 </html>

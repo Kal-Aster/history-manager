@@ -1,4 +1,4 @@
-import { ContextManager } from "../ContextManager";
+import ContextManager from "../ContextManager";
 import Work from "./Work";
 
 type InternalHistoryManagerState = {

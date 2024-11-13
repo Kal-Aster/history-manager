@@ -2,7 +2,7 @@ import * as URLManager from "../URLManager";
 
 import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import addBack from "./addBack";
-import awaitableCatchPopState from "./awaitableCatchPopState";
+import awaitableOnCatchPopState from "./awaitableOnCatchPopState";
 import goToHREF from "./goToHREF";
 import onLanded from "./onLanded";
 
@@ -28,7 +28,7 @@ export default async function goToNewPage(
     contextManager.insert(href, replaced);
 
     if (internalState.hasBack && !replaced) {
-        await awaitableCatchPopState(internalState, () => {
+        await awaitableOnCatchPopState(internalState, () => {
             window.history.go(-1);
         });
     }
@@ -36,7 +36,7 @@ export default async function goToNewPage(
     if (!replaced) {
         await addBack(backHref, internalState);
     }
-    await awaitableCatchPopState(internalState, () => {
+    await awaitableOnCatchPopState(internalState, () => {
         goToHREF(href, true);
     });
 

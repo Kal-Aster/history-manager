@@ -23,5 +23,6 @@ export function generate(path: Path) {
     if (typeof path === "string") {
         path = prepare(path);
     }
+    console.log(`Generating "${path}"`);
     return pathToRegexp(path); // , { end: false }); // is this needed?
 }
