@@ -2,8 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-[ ] complete refactor
-[ ] fix #3
+[ ] complete refactor  
+[ ] fix #3  
 
 ## [3.1.0] - 13/11/2024
 - fix packages update
