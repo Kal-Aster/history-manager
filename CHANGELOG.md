@@ -3,7 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 [ ] complete refactor  
-[ ] fix #3  
+[ ] fix [#3](https://github.com/EliteXXL/history-manager/issues/3)  
+[ ] first defined path of context become default href, if not already specified  
+[ ] add "loaded" tag to routes  
+[ ] overwrite route if going to new one when the current is not loaded yet  
 
 ## [3.1.0] - 13/11/2024
 - fix packages update
