@@ -11,7 +11,7 @@ export const DELIMITER_NOT_IN_PARENTHESES: RegExp = /[\\\/]+(?![^(]*[)])/g;
 export function prepare(path: string): string {
     return ("/" + path).replace(TRAILING_DELIMITER, "/").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
 }
-export function generate(path: Path, keys?: Key[]): RegExp {
+export function generate(path: Path) {
     if (Array.isArray(path)) {
         path.map(value => {
             if (typeof value === "string") {
@@ -23,5 +23,5 @@ export function generate(path: Path, keys?: Key[]): RegExp {
     if (typeof path === "string") {
         path = prepare(path);
     }
-    return pathToRegexp(path, keys); // , { end: false }); // is this needed?
+    return pathToRegexp(path); // , { end: false }); // is this needed?
 }

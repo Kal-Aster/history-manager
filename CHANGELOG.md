@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+[ ] complete refactor
+
+## [3.1.0] - 13/11/2024
+- fix packages update
 
 ## [3.0.0] - 12/11/2024
 - update packages

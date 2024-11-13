@@ -3,7 +3,8 @@
  */
 
 import * as OptionsManager from "./OptionsManager";
-import * as HistoryManager from "./HistoryManager";
+import HistoryManager from "./HistoryManager";
+import LockingWork from "./types/LockingWork";
 
 export type Lock = {
     readonly id: number,
@@ -56,7 +57,7 @@ function onCatchPopState(onCatchPopState: () => void, once: boolean = false): vo
 export function lock(): Promise<Lock> {
     const delegate: EventTarget = new EventTarget();
     const id: number = Date.now();
-    let historyLock: HistoryManager.ILock;
+    let historyLock: LockingWork;
     let promiseResolve: (lock: Lock) => void;
     let isPromiseResolved: boolean = false;
     const promise: Promise<Lock> = new Promise<Lock>(resolve => {

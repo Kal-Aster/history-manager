@@ -1,6 +1,6 @@
 {
   "name": "history-manager",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "",
   "dependencies": {
     "path-to-regexp": "^8.2.0",
@@ -24,7 +24,8 @@
     "test:chromium": "npx cross-env BROWSER=chromium npx mocha ./test/test.spec.mjs",
     "test:firefox": "npx cross-env BROWSER=firefox npx mocha ./test/test.spec.mjs",
     "test:webkit": "npx cross-env BROWSER=webkit npx mocha ./test/test.spec.mjs",
-    "test": "npm run test:chromium && npm run test:firefox && npm run test:webkit"
+    "test": "npm run test:chromium && npm run test:firefox && npm run test:webkit",
+    "build": "npx rollup -c"
   },
   "author": "Giuliano Collacchioni",
   "license": "MIT",

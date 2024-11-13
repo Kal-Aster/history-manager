@@ -3,9 +3,9 @@
  */
 
 import { Key} from "path-to-regexp";
-import * as qs from "query-string";
+import qs from "query-string";
 
-import * as HistoryManager from "./HistoryManager";
+import HistoryManager from "./HistoryManager";
 import * as NavigationLock from "./NavigationLock";
 import * as PathGenerator from "./PathGenerator";
 import * as URLManager from "./URLManager";
@@ -314,8 +314,10 @@ class GenericRouter {
      */
     redirect(path: string, redirection: string): RegExp {
         _throwIfDestroyed(this);
-        let keys: Array<Key> = [];
-        let regex: RegExp = PathGenerator.generate(path, keys);
+        const {
+            regexp: regex,
+            keys
+        } = PathGenerator.generate(path);
         this[REDIRECTIONS].push({ regex, keys, redirection: PathGenerator.prepare(redirection) });
         return regex;
     }
@@ -325,8 +327,10 @@ class GenericRouter {
      */
     unredirect(path: string): void {
         _throwIfDestroyed(this);
-        let keys: Array<Key> = [];
-        let regex: RegExp = PathGenerator.generate(path, keys);
+        const {
+            regexp: regex,
+            keys
+        } = PathGenerator.generate(path);
         let rIndex: number = -1;
         this[ROUTES].some((route, index) => {
             let xSource: string = (regex.ignoreCase ? regex.source.toLowerCase() : regex.source);
@@ -350,8 +354,10 @@ class GenericRouter {
      */
     route(path: string, callback: IRouteCallback): RegExp {
         _throwIfDestroyed(this);
-        let keys: Array<Key> = [];
-        let regex: RegExp = PathGenerator.generate(path, keys);
+        const {
+            regexp: regex,
+            keys
+        } = PathGenerator.generate(path);
         this[ROUTES].push({ regex, keys, callback });
         return regex;
     }
@@ -361,8 +367,10 @@ class GenericRouter {
      */
     unroute(path: string): void {
         _throwIfDestroyed(this);
-        let keys: Array<Key> = [];
-        let regex: RegExp = PathGenerator.generate(path, keys);
+        const {
+            regexp: regex,
+            keys
+        } = PathGenerator.generate(path);
         let rIndex: number = -1;
         this[ROUTES].some((route, index) => {
             let xSource: string = (regex.ignoreCase ? regex.source.toLowerCase() : regex.source);

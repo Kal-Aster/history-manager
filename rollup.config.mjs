@@ -1,14 +1,17 @@
-const commonjs = require('@rollup/plugin-commonjs');
-const typescript = require('rollup-plugin-ts');
+import commonjs from "@rollup/plugin-commonjs";
+import typescript from "@rollup/plugin-typescript";
 
-const {nodeResolve} = require("@rollup/plugin-node-resolve");
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 export default [
     {
         input: "src/index.ts",
         plugins: [
             nodeResolve(),
-            typescript(),
+            typescript({
+                declaration: true,
+                declarationDir: "dist"
+            }),
             commonjs()
         ],
         output: [

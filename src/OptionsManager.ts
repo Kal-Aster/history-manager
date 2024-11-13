@@ -2,7 +2,7 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import * as qs from "query-string";
+import qs from "query-string";
 
 const DIVIDER: string = "#R!:";
 

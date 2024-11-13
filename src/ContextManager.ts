@@ -230,7 +230,9 @@ export class ContextManager {
         return true;
     }
     addContextPath(context_name: string, path: string, fallback: boolean = false): RegExp {
-        let pathRegexp: RegExp = PathGenerator.generate(path);
+        const {
+            regexp: pathRegexp
+        } = PathGenerator.generate(path);
         let context: ContextInfo | undefined = this._contexts.get(context_name);
         if (context == null) {
             this._contexts.set(context_name, context = [[], null]);
