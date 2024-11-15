@@ -20,6 +20,7 @@
         <button id="restoreHome">Restore home</button>
         <button id="restoreProfile">Restore profile</button>
         <button id="restoreSearch">Restore search</button>
+        <button id="restoreSettings">Restore settings</button>
 
         <div></div>
         
@@ -47,7 +48,7 @@
         <script>
             if (window.history.replaceState) {
                 window._ROUTER_BASE = window.location.pathname.split("/").slice(0, -1).join("/");
-                console.log(window._ROUTER_BASE);
+                console.log({ ROUTER_BASE: window._ROUTER_BASE });
                 window.history.replaceState({}, "", window._ROUTER_BASE + "$REPLACE_WITH_REQUESTED_PATH$");
             }
         </script>
@@ -93,6 +94,13 @@
                 ],
                 default: "search?recent"
             });
+            Router.setContext({
+                name: "settings",
+                paths: [
+                    { path: "settings", fallback: true }
+                ],
+                default: "settings"
+            });
             document.querySelector("#user-12-replace").addEventListener("click", function () {
                 Router.go("users/12", { replace: true });
             });
@@ -104,6 +112,11 @@
             });
             document.querySelector("#restoreSearch").addEventListener("click", function () {
                 Router.restoreContext("search");
+            });
+            document.querySelector("#restoreSettings").addEventListener("click", function () {
+                Router.restoreContext("settings").then(() => {
+                    console.log(Router.getContext());
+                });
             });
             Router.route("user/:id", function (location, keymap) {
                 console.log("user:", keymap.get("id"));

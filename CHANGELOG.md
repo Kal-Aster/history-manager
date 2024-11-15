@@ -2,10 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-[ ] fix #3  
 [ ] first defined path of context become default href, if not already specified  
 [ ] add "loaded" tag to routes  
 [ ] overwrite route if going to new one when the current is not loaded yet  
+
+## [3.3.0] - 15/11/2024
+- fix #3
 
 ## [3.2.0] - 15/11/2024
 - complete refactor

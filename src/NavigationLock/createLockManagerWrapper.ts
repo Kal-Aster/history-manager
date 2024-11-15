@@ -11,8 +11,8 @@ export default function createLockManagerWrapper(
 ) {
     const lockingWork = HistoryManager.acquire();
 
-    const id: number = Date.now();
-    const delegate: EventTarget = new EventTarget();
+    const id = Date.now();
+    const delegate = new EventTarget();
 
     const lockManager: LockManager = {
         get id() { return id; },

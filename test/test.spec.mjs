@@ -191,5 +191,21 @@ describe("Router", function () {
             });
             return window.historyManager.Router.getContext();
         })).to.be.equal("home");
+    });
+
+    it("can restore context with fallbackable default", async () => {
+        await page.goto(`http://localhost:${port}/`);
+        await startRouter(page, null);
+
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("home");
+
+        await page.evaluate(async () => {
+            await window.historyManager.Router.restoreContext("settings");
+        });
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("settings");
     })
 });

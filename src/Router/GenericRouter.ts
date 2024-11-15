@@ -45,12 +45,12 @@ export default class GenericRouter {
     redirect(path: string, redirection: string) {
         throwIfRouterDestroyed(this);
 
-        const {
-            regexp: regex,
-            keys
-        } = PathGenerator.generate(path);
-        this[REDIRECTIONS].push({ regexp: regex, keys, redirection: PathGenerator.prepare(redirection) });
-        return regex;
+        const { regexp, keys } = PathGenerator.generate(path);
+        this[REDIRECTIONS].push({
+            regexp, keys,
+            redirection: PathGenerator.prepare(redirection)
+        });
+        return regexp;
     }
     /**
      * Remvove a redirection route

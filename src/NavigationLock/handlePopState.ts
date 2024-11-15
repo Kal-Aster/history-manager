@@ -13,19 +13,20 @@ export default function handlePopState() {
     if (isNaN(lockId)) {
         internalState.shouldUnlock = true;
         window.history.go(1);
-    } else {
-        const lock = internalState.locks.at(-1)!;
-        if (lockId === lock.lockManager.id) {
-            if (internalState.shouldUnlock && lock.fire()) {
-                unlock(true);
-            }
-            internalState.shouldUnlock = false;
-            return;
-        } else if (lockId > lock.lockManager.id) {
-            window.history.go(-1);
-        } else {
-            internalState.shouldUnlock = true;
-            window.history.go(1);
-        }
+        return;
     }
+
+    const lock = internalState.locks.at(-1)!;
+    if (lockId === lock.lockManager.id) {
+        if (internalState.shouldUnlock && lock.fire()) {
+            unlock(true);
+        }
+        internalState.shouldUnlock = false;
+        return;
+    }
+    
+    if (lockId <= lock.lockManager.id) {
+        internalState.shouldUnlock = true;
+    }
+    window.history.go(-1);
 }

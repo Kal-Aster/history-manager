@@ -1,4 +1,3 @@
-import InternalNavigationLockState from "../types/InternalNavigationLockState";
 import getInternalState from "./getInternalState";
 
 import onCatchPopStatePromise from "./onCatchPopStatePromise";

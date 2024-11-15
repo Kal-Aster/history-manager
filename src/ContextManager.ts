@@ -78,13 +78,20 @@ export default class ContextManager {
         }
         return foundContext;
     }
-    insert(href: string, replace: boolean = false) {
+    insert(
+        href: string,
+        replace: boolean = false,
+        skipFallback?: boolean
+    ) {
         href = PathGenerator.prepare(href);
         this.clean();
         // console.group(`ContextManager.insert("${href}", ${replace})`);
         // console.log(`current href: ${this.hrefs()}`);
         // get context of href
-        const foundContext = this.contextOf(href, this._length > 0);
+        const foundContext = this.contextOf(
+            href, (skipFallback == null ?
+                this._length > 0 : skipFallback
+            ));
         // console.log(`found context: ${foundContext}`);
         const previousContextHrefsPair = (
             (this._contextHrefsPairs.length > 0 ?
@@ -215,7 +222,7 @@ export default class ContextManager {
         return defaultHref;
     }
     restore(context: string) {
-        const tempContextHrefsPairs = this._contextHrefsPairs;
+        const tempContextHrefsPairs = structuredClone(this._contextHrefsPairs);
         this.clean();
         if (this._contextHrefsPairs.length > 0) {
             const [
@@ -253,11 +260,12 @@ export default class ContextManager {
                 return false;
             }
             const [,href] = contextInfo;
-            if (href != null) {
-                this.insert(href);
-                return true;
+            if (href == null) {
+                return false;
             }
-            return false;
+
+            this.insert(href, false, false);
+            return true;
         }
         return true;
     }

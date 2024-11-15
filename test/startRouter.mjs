@@ -33,6 +33,13 @@ export default function startRouter(
                 ],
                 default: "search?recent"
             });
+            Router.setContext({
+                name: "settings",
+                paths: [
+                    { path: "settings", fallback: true }
+                ],
+                default: "settings"
+            });
         }
 
         if (base !== undefined) {
