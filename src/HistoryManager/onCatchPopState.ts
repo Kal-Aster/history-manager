@@ -1,10 +1,11 @@
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+import getInternalState from "./getInternalState";
 
 export default function onCatchPopState(
     onCatchPopState: () => void,
-    once: boolean = false,
-    internalState: InternalHistoryManagerState
+    once: boolean = false
 ): void {
+    const internalState = getInternalState();
+
     if (once) {
         const tmpOnCatchPopState: () => void = onCatchPopState;
         onCatchPopState = () => {

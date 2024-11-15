@@ -1,18 +1,12 @@
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import LockingWork from "../types/LockingWork";
 import Work from "../types/Work";
 
+import getInternalState from "./getInternalState";
+
+export default function createWork(locking: false): Work;
+export default function createWork(locking: true): LockingWork;
 export default function createWork(
-    locking: false,
-    internalState: InternalHistoryManagerState
-): Work;
-export default function createWork(
-    locking: true,
-    state:InternalHistoryManagerState
-): LockingWork;
-export default function createWork(
-    locking: boolean,
-    state: InternalHistoryManagerState
+    locking: boolean
 ): Work | LockingWork {
     let finished: boolean = false;
     let finishing: boolean = false;
@@ -20,7 +14,7 @@ export default function createWork(
     const {
         works,
         onworkfinished
-    } = state;
+    } = getInternalState();
 
     const work: Work = {
         get locking(): boolean {

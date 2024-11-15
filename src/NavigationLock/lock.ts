@@ -1,23 +1,16 @@
-import OptionsManager from "../OptionsManager";
 import HistoryManager from "../HistoryManager";
-
-import InternalNavigationLockState from "../types/InternalNavigationLockState";
+import OptionsManager from "../OptionsManager";
 
 import createLockManagerWrapper from "./createLockManagerWrapper";
 
-export default async function lock(
-    internalState: InternalNavigationLockState
-){
+export default async function lock() {
     await HistoryManager.onWorkFinishedPromise();
 
     let markSetupDone: () => void;
     const setupDonePromise = new Promise<void>(resolve => {
         markSetupDone = resolve;
     });
-    const lock = createLockManagerWrapper(
-        internalState,
-        setupDonePromise
-    );
+    const lock = createLockManagerWrapper(setupDonePromise);
 
     await OptionsManager.goWith(
         OptionsManager.clearHref(),

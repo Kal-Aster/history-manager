@@ -1,9 +1,10 @@
 import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+import getInternalState from "./getInternalState";
 
-export default function onLanded(
-    internalState: InternalHistoryManagerState
-): void {
+export default function onLanded() {
     window.dispatchEvent(new Event("historylanded"));
+
+    const internalState = getInternalState();
     if (internalState.workToRelease == null) {
         return;
     }

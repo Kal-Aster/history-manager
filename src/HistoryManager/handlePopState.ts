@@ -1,16 +1,17 @@
 import OptionsManager from "../OptionsManager";
 
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+import Options from "../types/Options";
+import getInternalState from "./getInternalState";
 
 import goBackward from "./goBackward";
 import goForward from "./goForward";
 import goToNewPage from "./goToNewPage";
 import onCatchPopState from "./onCatchPopState";
 
-export default function handlePopState(
-    internalState: InternalHistoryManagerState
-): void {
-    const options: Record<string, any> = {
+export default function handlePopState(): void {
+    const internalState = getInternalState();
+
+    const options: Options = {
         ...OptionsManager.get(),
         ...(internalState.historyManaged ?
             {} : { front: undefined, back: undefined }
@@ -19,9 +20,9 @@ export default function handlePopState(
     if (options.locked) {
         onCatchPopState(() => {
             if (OptionsManager.get().locked) {
-                handlePopState(internalState);
+                handlePopState();
             }
-        }, true, internalState);
+        }, true);
         window.history.go(-1);
         return;
     }
@@ -32,12 +33,12 @@ export default function handlePopState(
         );
         window.dispatchEvent(frontEvent);
         if (frontEvent.defaultPrevented) {
-            onCatchPopState(() => { return; }, true, internalState);
+            onCatchPopState(() => { return; }, true);
             window.history.go(-1);
             return;
         }
 
-        goForward(internalState);
+        goForward();
         return;
     }
     
@@ -47,14 +48,14 @@ export default function handlePopState(
         );
         window.dispatchEvent(backEvent);
         if (backEvent.defaultPrevented) {
-            onCatchPopState(() => { return; }, true, internalState);
+            onCatchPopState(() => { return; }, true);
             window.history.go(+1);
             return;
         }
  
-        goBackward(internalState);
+        goBackward();
         return;
     }
 
-    goToNewPage(internalState);
+    goToNewPage();
 }

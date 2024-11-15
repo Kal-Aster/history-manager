@@ -1,10 +1,11 @@
-import InternalOptionsManagerState from "../types/InternalOptionsManagerState";
+import getInternalState from "./getInternalState";
 
 export default function onCatchPopState(
     onCatchPopState: () => void,
-    once: boolean,
-    internalState: InternalOptionsManagerState
+    once: boolean
 ) {
+    const internalState = getInternalState();
+
     if (once) {
         const tmpOnCatchPopState: () => void = onCatchPopState;
         onCatchPopState = () => {

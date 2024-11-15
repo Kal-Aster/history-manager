@@ -1,14 +1,14 @@
 import queryString from "query-string";
+
+import Options from "../types/Options";
+
 import splitHref from "./splitHref";
-import InternalOptionsManagerState from "../types/InternalOptionsManagerState";
 
 /**
  * Gets the options stored in the url
  */
-export default function get(
-    internalState: InternalOptionsManagerState
-): Record<string, any> {
+export default function get(): Options {
     return queryString.parse(splitHref(
-        window.location.href, internalState
+        window.location.href
     )[1]);
 }

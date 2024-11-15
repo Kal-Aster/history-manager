@@ -1,4 +1,4 @@
-import * as PathGenerator from "./PathGenerator";
+import PathGenerator from "./PathGenerator";
 
 namespace ContextManager {
     export interface IContextPath {
@@ -23,7 +23,7 @@ export default class ContextManager {
     /**
      * Removes all references after the actual index
      */
-    clean(): void {
+    clean() {
         if (this._index < this._length - 1) {
             let index = this._index;
             const newHREFs: ContextManager.HREFsArray = [];
@@ -47,7 +47,7 @@ export default class ContextManager {
             this._length = this._index + 1;
         }
     }
-    currentContext(): string | null {
+    currentContext() {
         if (this._contextHrefsPairs.length === 0) {
             return null;
         }
@@ -62,7 +62,7 @@ export default class ContextManager {
         }
         return null;
     }
-    contextOf(href: string, skipFallback: boolean = true): string | null {
+    contextOf(href: string, skipFallback: boolean = true) {
         let foundContext: string | null = null;
         href = href.split("#")[0].split("?")[0];
         for (let [context, [hrefs]] of this._contextInfos.entries()) {
@@ -78,7 +78,7 @@ export default class ContextManager {
         }
         return foundContext;
     }
-    insert(href: string, replace: boolean = false): void {
+    insert(href: string, replace: boolean = false) {
         href = PathGenerator.prepare(href);
         this.clean();
         // console.group(`ContextManager.insert("${href}", ${replace})`);
@@ -149,7 +149,7 @@ export default class ContextManager {
         }
         // console.groupEnd();
     }
-    goBackward(): string {
+    goBackward() {
         // console.group("ContextManager.goBackward()");
         // console.log(`current index: ${this._index}`);
         this._index = Math.max(--this._index, 0);
@@ -157,7 +157,7 @@ export default class ContextManager {
         // console.groupEnd();
         return this.get()!;
     }
-    goForward(): string {
+    goForward() {
         // console.group("ContextManager.goForward()");
         // console.log(`current index: ${this._index}`);
         this._index = Math.min(++this._index, this._length - 1);
@@ -165,7 +165,7 @@ export default class ContextManager {
         // console.groupEnd();
         return this.get()!;
     }
-    get(index: number = this._index): string | null {
+    get(index: number = this._index) {
         let href: string;
         if (this._contextHrefsPairs.some(([, hrefs]) => {
             const { length } = hrefs;
@@ -182,7 +182,7 @@ export default class ContextManager {
     }
     index(): number;
     index(value: number): void;
-    index(value?: number): void | number {
+    index(value?: number) {
         if (value == null) {
             return this._index;
         }
@@ -197,13 +197,13 @@ export default class ContextManager {
         this._index = value;
         // console.groupEnd();
     }
-    length(): number {
+    length() {
         return this._length;
     }
-    getContextNames(): string[] {
+    getContextNames() {
         return Array.from(this._contextInfos.keys());
     }
-    getDefaultOf(context: string): string | null {
+    getDefaultOf(context: string) {
         const contextInfo = this._contextInfos.get(context);
         if (contextInfo == null) {
             return null;
@@ -214,7 +214,7 @@ export default class ContextManager {
         }
         return defaultHref;
     }
-    restore(context: string): boolean {
+    restore(context: string) {
         const tempContextHrefsPairs = this._contextHrefsPairs;
         this.clean();
         if (this._contextHrefsPairs.length > 0) {
@@ -265,7 +265,7 @@ export default class ContextManager {
         contextName: string,
         path: string,
         fallback: boolean = false
-    ): RegExp {
+    ) {
         const {
             regexp: pathRegexp
         } = PathGenerator.generate(path);
@@ -280,11 +280,14 @@ export default class ContextManager {
         });
         return pathRegexp;
     }
-    setContextDefaultHref(context_name: string, href: string | null): void {
-        let contextInfo = this._contextInfos.get(context_name);
+    setContextDefaultHref(
+        contextName: string,
+        href: string | null
+    ) {
+        let contextInfo = this._contextInfos.get(contextName);
         if (contextInfo == null) {
             contextInfo = [[], null];
-            this._contextInfos.set(context_name, contextInfo);
+            this._contextInfos.set(contextName, contextInfo);
         }
         contextInfo[1] = (href !== null ?
             PathGenerator.prepare(href) : null
@@ -294,7 +297,7 @@ export default class ContextManager {
         name: string,
         paths: { path: string, fallback?: boolean }[],
         default?: string | null
-    }): void {
+    }) {
         context.paths.forEach(path => {
             this.addContextPath(context.name, path.path, path.fallback);
         });
@@ -302,8 +305,8 @@ export default class ContextManager {
             this.setContextDefaultHref(context.name, context.default);
         }
     }
-    hrefs(): string[] {
-        const hrefs: string[] = [];
+    hrefs() {
+        const hrefs: Array<string> = [];
         this._contextHrefsPairs.forEach(([, c_hrefs]) => {
             hrefs.push(...c_hrefs);
         });

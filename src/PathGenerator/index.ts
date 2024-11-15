@@ -2,16 +2,17 @@
  * @author Giuliano Collacchioni @2020
  */
 
-import { pathToRegexp, Path, Key } from "path-to-regexp";
+import { pathToRegexp, Path } from "path-to-regexp";
 
-export const LEADING_DELIMITER: RegExp = /^[\\\/]+/;
-export const TRAILING_DELIMITER: RegExp = /[\\\/]+$/;
-export const DELIMITER_NOT_IN_PARENTHESES: RegExp = /[\\\/]+(?![^(]*[)])/g;
+import {
+    DELIMITER_NOT_IN_PARENTHESES,
+    TRAILING_DELIMITER
+} from "./constants";
 
-export function prepare(path: string): string {
+function prepare(path: string): string {
     return ("/" + path).replace(TRAILING_DELIMITER, "/").replace(DELIMITER_NOT_IN_PARENTHESES, "/");
 }
-export function generate(path: Path) {
+function generate(path: Path) {
     if (Array.isArray(path)) {
         path.map(value => {
             if (typeof value === "string") {
@@ -23,6 +24,10 @@ export function generate(path: Path) {
     if (typeof path === "string") {
         path = prepare(path);
     }
-    console.log(`Generating "${path}"`);
     return pathToRegexp(path); // , { end: false }); // is this needed?
 }
+const PathGenerator = {
+    prepare,
+    generate
+};
+export default PathGenerator;

@@ -1,7 +1,5 @@
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+import getInternalState from "./getInternalState";
 
-export default function isLocked(
-    internalState: InternalHistoryManagerState
-): boolean {
-    return internalState.works.some(w => w.locking);
+export default function isLocked(): boolean {
+    return getInternalState().works.some(w => w.locking);
 }

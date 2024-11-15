@@ -111,6 +111,9 @@
             Router.route("/{*route}", function (location, keymap) {
                 console.log("landed at", {location, keymap});
             });
+            Router.route("/me", function () {
+                console.log("this should never be logged");
+            });
             {
                 const r = Router.create();
                 r.route("me", function () {

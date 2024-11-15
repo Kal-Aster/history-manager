@@ -1,10 +1,7 @@
-import InternalNavigationLockState from "../types/InternalNavigationLockState"
 import onCatchPopState from "./onCatchPopState"
 
-export default async function onCatchPopStatePromise(
-    internalState: InternalNavigationLockState
-) {
+export default async function onCatchPopStatePromise() {
     return new Promise<void>(resolve => {
-        onCatchPopState(resolve, true, internalState);
+        onCatchPopState(resolve, true);
     });
 }

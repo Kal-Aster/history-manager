@@ -1,13 +1,12 @@
 import OptionsManager from "../OptionsManager";
 
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
-
+import getInternalState from "./getInternalState";
 import handlePopState from "./handlePopState";
 import isLocked from "./isLocked";
 
-export default function initEventListener(
-    internalState: InternalHistoryManagerState
-) {
+export default function initEventListener() {
+    const internalState = getInternalState();
+
     if (internalState.destroyEventListener !== null) {
         return internalState.destroyEventListener;
     }
@@ -15,12 +14,12 @@ export default function initEventListener(
     const destroyOptionsEventListener = OptionsManager.initEventListener();
 
     const listener = (event: PopStateEvent) => {
-        if (!internalState.started || isLocked(internalState)) {
+        if (!internalState.started || isLocked()) {
             return;
         }
         const { catchPopState } = internalState;
         if (catchPopState == null) {
-            handlePopState(internalState);
+            handlePopState();
             return;
         }
         event.stopImmediatePropagation();

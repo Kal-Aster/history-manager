@@ -1,11 +1,12 @@
 import HistoryManager from "../HistoryManager";
-import InternalNavigationLockState from "../types/InternalNavigationLockState";
+
 import LockManager from "../types/LockManager";
 import LockManagerWrapper from "../types/LockManagerWrapper";
+
+import getInternalState from "./getInternalState";
 import unlock from "./unlock";
 
 export default function createLockManagerWrapper(
-    internalState: InternalNavigationLockState,
     setupDonePromise: Promise<void>
 ) {
     const lockingWork = HistoryManager.acquire();
@@ -22,8 +23,9 @@ export default function createLockManagerWrapper(
             delegate.removeEventListener("navigation", listener);
         },
         async unlock() {
+            const { locks } = getInternalState();
             if (
-                internalState.locks.length === 0 ||
+                locks.length === 0 ||
                 lockingWork.finishing
             ) {
                 return;
@@ -31,14 +33,14 @@ export default function createLockManagerWrapper(
 
             await setupDonePromise;
 
-            if (internalState.locks.at(-1)!.lockManager.id === id) {
-                unlock(false, internalState);
+            if (locks.at(-1)!.lockManager.id === id) {
+                unlock(false);
                 return;
             }
 
-            internalState.locks.some((lock, index) => {
+            locks.some((lock, index) => {
                 if (lock.lockManager.id === id) {
-                    internalState.locks.splice(index, 1)[0].release();
+                    locks.splice(index, 1)[0].release();
                     return true;
                 }
                 return false;
@@ -71,7 +73,7 @@ export default function createLockManagerWrapper(
         return true;
     };
 
-    internalState.locks.push(lockManagerWrapper);
+    getInternalState().locks.push(lockManagerWrapper);
 
     return lockManagerWrapper;
 }

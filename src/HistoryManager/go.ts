@@ -1,14 +1,11 @@
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import awaitableOnWorkFinished from "./awaitableOnWorkFinished";
 import createWork from "./createWork";
+import getInternalState from "./getInternalState";
 import onLanded from "./onLanded";
 import tryUnlock from "./tryUnlock";
 
-export default async function go(
-    direction: number,
-    internalState: InternalHistoryManagerState
-) {
-    const locksFinished = tryUnlock(internalState);
+export default async function go(direction: number) {
+    const locksFinished = tryUnlock();
 
     if (direction === 0) {
         return;
@@ -26,8 +23,9 @@ export default async function go(
         return;
     }
 
-    await awaitableOnWorkFinished(internalState);
+    await awaitableOnWorkFinished();
 
+    const internalState = getInternalState();
     if (internalState.historyManaged === false) {
         window.history.go(direction);
         return;
@@ -39,12 +37,12 @@ export default async function go(
         contextIndex + direction
     ));
     if (contextIndex === index) {
-        onLanded(internalState);
+        onLanded();
         return;
     }
 
-    internalState.workToRelease = createWork(false, internalState);
-    const onWorkFinishedPromise = awaitableOnWorkFinished(internalState);
+    internalState.workToRelease = createWork(false);
+    const onWorkFinishedPromise = awaitableOnWorkFinished();
     if (direction > 0) {
         internalState.contextManager.index(index - 1);
         window.history.go(1);

@@ -1,10 +1,10 @@
-import InternalOptionsManagerState from "../types/InternalOptionsManagerState";
 import get from "./get";
+import getInternalState from "./getInternalState";
 import set from "./set";
 
-export default function initEventListener(
-    internalState: InternalOptionsManagerState
-) {
+export default function initEventListener() {
+    const internalState = getInternalState();
+
     if (internalState.destroyEventListener !== null) {
         return internalState.destroyEventListener;
     }
@@ -20,8 +20,8 @@ export default function initEventListener(
     window.addEventListener("popstate", listener, true);
 
     // remove options of just loaded page
-    if (Object.keys(get(internalState)).length > 0) {
-        set({}, internalState);
+    if (Object.keys(get()).length > 0) {
+        set({});
     }
 
     return internalState.destroyEventListener = () => {

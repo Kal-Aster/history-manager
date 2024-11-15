@@ -1,4 +1,3 @@
-import InternalOptionsManagerState from "../types/InternalOptionsManagerState";
 import get from "./get";
 import set from "./set";
 
@@ -7,14 +6,13 @@ import set from "./set";
  */
 export default async function add(
     opt: string,
-    value: string | undefined,
-    internalState: InternalOptionsManagerState
+    value: string | undefined
 ) {
-    const opts = get(internalState);
+    const opts = get();
     if (opts[opt] !== undefined && opts[opt] === value) {
         return;
     }
 
     opts[opt] = value ?? null;
-    return set(opts, internalState);
+    return set(opts);
 }

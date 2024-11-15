@@ -1,5 +1,6 @@
-import InternalOptionsManagerState from "../types/InternalOptionsManagerState";
+import Options from "../types/Options";
 
+import getInternalState from "./getInternalState";
 import goTo from "./goTo";
 import optsToStr from "./optsToStr";
 import splitHref from "./splitHref";
@@ -9,14 +10,15 @@ import splitHref from "./splitHref";
  */
 export default function goWith(
     href: string,
-    opts: Record<string, any>,
-    replace: boolean,
-    internalState: InternalOptionsManagerState
+    opts: Options,
+    replace = false
 ) {
+    const internalState = getInternalState();
+
     return goTo(
         (
-            splitHref(href, internalState)[0] +
+            splitHref(href)[0] +
             internalState.DIVIDER + optsToStr(opts)
-        ), replace, internalState
+        ), replace
     );
 }

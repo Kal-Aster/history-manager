@@ -1,14 +1,13 @@
-import * as URLManager from "../URLManager";
+import URLManager from "../URLManager";
 
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import addBack from "./addBack";
 import awaitableOnCatchPopState from "./awaitableOnCatchPopState";
+import getInternalState from "./getInternalState";
 import goToHREF from "./goToHREF";
 import onLanded from "./onLanded";
 
-export default async function goToNewPage(
-    internalState: InternalHistoryManagerState
-) {
+export default async function goToNewPage() {
+    const internalState = getInternalState();
     const {
         contextManager,
         historyManaged,
@@ -18,7 +17,7 @@ export default async function goToNewPage(
     const href: string = URLManager.get();
     const backHref: string = contextManager.get()!;
     if (href === backHref || !historyManaged) {
-        return onLanded(internalState);
+        return onLanded();
     }
 
     const replaced: boolean = replacing;
@@ -28,18 +27,18 @@ export default async function goToNewPage(
     contextManager.insert(href, replaced);
 
     if (internalState.hasBack && !replaced) {
-        await awaitableOnCatchPopState(internalState, () => {
+        await awaitableOnCatchPopState(() => {
             window.history.go(-1);
         });
     }
 
     if (!replaced) {
-        await addBack(backHref, internalState);
+        await addBack(backHref);
     }
-    await awaitableOnCatchPopState(internalState, () => {
+    await awaitableOnCatchPopState(() => {
         goToHREF(href, true);
     });
 
     internalState.hasBack = willHaveBack;
-    onLanded(internalState);
+    onLanded();
 }

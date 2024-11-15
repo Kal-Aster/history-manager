@@ -1,14 +1,13 @@
-import * as URLManager from "../URLManager";
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+import URLManager from "../URLManager";
+
 import awaitableOnCatchPopState from "./awaitableOnCatchPopState";
 import createWork from "./createWork";
+import getInternalState from "./getInternalState";
 import goToHREF from "./goToHREF";
 import onLanded from "./onLanded";
 
-export default async function start(
-    fallbackContext: string | null,
-    internalState: InternalHistoryManagerState
-) {
+export default async function start(fallbackContext: string | null) {
+    const internalState = getInternalState();
     if (internalState.started) {
         throw new Error("Already started");
     }
@@ -41,10 +40,8 @@ export default async function start(
             }
             internalState.started = true;
             href = defaultHREF;
-            internalState.workToRelease = createWork(
-                false, internalState
-            );
-            await awaitableOnCatchPopState(internalState, () => {
+            internalState.workToRelease = createWork(false);
+            await awaitableOnCatchPopState(() => {
                 goToHREF(defaultHREF, true);
             });
         }
@@ -53,6 +50,5 @@ export default async function start(
     }
 
     internalState.started = true;
-    onLanded(internalState);
-    console.log(internalState);
+    onLanded();
 }

@@ -1,12 +1,10 @@
 import InternalNavigationLockState from "../types/InternalNavigationLockState";
-import onCatchPopState from "./onCatchPopState";
+import getInternalState from "./getInternalState";
+
 import onCatchPopStatePromise from "./onCatchPopStatePromise";
 
-export default async function unlock(
-    force: boolean,
-    internalState: InternalNavigationLockState
-) {
-    const wrapper = internalState.locks.splice(-1, 1)[0];
+export default async function unlock(force = false) {
+    const wrapper = getInternalState().locks.splice(-1, 1)[0];
     if (wrapper == null) {
         return true;
     }
@@ -16,7 +14,7 @@ export default async function unlock(
 
     await wrapper.beginRelease();
 
-    const promise = onCatchPopStatePromise(internalState);
+    const promise = onCatchPopStatePromise();
     window.history.go(-1);
     await promise;
 

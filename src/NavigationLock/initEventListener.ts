@@ -1,16 +1,15 @@
-import InternalNavigationLockState from "../types/InternalNavigationLockState";
+import getInternalState from "./getInternalState";
 import handlePopState from "./handlePopState";
 
-export default function initEventListener(
-    internalState: InternalNavigationLockState
-) {
+export default function initEventListener() {
+    const internalState = getInternalState();
     if (internalState.destroyEventListener !== null) {
         return internalState.destroyEventListener;
     }
 
     const listener = (event: PopStateEvent) => {
         if (internalState.catchPopState == null) {
-            return handlePopState(internalState);
+            return handlePopState();
         }
         event.stopImmediatePropagation();
         internalState.catchPopState();

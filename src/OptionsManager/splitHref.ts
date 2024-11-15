@@ -1,9 +1,8 @@
-import InternalOptionsManagerState from "../types/InternalOptionsManagerState";
+import getInternalState from "./getInternalState";
 
-export default function splitHref(
-    href: string,
-    { DIVIDER }: InternalOptionsManagerState
-): [string, string] {
+export default function splitHref(href: string): [string, string] {
+    const { DIVIDER } = getInternalState();
+
     const splitted = href.split(DIVIDER);
     if (splitted.length < 2) {
         return [ splitted[0], splitted[1] || "" ];

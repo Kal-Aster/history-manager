@@ -1,12 +1,11 @@
 import OptionsManager from "../OptionsManager";
 
-import InternalNavigationLockState from "../types/InternalNavigationLockState";
-
+import getInternalState from "./getInternalState";
 import unlock from "./unlock";
 
-export default function handlePopState(
-    internalState: InternalNavigationLockState
-) {
+export default function handlePopState() {
+    const internalState = getInternalState();
+
     if (internalState.locks.length === 0) {
         return;
     }
@@ -18,7 +17,7 @@ export default function handlePopState(
         const lock = internalState.locks.at(-1)!;
         if (lockId === lock.lockManager.id) {
             if (internalState.shouldUnlock && lock.fire()) {
-                unlock(true, internalState);
+                unlock(true);
             }
             internalState.shouldUnlock = false;
             return;

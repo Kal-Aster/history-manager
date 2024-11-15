@@ -1,8 +1,8 @@
-import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
+import getInternalState from "./getInternalState";
 
-export default function tryUnlock(
-    { works }: InternalHistoryManagerState
-) {
+export default function tryUnlock() {
+    const { works } = getInternalState();
+
     let locksAsked: number = 0;
     for (let i: number = works.length - 1; i >= 0; i--) {
         const work = works[i];

@@ -1,15 +1,15 @@
-import { construct } from "../URLManager";
+import URLManager from "../URLManager";
 
 export default function goToHREF(
     href: string,
     replace: boolean = false
 ): void {
-    if (window.location.href === construct(href, true)) {
+    if (window.location.href === URLManager.construct(href, true)) {
         window.dispatchEvent(new Event("popstate"));
         return;
     }
 
-    href = construct(href);
+    href = URLManager.construct(href);
 
     if (href[0] === "#") {
         if (replace) {

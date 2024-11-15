@@ -1,17 +1,15 @@
-import InternalOptionsManagerState from "../types/InternalOptionsManagerState";
 import onCatchPopState from "./onCatchPopState";
 
 export default async function goTo(
     href: string,
-    replace: boolean,
-    internalState: InternalOptionsManagerState
+    replace: boolean
 ) {
     if (href === window.location.href) {
         return;
     }
 
     return new Promise<void>(resolve => {
-        onCatchPopState(resolve, true, internalState);
+        onCatchPopState(resolve, true);
 
         if (href[0] === "#") {
             if (replace) {

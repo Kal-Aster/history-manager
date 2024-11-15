@@ -1,10 +1,11 @@
-import InternalNavigationLockState from "../types/InternalNavigationLockState";
+import getInternalState from "./getInternalState";
 
 export default function onCatchPopState(
     onCatchPopState: () => void,
-    once: boolean,
-    internalState: InternalNavigationLockState
+    once: boolean
 ): void {
+    const internalState = getInternalState();
+
     if (once) {
         const tmpOnCatchPopState: () => void = onCatchPopState;
         onCatchPopState = () => {
