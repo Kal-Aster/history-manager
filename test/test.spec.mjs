@@ -207,5 +207,30 @@ describe("Router", function () {
         expect(await page.evaluate(() => {
             return window.historyManager.Router.getContext();
         })).to.be.equal("settings");
+    });
+
+    it("can lock page and unlock", async () => {
+        await page.goto(`http://localhost:${port}`);
+        await startRouter(page, null, "/");
+
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("home");
+
+        expect(await page.evaluate(async () => {
+            await window.historyManager.Router.lock();
+            return window.location.hash;
+        })).to.be.a("string").and.to.satisfy(hash => hash.startsWith("#R!:locked="));
+
+        await page.goBack();
+
+        expect(await page.evaluate(async () => {
+            return window.location.hash;
+        })).to.be.a("string").and.to.satisfy(hash => hash.startsWith("#R!:locked="));
+
+        expect(await page.evaluate(async () => {
+            await window.historyManager.Router.unlock();
+            return window.location.hash;
+        })).to.be.equal("");
     })
 });

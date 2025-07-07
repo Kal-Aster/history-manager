@@ -83,6 +83,7 @@
                 name: "profile",
                 paths: [
                     { path: "me" },
+                    { path: "accedi" },
                     { path: "user/:id", fallback: true }
                 ],
                 default: "me"
@@ -141,7 +142,7 @@
                 NavigationLock.lock().then(lock => { lock.listen(function (e) { return e.preventDefault(); }); });
             });
             document.querySelector("#unlock").addEventListener("click", function () {
-                NavigationLock.unlock();
+                NavigationLock.unlock(true);
             });
             document.querySelector("#locktest").addEventListener("click", function () {
                 NavigationLock.lock().then(lock => {
