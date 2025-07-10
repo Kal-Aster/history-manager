@@ -6,7 +6,7 @@ import getInternalState from "./getInternalState";
 import goToHREF from "./goToHREF";
 import onLanded from "./onLanded";
 
-export default async function start(fallbackContext: string | null) {
+export default async function start(fallbackContext?: string | null) {
     const internalState = getInternalState();
     if (internalState.started) {
         throw new Error("Already started");
