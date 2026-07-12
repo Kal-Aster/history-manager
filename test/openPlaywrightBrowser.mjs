@@ -48,7 +48,7 @@ export default async function openPlaywrightBrowser({
     
     browser = await ({
         chromium, firefox, webkit
-    }[process.env.browser || "firefox"] || firefox).launch({
+    }[process.env.BROWSER || "firefox"] || firefox).launch({
         headless
     });
     context = await browser.newContext({
