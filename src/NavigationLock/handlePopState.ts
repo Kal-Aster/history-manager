@@ -42,7 +42,15 @@ export default function handlePopState() {
     }
 
     if (lockId <= lock.lockManager.id) {
+        // Landed on a *lower* stacked lock's entry: a back press moved us off
+        // the top lock. Re-trap forward to the top lock's entry so the release
+        // decision is always taken there (same as the NaN/pre-lock branch
+        // above), and mark that the user attempted to leave. Going further back
+        // here would ping-pong forever between the pre-lock entry and this one.
         internalState.shouldUnlock = true;
+        window.history.go(1);
+        return;
     }
+
     window.history.go(-1);
 }

@@ -349,4 +349,143 @@ describe("Router", function () {
             return window.historyManager.NavigationLock.locked();
         })).to.be.equal(false);
     })
+
+    it("re-traps to the top lock when going back through stacked cooperative locks", async () => {
+        await page.goto(`http://localhost:${port}`);
+        await startRouter(page, null, "/");
+
+        // Baseline history so a back press stays observable inside the app.
+        const baseline = await page.evaluate(async () => {
+            const Router = window.historyManager.Router;
+            await Router.go("user/1");
+            await Router.go("user/2");
+            return location.href;
+        });
+
+        // Stack two cooperative locks. Each listener approves the release
+        // (preventDefault) on the first back attempt and records that it fired,
+        // so we can prove the TOP lock is the one consulted (LIFO). Before the
+        // fix the very first back press ping-ponged forever between the pre-lock
+        // entry and the lower lock's entry, and no listener was ever consulted.
+        const ids = await page.evaluate(async () => {
+            const Router = window.historyManager.Router;
+            window.__fired = [];
+            const ids = [];
+            for (let i = 0; i < 2; i++) {
+                const lock = await Router.lock();
+                ids.push(lock.id);
+                lock.listen(event => {
+                    window.__fired.push(lock.id);
+                    event.preventDefault(); // approve this release
+                });
+            }
+            return ids; // [lower, higher]; the higher id is the top lock
+        });
+        expect(ids[1]).to.be.greaterThan(ids[0]);
+        expect(await page.evaluate(() =>
+            window.historyManager.NavigationLock.locked()
+        )).to.be.equal(true);
+
+        // First back press: must re-trap to the top lock, consult its listener
+        // and release only it. We settle back on the *lower* lock's entry with
+        // exactly one lock still held. The timeout turns the buggy infinite
+        // navigation loop into a clear failure instead of a mocha-wide timeout.
+        await page.evaluate(() => window.history.back());
+        await page.waitForFunction(
+            (lowerId) =>
+                window.__fired.length === 1 &&
+                location.hash === "#R!:locked=" + lowerId,
+            ids[0],
+            { timeout: 5000 }
+        );
+        expect(await page.evaluate(() =>
+            window.historyManager.NavigationLock.locked()
+        )).to.be.equal(true);
+
+        // Second back press: releases the remaining lock and lands back exactly
+        // on the pre-lock url with no lock held.
+        await page.evaluate(() => window.history.back());
+        await page.waitForFunction(
+            (base) =>
+                !window.historyManager.NavigationLock.locked() &&
+                location.href === base,
+            baseline,
+            { timeout: 5000 }
+        );
+
+        // LIFO: the later-created (top) lock's listener fired first.
+        const fired = await page.evaluate(() => window.__fired);
+        expect(fired).to.have.lengthOf(2);
+        expect(fired[0]).to.be.greaterThan(fired[1]);
+        expect(fired[0]).to.be.equal(ids[1]);
+        expect(fired[1]).to.be.equal(ids[0]);
+    })
+
+    it("prepares optional catch-all groups without forcing a double slash", async () => {
+        await page.goto(`http://localhost:${port}/`);
+
+        const result = await page.evaluate(() => {
+            const { PathGenerator } = window.historyManager;
+            const catchAll = PathGenerator.generate("{/*route}").regexp;
+            return {
+                // "{/*route}" must stay untouched: prefixing "/" would leave a
+                // literal slash before the optional group and require "//".
+                preparedCatchAll: PathGenerator.prepare("{/*route}"),
+                matchesSingleSlash: catchAll.test("/foobar"),
+                matchesRoot: catchAll.test("/"),
+                // plain paths are still normalised to a single leading slash.
+                preparedPlain: PathGenerator.prepare("home"),
+                preparedAlready: PathGenerator.prepare("/home"),
+                preparedDoubled: PathGenerator.prepare("//home"),
+                preparedLeadingSlashGroup: PathGenerator.prepare("/{*route}")
+            };
+        });
+
+        expect(result.preparedCatchAll).to.be.equal("{/*route}");
+        expect(result.matchesSingleSlash).to.be.equal(true);
+        expect(result.matchesRoot).to.be.equal(true);
+        expect(result.preparedPlain).to.be.equal("/home");
+        expect(result.preparedAlready).to.be.equal("/home");
+        expect(result.preparedDoubled).to.be.equal("/home");
+        expect(result.preparedLeadingSlashGroup).to.be.equal("/{*route}");
+    })
+
+    it("resolves a catch-all fallback and lets primaries win over earlier fallbacks", async () => {
+        await page.goto(`http://localhost:${port}/`);
+
+        const result = await page.evaluate(() => {
+            const { ContextManager } = window.historyManager;
+            const cm = new ContextManager();
+            // "home" is declared FIRST and owns a catch-all fallback.
+            cm.setContext({
+                name: "home",
+                paths: [{ path: "/home" }, { path: "{/*route}", fallback: true }],
+                default: "/home"
+            });
+            // "profile" is declared AFTER: its primaries must not be shadowed by
+            // home's catch-all fallback.
+            cm.setContext({
+                name: "profile",
+                paths: [{ path: "/me" }, { path: "/users/:id" }],
+                default: "/me"
+            });
+            return {
+                unknownViaFallback: cm.contextOf("/foobar", false),
+                mePrimary: cm.contextOf("/me", false),
+                userPrimary: cm.contextOf("/users/7", false),
+                homePrimary: cm.contextOf("/home", false),
+                unknownSkippingFallback: cm.contextOf("/foobar", true)
+            };
+        });
+
+        // An unmatched url is caught by home's catch-all fallback (bug #1).
+        expect(result.unknownViaFallback).to.be.equal("home");
+        // A later context's primary beats an earlier context's fallback (bug #2).
+        expect(result.mePrimary).to.be.equal("profile");
+        expect(result.userPrimary).to.be.equal("profile");
+        // A primary still resolves to its own context.
+        expect(result.homePrimary).to.be.equal("home");
+        // Skipping fallbacks, an unmatched url resolves to nothing.
+        expect(result.unknownSkippingFallback).to.be.equal(null);
+    })
 });

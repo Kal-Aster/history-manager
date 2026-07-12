@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 [ ] add "loaded" tag to routes  
 [ ] overwrite route if going to new one when the current is not loaded yet  
 
+## [3.4.3] - 12/07/2026
+- fix: `PathGenerator.prepare` no longer breaks path-to-regexp v8 optional groups; a catch-all fallback like `{/*route}` is left intact instead of being prefixed into `/{/*route}` (which demanded a double slash and matched nothing)
+- fix: `ContextManager.contextOf` now resolves in two passes — a primary path of any context wins over any fallback, so a catch-all fallback declared in an earlier context no longer shadows later contexts' primary paths
+
+## [3.4.2] - 12/07/2026
+- fix: going back through stacked navigation locks no longer loops forever; a back press now re-traps forward to the top lock's entry (where the release decision is taken) instead of walking further back and ping-ponging against the pre-lock entry
+
 ## [3.4.1] - 12/07/2026
 - docs: add README (public `Router` API, contexts, navigation locks, redirections, query helpers, sub-routers)
 
