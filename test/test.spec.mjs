@@ -420,4 +420,72 @@ describe("Router", function () {
         expect(fired[0]).to.be.equal(ids[1]);
         expect(fired[1]).to.be.equal(ids[0]);
     })
+
+    it("prepares optional catch-all groups without forcing a double slash", async () => {
+        await page.goto(`http://localhost:${port}/`);
+
+        const result = await page.evaluate(() => {
+            const { PathGenerator } = window.historyManager;
+            const catchAll = PathGenerator.generate("{/*route}").regexp;
+            return {
+                // "{/*route}" must stay untouched: prefixing "/" would leave a
+                // literal slash before the optional group and require "//".
+                preparedCatchAll: PathGenerator.prepare("{/*route}"),
+                matchesSingleSlash: catchAll.test("/foobar"),
+                matchesRoot: catchAll.test("/"),
+                // plain paths are still normalised to a single leading slash.
+                preparedPlain: PathGenerator.prepare("home"),
+                preparedAlready: PathGenerator.prepare("/home"),
+                preparedDoubled: PathGenerator.prepare("//home"),
+                preparedLeadingSlashGroup: PathGenerator.prepare("/{*route}")
+            };
+        });
+
+        expect(result.preparedCatchAll).to.be.equal("{/*route}");
+        expect(result.matchesSingleSlash).to.be.equal(true);
+        expect(result.matchesRoot).to.be.equal(true);
+        expect(result.preparedPlain).to.be.equal("/home");
+        expect(result.preparedAlready).to.be.equal("/home");
+        expect(result.preparedDoubled).to.be.equal("/home");
+        expect(result.preparedLeadingSlashGroup).to.be.equal("/{*route}");
+    })
+
+    it("resolves a catch-all fallback and lets primaries win over earlier fallbacks", async () => {
+        await page.goto(`http://localhost:${port}/`);
+
+        const result = await page.evaluate(() => {
+            const { ContextManager } = window.historyManager;
+            const cm = new ContextManager();
+            // "home" is declared FIRST and owns a catch-all fallback.
+            cm.setContext({
+                name: "home",
+                paths: [{ path: "/home" }, { path: "{/*route}", fallback: true }],
+                default: "/home"
+            });
+            // "profile" is declared AFTER: its primaries must not be shadowed by
+            // home's catch-all fallback.
+            cm.setContext({
+                name: "profile",
+                paths: [{ path: "/me" }, { path: "/users/:id" }],
+                default: "/me"
+            });
+            return {
+                unknownViaFallback: cm.contextOf("/foobar", false),
+                mePrimary: cm.contextOf("/me", false),
+                userPrimary: cm.contextOf("/users/7", false),
+                homePrimary: cm.contextOf("/home", false),
+                unknownSkippingFallback: cm.contextOf("/foobar", true)
+            };
+        });
+
+        // An unmatched url is caught by home's catch-all fallback (bug #1).
+        expect(result.unknownViaFallback).to.be.equal("home");
+        // A later context's primary beats an earlier context's fallback (bug #2).
+        expect(result.mePrimary).to.be.equal("profile");
+        expect(result.userPrimary).to.be.equal("profile");
+        // A primary still resolves to its own context.
+        expect(result.homePrimary).to.be.equal("home");
+        // Skipping fallbacks, an unmatched url resolves to nothing.
+        expect(result.unknownSkippingFallback).to.be.equal(null);
+    })
 });

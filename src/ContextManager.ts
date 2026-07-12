@@ -63,20 +63,25 @@ export default class ContextManager {
         return null;
     }
     contextOf(href: string, skipFallback: boolean = true) {
-        let foundContext: string | null = null;
         href = href.split("#")[0].split("?")[0];
-        for (let [context, [hrefs]] of this._contextInfos.entries()) {
-            if (hrefs.some(c_href => {
-                if (c_href!.fallback && skipFallback) {
-                    return false;
-                }
-                return c_href.path.test(href);
-            })) {
-                foundContext = context;
-                break;
+        // First pass: a primary path of ANY context takes precedence over any
+        // fallback, so a catch-all fallback declared in an earlier context can't
+        // shadow a later context's primary path.
+        for (const [context, [hrefs]] of this._contextInfos.entries()) {
+            if (hrefs.some(c_href => !c_href.fallback && c_href.path.test(href))) {
+                return context;
             }
         }
-        return foundContext;
+        if (skipFallback) {
+            return null;
+        }
+        // Second pass: fall back to fallback paths, still in insertion order.
+        for (const [context, [hrefs]] of this._contextInfos.entries()) {
+            if (hrefs.some(c_href => c_href.fallback && c_href.path.test(href))) {
+                return context;
+            }
+        }
+        return null;
     }
     insert(
         href: string,
