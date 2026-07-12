@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 [ ] add "loaded" tag to routes  
 [ ] overwrite route if going to new one when the current is not loaded yet  
 
+## [3.5.0] - 12/07/2026
+- perf: drop the `query-string` dependency in favour of a tiny built-in query helper — identical behaviour (sorted keys, bare key → `null`, duplicate keys → array, percent-encoding, `+` decoded to a space), ~2.2 KB smaller gzipped bundle (~10.8 → ~8.6 KB)
+- build: remove the unused `rollup-plugin-ts` dependency — `dependencies` is now only `path-to-regexp`
+- docs: document context path precedence — primary paths always win over fallbacks, and among fallbacks declaration order decides, so declare catch-all fallbacks last
+- test: cover the query-param API (`getQueryParam`/`hasQueryParam`/`addQueryParam`/`removeQueryParam`), verified byte-compatible with the previous `query-string` implementation
+
 ## [3.4.3] - 12/07/2026
 - fix: `PathGenerator.prepare` no longer breaks path-to-regexp v8 optional groups; a catch-all fallback like `{/*route}` is left intact instead of being prefixed into `/{/*route}` (which demanded a double slash and matched nothing)
 - fix: `ContextManager.contextOf` now resolves in two passes — a primary path of any context wins over any fallback, so a catch-all fallback declared in an earlier context no longer shadows later contexts' primary paths
