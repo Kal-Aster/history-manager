@@ -488,4 +488,84 @@ describe("Router", function () {
         // Skipping fallbacks, an unmatched url resolves to nothing.
         expect(result.unknownSkippingFallback).to.be.equal(null);
     })
+
+    it("parses query params (getQueryParam / hasQueryParam / parsedQuery)", async () => {
+        await page.goto(`http://localhost:${port}/`);
+
+        const r = await page.evaluate(() => {
+            const { Router } = window.historyManager;
+            const loc = Router.getLocation(
+                "/page?a=1&b=2&flag&empty=&enc=hello%20world&plus=hello+world"
+            );
+            return {
+                a: loc.getQueryParam("a"),
+                b: loc.getQueryParam("b"),
+                flag: loc.getQueryParam("flag"),   // bare key -> null
+                empty: loc.getQueryParam("empty"), // "key=" -> ""
+                enc: loc.getQueryParam("enc"),     // %20 decoded
+                plus: loc.getQueryParam("plus"),   // "+" decoded to a space
+                missing: loc.getQueryParam("nope"),
+                hasA: loc.hasQueryParam("a"),
+                hasFlag: loc.hasQueryParam("flag"),
+                hasMissing: loc.hasQueryParam("nope"),
+                parsed: loc.parsedQuery
+            };
+        });
+
+        expect(r.a).to.be.equal("1");
+        expect(r.b).to.be.equal("2");
+        expect(r.flag).to.be.equal(null);
+        expect(r.empty).to.be.equal("");
+        expect(r.enc).to.be.equal("hello world");
+        expect(r.plus).to.be.equal("hello world");
+        expect(r.missing).to.be.equal(undefined);
+        expect(r.hasA).to.be.equal(true);
+        expect(r.hasFlag).to.be.equal(true);
+        expect(r.hasMissing).to.be.equal(false);
+        expect(r.parsed).to.deep.equal({
+            a: "1", b: "2", empty: "", enc: "hello world", flag: null, plus: "hello world"
+        });
+    })
+
+    it("builds query strings (addQueryParam / removeQueryParam) with sorted keys and encoding", async () => {
+        await page.goto(`http://localhost:${port}/`);
+
+        const r = await page.evaluate(() => {
+            const { Router } = window.historyManager;
+            const out = {};
+
+            // keys come out sorted: adding "a" to a query holding "b" -> a before b
+            const l1 = Router.getLocation("/p?b=2");
+            l1.addQueryParam("a", "1");
+            out.sorted = l1.query;
+
+            // a null value produces a bare key (no "=")
+            const l2 = Router.getLocation("/p");
+            l2.addQueryParam("flag");
+            out.bare = l2.query;
+
+            // values are percent-encoded (space -> %20, "&" -> %26)
+            const l3 = Router.getLocation("/p");
+            l3.addQueryParam("q", "a b&c");
+            out.encoded = l3.query;
+
+            // removing one key keeps the rest
+            const l4 = Router.getLocation("/p?a=1&b=2");
+            l4.removeQueryParam("a");
+            out.removed = l4.query;
+
+            // removing the last key clears the query entirely
+            const l5 = Router.getLocation("/p?only=1");
+            l5.removeQueryParam("only");
+            out.removedAll = l5.query;
+
+            return out;
+        });
+
+        expect(r.sorted).to.be.equal("?a=1&b=2");
+        expect(r.bare).to.be.equal("?flag");
+        expect(r.encoded).to.be.equal("?q=a%20b%26c");
+        expect(r.removed).to.be.equal("?b=2");
+        expect(r.removedAll).to.be.equal("");
+    })
 });

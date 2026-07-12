@@ -1,11 +1,9 @@
 {
   "name": "history-manager",
-  "version": "3.4.3",
+  "version": "3.5.0",
   "description": "",
   "dependencies": {
-    "path-to-regexp": "^8.4.2",
-    "query-string": "^9.4.1",
-    "rollup-plugin-ts": "^3.4.5"
+    "path-to-regexp": "^8.4.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.9",

@@ -1,4 +1,4 @@
-import queryString from "query-string";
+import queryString from "../queryString";
 
 import PathGenerator from "../PathGenerator";
 import URLManager from "../URLManager";
