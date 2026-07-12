@@ -85,14 +85,11 @@ export default class ContextManager {
     ) {
         href = PathGenerator.prepare(href);
         this.clean();
-        // console.group(`ContextManager.insert("${href}", ${replace})`);
-        // console.log(`current href: ${this.hrefs()}`);
         // get context of href
         const foundContext = this.contextOf(
             href, (skipFallback == null ?
                 this._length > 0 : skipFallback
             ));
-        // console.log(`found context: ${foundContext}`);
         const previousContextHrefsPair = (
             (this._contextHrefsPairs.length > 0 ?
                 this._contextHrefsPairs.at(-1)! : null
@@ -129,13 +126,6 @@ export default class ContextManager {
         }
         if (replace && this._contextHrefsPairs.length > 0) {
             const lastContextHrefPair = this._contextHrefsPairs.at(-1)!;
-            // console.log("replacing");
-            if (previousContextHrefsPair != null) {
-                // console.log(`last context: ["${ previousContext[0] }", [${ previousContext[1] }] ]`);
-            } else {
-                // console.log("last context: null");
-            }
-            // console.log(`current context: ["${ lastContext[0] }", [${ lastContext[1] }]]`);
             if (lastContextHrefPair === previousContextHrefsPair) {
                 if (lastContextHrefPair[1].length > 1) {
                     do {
@@ -146,7 +136,6 @@ export default class ContextManager {
                         lastContextHrefPair[1].length > 1 &&
                         lastContextHrefPair[1][lastContextHrefPair[1].length - 2] === href
                     );
-                    // console.log(`final hrefs: ${ lastContext[1] }`);
                 }
             } else if (previousContextHrefsPair != null) {
                 previousContextHrefsPair[1].splice(-1, 1);
@@ -154,22 +143,13 @@ export default class ContextManager {
                 this._index--;
             }
         }
-        // console.groupEnd();
     }
     goBackward() {
-        // console.group("ContextManager.goBackward()");
-        // console.log(`current index: ${this._index}`);
         this._index = Math.max(--this._index, 0);
-        // console.log(`new index: ${this._index}`);
-        // console.groupEnd();
         return this.get()!;
     }
     goForward() {
-        // console.group("ContextManager.goForward()");
-        // console.log(`current index: ${this._index}`);
         this._index = Math.min(++this._index, this._length - 1);
-        // console.log(`new index: ${this._index}`);
-        // console.groupEnd();
         return this.get()!;
     }
     get(index: number = this._index) {
@@ -199,10 +179,7 @@ export default class ContextManager {
         if (isNaN(value)) {
             throw new Error("value must be a number");
         }
-        // console.group(`ContextManager.index(${value})`);
-        // console.log(`current hrefs: ${this.hrefs()}`);
         this._index = value;
-        // console.groupEnd();
     }
     length() {
         return this._length;

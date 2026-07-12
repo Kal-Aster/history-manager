@@ -4,7 +4,9 @@ import OptionsManager from "../OptionsManager";
 import createLockManagerWrapper from "./createLockManagerWrapper";
 
 export default async function lock() {
-    await HistoryManager.onWorkFinishedPromise();
+    // Wait for in-flight navigation to settle, but NOT for other held locks:
+    // their persistent work would otherwise block stacking a second lock.
+    await HistoryManager.onNonLockingWorkFinishedPromise();
 
     let markSetupDone: () => void;
     const setupDonePromise = new Promise<void>(resolve => {

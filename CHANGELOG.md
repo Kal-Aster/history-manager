@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 [ ] add "loaded" tag to routes  
 [ ] overwrite route if going to new one when the current is not loaded yet  
 
+## [3.4.0] - 12/07/2026
+- refactor: centralize `popstate` handling in a single `Router` orchestrator; behaviour no longer depends on listener registration order
+- fix: `NavigationLock` locks can now be stacked (a second `lock()` no longer hangs waiting on a lock already held)
+- fix: refusing a non-forced `unlock()` no longer corrupts the lock state (leaves the lock intact instead of orphaning it)
+- fix: monotonic lock ids, avoiding same-millisecond `Date.now()` collisions that drifted navigation on release
+- chore: remove dead `WorkManager` module and leftover commented-out debug
+- test: cross-platform test harness (read `BROWSER` case-consistently; bind the dev server on port 5000+ instead of privileged 81)
+- chore(deps): bump `mocha` to 11; override transitive `serialize-javascript` (>=7.0.7) and `diff` (>=8.0.3) to patched versions — `npm audit` clean
+
 ## [3.3.0] - 15/11/2024
 - fix #3
 

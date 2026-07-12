@@ -8,6 +8,7 @@ const internalState: InternalHistoryManagerState = {
 
     works: [],
     onworkfinished: [],
+    onnonlockingworkfinished: [],
     workToRelease: null,
 
     contextManager: new ContextManager(),

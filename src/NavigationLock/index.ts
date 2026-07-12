@@ -3,8 +3,11 @@
  */
 
 import getInternalState from "./getInternalState";
+import handlePopState from "./handlePopState";
+import hasLockSignal from "./hasLockSignal";
 import initEventListener from "./initEventListener";
 import lock from "./lock";
+import resumeIfWaiting from "./resumeIfWaiting";
 import unlock from "./unlock";
 
 function locked(): boolean {
@@ -13,6 +16,9 @@ function locked(): boolean {
 
 const NavigationLock = {
     initEventListener,
+    resumeIfWaiting,
+    hasLockSignal,
+    handlePopState,
     lock,
     locked,
     unlock

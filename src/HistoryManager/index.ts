@@ -8,14 +8,17 @@ import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import LockingWork from "../types/LockingWork";
 
 import assign from "./assign";
+import awaitableOnNonLockingWorkFinished from "./awaitableOnNonLockingWorkFinished";
 import awaitableOnWorkFinished from "./awaitableOnWorkFinished";
 import createWork from "./createWork";
 import getInternalState from "./getInternalState";
 import go from "./go";
+import handlePopState from "./handlePopState";
 import initEventListener from "./initEventListener";
 import onWorkFinished from "./onWorkFinished";
 import replace from "./replace";
 import restore from "./restore";
+import resumeIfWaiting from "./resumeIfWaiting";
 import start from "./start";
 
 function setAutoManagement(value: boolean) {
@@ -102,8 +105,13 @@ const HistoryManager = {
     async onWorkFinishedPromise() {
         await awaitableOnWorkFinished();
     },
+    async onNonLockingWorkFinishedPromise() {
+        await awaitableOnNonLockingWorkFinished();
+    },
     acquire,
     initEventListener,
+    resumeIfWaiting,
+    handlePopState,
     // addFront,
     // addBack,
     index,

@@ -44,7 +44,7 @@ const Router = {
     },
     // :TODO:
     // start(startingContext: string, organizeHistory = true)
-    start(startingContext: string) {
+    start(startingContext?: string | null) {
         initEventListener();
         return HistoryManager.start(startingContext);
     },
