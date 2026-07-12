@@ -223,6 +223,12 @@ describe("Router", function () {
         })).to.be.a("string").and.to.satisfy(hash => hash.startsWith("#R!:locked="));
 
         await page.goBack();
+        // The lock traps the back asynchronously (it re-applies the `locked`
+        // marker on the popstate that goBack triggers), so reading the hash the
+        // instant goBack resolves races that restore. Wait for it to settle.
+        await page.waitForFunction(
+            () => window.location.hash.startsWith("#R!:locked=")
+        );
 
         expect(await page.evaluate(async () => {
             return window.location.hash;
