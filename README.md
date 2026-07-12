@@ -152,6 +152,52 @@ Router.addContextPath("profile", "user/:id", /* isFallback */ true);
 Router.setContextDefaultHref("profile", "me");
 ```
 
+#### Path precedence and catch‑all fallbacks
+
+When resolving which context a url belongs to (e.g. on a deep‑link or a page
+refresh), paths are matched in two tiers:
+
+1. **primary paths of every context** — a primary path always wins over any
+   fallback, in any context;
+2. **fallback paths** — only if no primary matched.
+
+Within each tier the **declaration order** decides: the first context whose path
+matches wins. This matters as soon as you use a **catch‑all** fallback such as
+`{/*route}` (path‑to‑regexp v8 optional group), which matches *every* url:
+
+```js
+// ⚠️ order-sensitive
+Router.setContext({
+    name: "home",
+    paths: [{ path: "/home" }, { path: "{/*route}", fallback: true }], // catch‑all
+    default: "/home"
+});
+Router.setContext({
+    name: "profile",
+    paths: [{ path: "/me" }, { path: "/users/:id", fallback: true }],
+    default: "/me"
+});
+
+Router.getContext("/users/2"); // -> "home"  (home's catch‑all matched first)
+```
+
+Because both `/users/:id` and the catch‑all are *fallbacks*, tier 2 falls back to
+declaration order, and the catch‑all — declared first — shadows the more specific
+`/users/:id`. **Declare catch‑all fallbacks last** (and, more generally, more
+specific fallbacks before broader ones) so they only catch what nothing else
+does:
+
+```js
+// ✅ profile (specific) declared before home (catch‑all)
+Router.setContext({ name: "profile", paths: [{ path: "/me" }, { path: "/users/:id", fallback: true }], default: "/me" });
+Router.setContext({ name: "home",    paths: [{ path: "/home" }, { path: "{/*route}", fallback: true }], default: "/home" });
+
+Router.getContext("/users/2"); // -> "profile"
+```
+
+Note that a catch‑all only ever competes as a fallback: a *primary* path in any
+context (even one declared later) still wins over it.
+
 ### Navigation locks
 
 A lock traps the back button. This is useful to protect a form with unsaved
