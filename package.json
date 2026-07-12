@@ -1,6 +1,6 @@
 {
   "name": "history-manager",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "",
   "dependencies": {
     "path-to-regexp": "^8.4.2",

@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 [ ] add "loaded" tag to routes  
 [ ] overwrite route if going to new one when the current is not loaded yet  
 
+## [3.4.1] - 12/07/2026
+- docs: add README (public `Router` API, contexts, navigation locks, redirections, query helpers, sub-routers)
+
 ## [3.4.0] - 12/07/2026
 - refactor: centralize `popstate` handling in a single `Router` orchestrator; behaviour no longer depends on listener registration order
 - fix: `NavigationLock` locks can now be stacked (a second `lock()` no longer hangs waiting on a lock already held)

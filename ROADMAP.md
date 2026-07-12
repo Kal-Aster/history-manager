@@ -2,5 +2,4 @@
 All todos are listed below.
 
 ### Add
-- Add readme
-- Write documentation
+- Write documentation (extend the README into full per-module API docs)
