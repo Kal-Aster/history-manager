@@ -27,11 +27,6 @@ export default async function goForward() {
         await addFront(
             contextManager.get(contextManager.index() + 1)!
         );
-        // await awaitableCatchPopState(() => {
-        //     addFront(
-        //         contextManager.get(contextManager.index() + 1)!
-        //     );
-        // });
     }
 
     internalState.hasBack = true;
