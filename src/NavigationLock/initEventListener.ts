@@ -1,5 +1,4 @@
 import getInternalState from "./getInternalState";
-import handlePopState from "./handlePopState";
 
 export default function initEventListener() {
     const internalState = getInternalState();
@@ -7,16 +6,9 @@ export default function initEventListener() {
         return internalState.destroyEventListener;
     }
 
-    const listener = (event: PopStateEvent) => {
-        if (internalState.catchPopState == null) {
-            return handlePopState();
-        }
-        event.stopImmediatePropagation();
-        internalState.catchPopState();
-    };
-    window.addEventListener("popstate", listener, true);
+    // The popstate listener now lives in the single Router orchestrator, which
+    // drives this module via `resumeIfWaiting()` / `handlePopState()`.
     return internalState.destroyEventListener = () => {
-        window.removeEventListener("popstate", listener, true);
         internalState.destroyEventListener = null;
     };
 }

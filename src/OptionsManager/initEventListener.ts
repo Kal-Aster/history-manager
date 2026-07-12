@@ -9,23 +9,14 @@ export default function initEventListener() {
         return internalState.destroyEventListener;
     }
 
-    const listener = (event: PopStateEvent) => {
-        if (internalState.catchPopState == null) {
-            return;
-        }
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        internalState.catchPopState();
-    };
-    window.addEventListener("popstate", listener, true);
-
-    // remove options of just loaded page
+    // The popstate handling now lives in the single Router orchestrator, which
+    // calls `resumeIfWaiting()`. Here we only keep the one-shot side effect:
+    // remove options of the just loaded page.
     if (Object.keys(get()).length > 0) {
         set({});
     }
 
     return internalState.destroyEventListener = () => {
-        window.removeEventListener("popstate", listener, true);
         internalState.destroyEventListener = null;
     };
 }

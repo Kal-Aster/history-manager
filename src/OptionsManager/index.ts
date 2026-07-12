@@ -7,11 +7,13 @@ import get from "./get";
 import goWith from "./goWith";
 import initEventListener from "./initEventListener";
 import remove from "./remove";
+import resumeIfWaiting from "./resumeIfWaiting";
 import set from "./set";
 import splitHref from "./splitHref";
 
 const OptionsManager = {
     initEventListener,
+    resumeIfWaiting,
     get,
     set,
     add,

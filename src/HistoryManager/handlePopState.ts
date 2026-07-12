@@ -17,15 +17,9 @@ export default function handlePopState(): void {
             {} : { front: undefined, back: undefined }
         )
     };
-    if (options.locked) {
-        onCatchPopState(() => {
-            if (OptionsManager.get().locked) {
-                handlePopState();
-            }
-        }, true);
-        window.history.go(-1);
-        return;
-    }
+    // Lock handling (including the `locked` marker) is now the sole
+    // responsibility of NavigationLock; the orchestrator routes locked
+    // popstates there and never reaches this handler for them.
 
     if (options.front !== undefined) {
         const frontEvent: Event = new Event(
