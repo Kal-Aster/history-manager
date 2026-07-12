@@ -13,7 +13,8 @@ export default function createWork(
 
     const {
         works,
-        onworkfinished
+        onworkfinished,
+        onnonlockingworkfinished
     } = getInternalState();
 
     const work: Work = {
@@ -41,7 +42,23 @@ export default function createWork(
                 }
             }
 
-            if (i >= 0 && works.length === 0) {
+            if (i < 0) {
+                return;
+            }
+
+            // Waiters that only care about navigation settling (not held locks)
+            // resume as soon as no non-locking work remains.
+            if (!works.some(w => !w.locking)) {
+                while (
+                    onnonlockingworkfinished.length > 0 &&
+                    !works.some(w => !w.locking)
+                ) {
+                    let [callback, context] = onnonlockingworkfinished.shift()!;
+                    callback.call(context || window);
+                }
+            }
+
+            if (works.length === 0) {
                 while (onworkfinished.length > 0 && works.length === 0) {
                     let [callback, context] = onworkfinished.shift()!;
                     callback.call(context || window);

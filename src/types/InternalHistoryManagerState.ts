@@ -7,6 +7,7 @@ type InternalHistoryManagerState = {
 
     works: Array<Work>,
     onworkfinished: Array<[() => void, any]>,
+    onnonlockingworkfinished: Array<[() => void, any]>,
     workToRelease: Work | null,
 
     contextManager: ContextManager,

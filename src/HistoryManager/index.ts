@@ -8,6 +8,7 @@ import InternalHistoryManagerState from "../types/InternalHistoryManagerState";
 import LockingWork from "../types/LockingWork";
 
 import assign from "./assign";
+import awaitableOnNonLockingWorkFinished from "./awaitableOnNonLockingWorkFinished";
 import awaitableOnWorkFinished from "./awaitableOnWorkFinished";
 import createWork from "./createWork";
 import getInternalState from "./getInternalState";
@@ -103,6 +104,9 @@ const HistoryManager = {
     onWorkFinished,
     async onWorkFinishedPromise() {
         await awaitableOnWorkFinished();
+    },
+    async onNonLockingWorkFinishedPromise() {
+        await awaitableOnNonLockingWorkFinished();
     },
     acquire,
     initEventListener,
