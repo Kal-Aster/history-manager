@@ -6,12 +6,17 @@ import LockManagerWrapper from "../types/LockManagerWrapper";
 import getInternalState from "./getInternalState";
 import unlock from "./unlock";
 
+// Monotonic lock ids. Date.now() collides when several locks are created within
+// the same millisecond (e.g. quickly stacked locks), and the LIFO unlock/marker
+// bookkeeping keys off the id, so a collision drifts navigation on release.
+let nextLockId = 1;
+
 export default function createLockManagerWrapper(
     setupDonePromise: Promise<void>
 ) {
     const lockingWork = HistoryManager.acquire();
 
-    const id = Date.now();
+    const id = nextLockId++;
     const delegate = new EventTarget();
 
     const lockManager: LockManager = {

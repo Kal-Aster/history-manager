@@ -295,4 +295,52 @@ describe("Router", function () {
             return window.historyManager.Router.getContext();
         })).to.be.equal("profile");
     })
+
+    it("stacks and unstacks multiple locks without drifting", async () => {
+        await page.goto(`http://localhost:${port}`);
+        await startRouter(page, null, "/");
+
+        // Build a bit of history so any stray history.go(-1) stays observable
+        // (instead of escaping the app), and settle on a known page.
+        const baseline = await page.evaluate(async () => {
+            const Router = window.historyManager.Router;
+            await Router.go("user/1");
+            await Router.go("user/2");
+            await Router.go("user/3");
+            return location.href;
+        });
+
+        // Stack three locks sequentially. Before the fix the 2nd/3rd lock()
+        // hung forever waiting on the first lock's work; the race guard turns
+        // that hang into a clear failure instead of a mocha timeout.
+        const stacked = await page.evaluate(async () => {
+            const Router = window.historyManager.Router;
+            for (let i = 0; i < 3; i++) {
+                await Promise.race([
+                    Router.lock(),
+                    new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error("lock() hung")), 3000))
+                ]);
+            }
+            return {
+                locked: window.historyManager.NavigationLock.locked(),
+                hash: location.hash
+            };
+        });
+        expect(stacked.locked).to.be.equal(true);
+        expect(stacked.hash).to.satisfy(hash => hash.startsWith("#R!:locked="));
+
+        // Unstack all three; a balanced lock/unlock must land back exactly on
+        // the pre-lock URL with no stray option markers.
+        expect(await page.evaluate(async () => {
+            const Router = window.historyManager.Router;
+            for (let i = 0; i < 3; i++) {
+                await Router.unlock();
+            }
+            return location.href;
+        })).to.be.equal(baseline);
+        expect(await page.evaluate(() => {
+            return window.historyManager.NavigationLock.locked();
+        })).to.be.equal(false);
+    })
 });
