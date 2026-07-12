@@ -1,0 +1,4 @@
+# Normalize all text files to LF in the repository.
+# Git auto-detects text vs binary; text files are stored with LF and
+# checked out with LF on every OS, so CRLF never sneaks into commits.
+* text=auto eol=lf
