@@ -349,4 +349,75 @@ describe("Router", function () {
             return window.historyManager.NavigationLock.locked();
         })).to.be.equal(false);
     })
+
+    it("re-traps to the top lock when going back through stacked cooperative locks", async () => {
+        await page.goto(`http://localhost:${port}`);
+        await startRouter(page, null, "/");
+
+        // Baseline history so a back press stays observable inside the app.
+        const baseline = await page.evaluate(async () => {
+            const Router = window.historyManager.Router;
+            await Router.go("user/1");
+            await Router.go("user/2");
+            return location.href;
+        });
+
+        // Stack two cooperative locks. Each listener approves the release
+        // (preventDefault) on the first back attempt and records that it fired,
+        // so we can prove the TOP lock is the one consulted (LIFO). Before the
+        // fix the very first back press ping-ponged forever between the pre-lock
+        // entry and the lower lock's entry, and no listener was ever consulted.
+        const ids = await page.evaluate(async () => {
+            const Router = window.historyManager.Router;
+            window.__fired = [];
+            const ids = [];
+            for (let i = 0; i < 2; i++) {
+                const lock = await Router.lock();
+                ids.push(lock.id);
+                lock.listen(event => {
+                    window.__fired.push(lock.id);
+                    event.preventDefault(); // approve this release
+                });
+            }
+            return ids; // [lower, higher]; the higher id is the top lock
+        });
+        expect(ids[1]).to.be.greaterThan(ids[0]);
+        expect(await page.evaluate(() =>
+            window.historyManager.NavigationLock.locked()
+        )).to.be.equal(true);
+
+        // First back press: must re-trap to the top lock, consult its listener
+        // and release only it. We settle back on the *lower* lock's entry with
+        // exactly one lock still held. The timeout turns the buggy infinite
+        // navigation loop into a clear failure instead of a mocha-wide timeout.
+        await page.evaluate(() => window.history.back());
+        await page.waitForFunction(
+            (lowerId) =>
+                window.__fired.length === 1 &&
+                location.hash === "#R!:locked=" + lowerId,
+            ids[0],
+            { timeout: 5000 }
+        );
+        expect(await page.evaluate(() =>
+            window.historyManager.NavigationLock.locked()
+        )).to.be.equal(true);
+
+        // Second back press: releases the remaining lock and lands back exactly
+        // on the pre-lock url with no lock held.
+        await page.evaluate(() => window.history.back());
+        await page.waitForFunction(
+            (base) =>
+                !window.historyManager.NavigationLock.locked() &&
+                location.href === base,
+            baseline,
+            { timeout: 5000 }
+        );
+
+        // LIFO: the later-created (top) lock's listener fired first.
+        const fired = await page.evaluate(() => window.__fired);
+        expect(fired).to.have.lengthOf(2);
+        expect(fired[0]).to.be.greaterThan(fired[1]);
+        expect(fired[0]).to.be.equal(ids[1]);
+        expect(fired[1]).to.be.equal(ids[0]);
+    })
 });
