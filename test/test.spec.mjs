@@ -233,4 +233,66 @@ describe("Router", function () {
             return window.location.hash;
         })).to.be.equal("");
     })
+
+    it("keeps a hard lock consistent when a non-forced unlock is refused", async () => {
+        await page.goto(`http://localhost:${port}`);
+        await startRouter(page, null, "/");
+
+        // Hard lock: no navigation listener, so a non-forced unlock is refused.
+        expect(await page.evaluate(async () => {
+            await window.historyManager.Router.lock();
+            return window.location.hash;
+        })).to.be.a("string").and.to.satisfy(hash => hash.startsWith("#R!:locked="));
+
+        // A refused non-forced unlock must NOT corrupt state: the lock stays
+        // active and the URL marker remains (before the fix it was spliced out
+        // of the registry, orphaning the work and stranding the marker).
+        const afterRefused = await page.evaluate(async () => {
+            const result = await window.historyManager.NavigationLock.unlock(false);
+            return {
+                result,
+                stillLocked: window.historyManager.NavigationLock.locked(),
+                hash: window.location.hash
+            };
+        });
+        expect(afterRefused.result).to.be.equal(false);
+        expect(afterRefused.stillLocked).to.be.equal(true);
+        expect(afterRefused.hash).to.satisfy(hash => hash.startsWith("#R!:locked="));
+
+        // A forced unlock afterwards still cleans everything up.
+        expect(await page.evaluate(async () => {
+            await window.historyManager.Router.unlock();
+            return window.location.hash;
+        })).to.be.equal("");
+    })
+
+    it("blocks navigation while a hard lock is held", async () => {
+        await page.goto(`http://localhost:${port}`);
+        await startRouter(page, null, "/");
+
+        await page.evaluate(async () => {
+            await window.historyManager.Router.lock();
+        });
+
+        // A hard lock rejects programmatic navigation and keeps the context.
+        const attempt = await page.evaluate(async () => {
+            try {
+                await window.historyManager.Router.go("me");
+                return { rejected: false };
+            } catch (e) {
+                return { rejected: true };
+            }
+        });
+        expect(attempt.rejected).to.be.equal(true);
+        expect(await page.evaluate(() => {
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("home");
+
+        // Once force-unlocked, navigation proceeds again.
+        expect(await page.evaluate(async () => {
+            await window.historyManager.Router.unlock();
+            await window.historyManager.Router.go("me");
+            return window.historyManager.Router.getContext();
+        })).to.be.equal("profile");
+    })
 });
