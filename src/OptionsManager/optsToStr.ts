@@ -1,4 +1,4 @@
-import queryString from "query-string";
+import queryString from "../queryString";
 
 import Options from "../types/Options";
 
