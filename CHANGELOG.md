@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 [ ] add "loaded" tag to routes  
 [ ] overwrite route if going to new one when the current is not loaded yet  
 
+## [3.5.1] - 19/07/2026
+- fix: clearing the options no longer leaves a dangling divider in the url — reloading a locked page drops the stale `locked` marker *and* the whole `#R!:` portion, instead of leaving a bare prefix behind
+- fix: `lock.unlock()` awaits its setup before reading the lock registry, so a release that lands while the router is still settling a navigation started from a locked page no longer sees an emptied stack
+
 ## [3.5.0] - 12/07/2026
 - perf: drop the `query-string` dependency in favour of a tiny built-in query helper — identical behaviour (sorted keys, bare key → `null`, duplicate keys → array, percent-encoding, `+` decoded to a space), ~2.2 KB smaller gzipped bundle (~10.8 → ~8.6 KB)
 - build: remove the unused `rollup-plugin-ts` dependency — `dependencies` is now only `path-to-regexp`

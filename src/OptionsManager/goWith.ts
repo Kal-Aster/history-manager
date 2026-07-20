@@ -1,7 +1,7 @@
 import Options from "../types/Options";
 
-import getInternalState from "./getInternalState";
 import goTo from "./goTo";
+import joinHref from "./joinHref";
 import optsToStr from "./optsToStr";
 import splitHref from "./splitHref";
 
@@ -13,12 +13,10 @@ export default function goWith(
     opts: Options,
     replace = false
 ) {
-    const internalState = getInternalState();
-
     return goTo(
-        (
-            splitHref(href)[0] +
-            internalState.DIVIDER + optsToStr(opts)
+        joinHref(
+            splitHref(href)[0],
+            optsToStr(opts)
         ), replace
     );
 }

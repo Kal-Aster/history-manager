@@ -240,6 +240,34 @@ describe("Router", function () {
         })).to.be.equal("");
     })
 
+    it("drops the whole options portion when reloading a locked page", async () => {
+        await page.goto(`http://localhost:${port}`);
+        await startRouter(page, null, "/");
+
+        expect(await page.evaluate(async () => {
+            await window.historyManager.Router.lock();
+            return window.location.hash;
+        })).to.be.a("string").and.to.satisfy(hash => hash.startsWith("#R!:locked="));
+
+        // A reload drops the in-memory lock, so the stale `locked` marker is
+        // cleaned up on start. With no option left the divider must go too,
+        // instead of leaving a bare `#R!:` behind.
+        await page.reload();
+        await startRouter(page, null, "/");
+
+        expect(await page.evaluate(() => {
+            return {
+                hash: window.location.hash,
+                href: window.location.href,
+                locked: window.historyManager.NavigationLock.locked()
+            };
+        })).to.deep.equal({
+            hash: "",
+            href: `http://localhost:${port}/home`,
+            locked: false
+        });
+    })
+
     it("keeps a hard lock consistent when a non-forced unlock is refused", async () => {
         await page.goto(`http://localhost:${port}`);
         await startRouter(page, null, "/");

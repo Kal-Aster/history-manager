@@ -28,6 +28,12 @@ export default function createLockManagerWrapper(
             delegate.removeEventListener("navigation", listener);
         },
         async unlock() {
+            await setupDonePromise;
+
+            // Read the registry only once the await is behind us: a release that
+            // lands while this one is still settling — the router's own bookkeeping
+            // during a navigation started from a locked page — empties the stack
+            // under a check taken any earlier.
             const { locks } = getInternalState();
             if (
                 locks.length === 0 ||
@@ -35,8 +41,6 @@ export default function createLockManagerWrapper(
             ) {
                 return;
             }
-
-            await setupDonePromise;
 
             if (locks.at(-1)!.lockManager.id === id) {
                 unlock(false);
