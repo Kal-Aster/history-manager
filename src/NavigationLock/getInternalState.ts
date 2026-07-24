@@ -5,6 +5,7 @@ const internalState: InternalNavigationLockState = {
 
     shouldUnlock: false,
 
+    catchPopStateQueue: [],
     catchPopState: null,
     destroyEventListener: null
 };

@@ -7,11 +7,11 @@ export default function onCatchPopState(
     const internalState = getInternalState();
 
     if (once) {
-        const tmpOnCatchPopState: () => void = onCatchPopState;
-        onCatchPopState = () => {
-            internalState.catchPopState = null;
-            tmpOnCatchPopState();
-        };
+        // Queued rather than assigned to a single slot: a second self-induced
+        // popstate registered before the first one arrives must not clobber
+        // it (see the queue's comment in InternalNavigationLockState).
+        internalState.catchPopStateQueue.push(onCatchPopState);
+        return;
     }
 
     internalState.catchPopState = onCatchPopState;

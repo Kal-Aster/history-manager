@@ -7,6 +7,13 @@ import getInternalState from "./getInternalState";
  */
 export default function resumeIfWaiting(): boolean {
     const internalState = getInternalState();
+
+    const next = internalState.catchPopStateQueue.shift();
+    if (next != null) {
+        next();
+        return true;
+    }
+
     if (internalState.catchPopState == null) {
         return false;
     }
